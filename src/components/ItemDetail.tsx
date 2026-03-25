@@ -70,15 +70,15 @@ export function ItemDetail() {
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-8">
 
-      {/* Backdrop — uses movie scene image once TMDB loads */}
-      <div className="relative w-full h-52 overflow-hidden">
+      {/* Backdrop — sem blur, cena real do filme */}
+      <div className="relative w-full h-56 overflow-hidden">
         <img
           src={backdropSrc}
           alt=""
-          className="w-full h-full object-cover scale-110"
-          style={{ filter: 'blur(2px) brightness(0.35) saturate(1.3)' }}
+          className="w-full h-full object-cover"
+          style={{ filter: 'brightness(0.55) saturate(1.2)' }}
         />
-        <div className="absolute inset-0 bg-gradient-to-b from-zinc-950/20 via-transparent to-zinc-950" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950" />
         <button
           onClick={() => navigate(-1)}
           className="absolute top-4 left-4 p-2 bg-zinc-950/50 backdrop-blur-md rounded-full text-zinc-100"
@@ -87,42 +87,45 @@ export function ItemDetail() {
         </button>
       </div>
 
-      {/* Poster + Info + Indicar button */}
-      <div className="px-4 -mt-20 relative z-10 flex gap-4 mb-5 items-end">
+      {/* Poster centralizado sobrepondo o backdrop */}
+      <div className="flex justify-center -mt-24 relative z-10 mb-4">
         <img
           src={posterUrl(item.image)}
           alt={item.title}
-          className="w-28 shrink-0 rounded-xl object-cover ring-1 ring-white/10 shadow-2xl"
+          className="w-32 rounded-xl object-cover ring-1 ring-white/10 shadow-2xl"
           style={{ aspectRatio: '2/3' }}
         />
-        <div className="flex flex-col justify-between pb-1 min-w-0 flex-1 self-stretch">
-          <div>
-            {fromUser && (
-              <div className="flex items-center gap-1.5 mb-2 bg-white/10 backdrop-blur-sm w-fit max-w-full px-2.5 py-1 rounded-full border border-white/10">
-                <img src={fromUser.avatar} className="w-4 h-4 rounded-full object-cover shrink-0" />
-                <span className="text-[11px] font-medium text-zinc-200 truncate">Indicado por {fromUser.name}</span>
-              </div>
-            )}
-            <h1 className="text-base font-black text-zinc-100 leading-snug">{item.title}</h1>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
-            </p>
-            {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
-              <div className="flex gap-1.5 flex-wrap mt-2">
-                {tmdb.provider_logos.map(p => (
-                  <img key={p.name} src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-6 h-6 rounded-md object-cover" />
-                ))}
-              </div>
-            )}
+      </div>
+
+      {/* Título, ano, país e providers */}
+      <div className="px-4 text-center mb-4">
+        {fromUser && (
+          <div className="flex items-center justify-center gap-1.5 mb-2 mx-auto bg-white/10 backdrop-blur-sm w-fit px-2.5 py-1 rounded-full border border-white/10">
+            <img src={fromUser.avatar} className="w-4 h-4 rounded-full object-cover shrink-0" />
+            <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
           </div>
-          {/* Indicar button — bottom of right column */}
-          <button
-            onClick={() => navigate('/create', { state: { item } })}
-            className="mt-3 flex items-center justify-center gap-1.5 bg-zinc-100 text-zinc-950 font-bold py-2 rounded-xl text-xs hover:bg-white transition-colors active:scale-[0.98]"
-          >
-            <Send size={12} /> Indicar
-          </button>
-        </div>
+        )}
+        <h1 className="text-xl font-black text-zinc-100 leading-snug">{item.title}</h1>
+        <p className="text-sm text-zinc-400 mt-1">
+          {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
+        </p>
+        {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap justify-center mt-3">
+            {tmdb.provider_logos.map(p => (
+              <img key={p.name} src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-7 h-7 rounded-md object-cover" />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Botão Indicar — largura total */}
+      <div className="px-4 pb-5">
+        <button
+          onClick={() => navigate('/create', { state: { item } })}
+          className="w-full flex items-center justify-center gap-2 bg-zinc-100 text-zinc-950 font-bold py-3 rounded-xl text-sm hover:bg-white transition-colors active:scale-[0.98]"
+        >
+          <Send size={15} /> Indicar para alguém
+        </button>
       </div>
 
       {/* Synopsis */}
