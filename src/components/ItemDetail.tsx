@@ -39,10 +39,9 @@ export function ItemDetail() {
             </div>
           )}
           <h1 className="text-3xl font-black leading-tight mb-2 text-zinc-100">{item.title}</h1>
-          <div className="flex items-center gap-3 text-sm text-zinc-400 font-medium">
-            <span className="uppercase tracking-wider">{item.type}</span>
-            {item.year && <span>• {item.year}</span>}
-          </div>
+          {item.year && (
+            <p className="text-sm text-zinc-400 font-medium">{item.year}</p>
+          )}
         </div>
       </div>
 
