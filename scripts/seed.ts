@@ -311,7 +311,7 @@ async function seed() {
     { uid: u4, item: 'tmdb_66732',   s: 'watched' },
     { uid: u4, item: 'tmdb_496243',  s: 'saved' },
     { uid: u5, item: 'tmdb_496243',  s: 'watched' },
-    { uid: u5, item: 'tmdb_345611',  s: 'watched' },
+    { uid: u5, item: 'tmdb_545611',  s: 'watched' },
     { uid: u5, item: 'tmdb_346698',  s: 'watched' },
     { uid: u5, item: 'tmdb_1227206', s: 'saved' },
     { uid: u6, item: 'tmdb_872585',  s: 'watched' },
