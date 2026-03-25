@@ -1,9 +1,29 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { ArrowLeft, Search, Loader2, Lock, Users, Globe } from 'lucide-react';
 import { Item, User } from '../types';
 import { searchTMDB } from '../services/tmdb';
+
+// Card de item consistente entre steps
+function ItemCard({ item, label, user }: { item: Item; label: string; user?: User | null }) {
+  return (
+    <div className="flex gap-3 mb-4 p-3 bg-zinc-900/50 rounded-xl ring-1 ring-zinc-800/50">
+      <img src={item.image} alt={item.title} className="w-12 h-[68px] object-cover rounded-lg ring-1 ring-white/10 shrink-0" />
+      <div className="flex flex-col justify-center min-w-0">
+        <p className="text-xs text-zinc-500 mb-0.5">{label}</p>
+        {user && (
+          <div className="flex items-center gap-1.5 mb-1">
+            <img src={user.avatar} alt={user.name} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
+            <span className="font-bold text-xs text-zinc-100 truncate">{user.name}</span>
+          </div>
+        )}
+        <p className="font-semibold text-sm text-zinc-100 line-clamp-2 leading-snug">{item.title}</p>
+        {item.year && <p className="text-xs text-zinc-600 mt-0.5">{item.year}</p>}
+      </div>
+    </div>
+  );
+}
 
 export function CreateRecommendation() {
   const navigate = useNavigate();
@@ -23,6 +43,17 @@ export function CreateRecommendation() {
   const [tmdbResults, setTmdbResults] = useState<Item[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Track step direction for slide animation
+  const prevStepRef = useRef(step);
+  const animDirRef = useRef<'right' | 'left'>('right');
+  if (step !== prevStepRef.current) {
+    animDirRef.current = step > prevStepRef.current ? 'right' : 'left';
+    prevStepRef.current = step;
+  }
+  const animStyle: React.CSSProperties = {
+    animation: `${animDirRef.current === 'right' ? 'stepFromRight' : 'stepFromLeft'} 0.22s cubic-bezier(0.25,0.46,0.45,0.94) both`,
+  };
+
   const connectedUserIds = connections
     .filter(c => c.status === 'accepted' && (c.requester_id === currentUser.id || c.receiver_id === currentUser.id))
     .map(c => c.requester_id === currentUser.id ? c.receiver_id : c.requester_id);
@@ -31,22 +62,13 @@ export function CreateRecommendation() {
     .filter(u => connectedUserIds.includes(u.id))
     .filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()));
 
-  // TMDB search with debounce
   useEffect(() => {
-    if (!itemSearch.trim()) {
-      setTmdbResults([]);
-      return;
-    }
+    if (!itemSearch.trim()) { setTmdbResults([]); return; }
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      try {
-        const results = await searchTMDB(itemSearch);
-        setTmdbResults(results);
-      } catch {
-        setTmdbResults([]);
-      } finally {
-        setIsSearching(false);
-      }
+      try { setTmdbResults(await searchTMDB(itemSearch)); }
+      catch { setTmdbResults([]); }
+      finally { setIsSearching(false); }
     }, 400);
     return () => clearTimeout(timer);
   }, [itemSearch]);
@@ -54,7 +76,7 @@ export function CreateRecommendation() {
   const displayedItems = itemSearch.trim() ? tmdbResults : items;
 
   const handleSelectItem = (item: Item) => {
-    addItem(item); // adds to store if not present (TMDB items)
+    addItem(item);
     setSelectedItem(item);
     setStep(3);
   };
@@ -72,17 +94,16 @@ export function CreateRecommendation() {
     navigate('/');
   };
 
+  const goBack = () => {
+    if (step === 1) navigate(-1);
+    else if (step === 3 && navItem) setStep(1);
+    else setStep((step - 1) as any);
+  };
+
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 flex flex-col">
       <header className="border-b border-zinc-800/50 px-4 py-2.5 flex items-center gap-3 bg-zinc-950/90 backdrop-blur-xl">
-        <button
-          onClick={() => {
-            if (step === 1) navigate(-1);
-            else if (step === 3 && navItem) setStep(1);
-            else setStep(step - 1 as any);
-          }}
-          className="p-1 text-zinc-100"
-        >
+        <button onClick={goBack} className="p-1 text-zinc-100">
           <ArrowLeft size={20} />
         </button>
         <h1 className="text-sm font-bold text-zinc-100">
@@ -90,7 +111,6 @@ export function CreateRecommendation() {
           {step === 2 && 'O que indicar?'}
           {step === 3 && 'Mensagem'}
         </h1>
-        {/* Step indicator */}
         <div className="ml-auto flex gap-1">
           {(navItem ? [1, 3] : [1, 2, 3]).map(s => (
             <div key={s} className={`w-1.5 h-1.5 rounded-full transition-colors ${s <= step ? 'bg-zinc-100' : 'bg-zinc-700'}`} />
@@ -98,20 +118,11 @@ export function CreateRecommendation() {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto">
-        {/* Step 1: Select user */}
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+        {/* Step 1 */}
         {step === 1 && (
-          <div className="p-4">
-            {navItem && (
-              <div className="flex gap-3 mb-4 p-3 bg-zinc-900/50 rounded-xl ring-1 ring-zinc-800/50">
-                <img src={navItem.image} alt={navItem.title} className="w-10 h-14 object-cover rounded ring-1 ring-white/10" />
-                <div className="flex flex-col justify-center">
-                  <p className="text-xs text-zinc-500 mb-0.5">Indicando</p>
-                  <p className="font-semibold text-sm text-zinc-100 line-clamp-2">{navItem.title}</p>
-                  {navItem.year && <p className="text-xs text-zinc-600 mt-0.5">{navItem.year}</p>}
-                </div>
-              </div>
-            )}
+          <div key="step-1" style={animStyle} className="p-4">
+            {navItem && <ItemCard item={navItem} label="Indicando" />}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
               <input
@@ -140,9 +151,9 @@ export function CreateRecommendation() {
           </div>
         )}
 
-        {/* Step 2: Select item via TMDB */}
+        {/* Step 2 */}
         {step === 2 && (
-          <div className="p-4">
+          <div key="step-2" style={animStyle} className="p-4">
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
               <input
@@ -157,18 +168,12 @@ export function CreateRecommendation() {
                 <Loader2 size={16} className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 animate-spin" />
               )}
             </div>
-
             {!itemSearch.trim() && (
               <p className="text-xs text-zinc-600 text-center mb-4">Digite para buscar no catálogo do TMDB</p>
             )}
-
             <div className="grid grid-cols-3 gap-2">
               {displayedItems.map(item => (
-                <button
-                  key={item.id}
-                  onClick={() => handleSelectItem(item)}
-                  className="flex flex-col text-left group"
-                >
+                <button key={item.id} onClick={() => handleSelectItem(item)} className="flex flex-col text-left group">
                   <div className="aspect-[2/3] w-full mb-1.5 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10">
                     <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform" />
                   </div>
@@ -183,20 +188,10 @@ export function CreateRecommendation() {
           </div>
         )}
 
-        {/* Step 3: Message */}
+        {/* Step 3 */}
         {step === 3 && selectedUser && selectedItem && (
-          <div className="p-4 flex flex-col">
-            <div className="flex gap-3 mb-5 p-3 bg-zinc-900/50 rounded-xl ring-1 ring-zinc-800/50">
-              <img src={selectedItem.image} alt={selectedItem.title} className="w-12 h-[68px] object-cover rounded ring-1 ring-white/10" />
-              <div>
-                <p className="text-xs text-zinc-500 mb-1">Indicando para</p>
-                <div className="flex items-center gap-2 mb-1.5">
-                  <img src={selectedUser.avatar} alt={selectedUser.name} className="w-5 h-5 rounded-full object-cover ring-1 ring-zinc-800" />
-                  <span className="font-bold text-sm text-zinc-100">{selectedUser.name}</span>
-                </div>
-                <p className="font-medium text-sm line-clamp-2 text-zinc-300">{selectedItem.title}</p>
-              </div>
-            </div>
+          <div key="step-3" style={animStyle} className="p-4 flex flex-col">
+            <ItemCard item={selectedItem} label="Indicando para" user={selectedUser} />
 
             <label className="block text-xs font-medium text-zinc-500 mb-1.5 uppercase tracking-wide">
               Mensagem (opcional)
@@ -210,7 +205,6 @@ export function CreateRecommendation() {
             />
             <div className="text-right text-xs text-zinc-600 mb-5">{message.length}/280</div>
 
-            {/* Visibilidade */}
             <label className="block text-xs font-medium text-zinc-500 mb-2 uppercase tracking-wide">
               Visibilidade
             </label>

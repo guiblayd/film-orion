@@ -18,6 +18,15 @@
   }
 }
 
+@keyframes stepFromRight {
+  from { transform: translateX(36px); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+@keyframes stepFromLeft {
+  from { transform: translateX(-36px); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
+}
+
 @layer utilities {
   .hide-scrollbar::-webkit-scrollbar {
     display: none;
