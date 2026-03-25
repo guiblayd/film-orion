@@ -1,12 +1,23 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Lock, Users, Globe } from 'lucide-react';
 import { Recommendation } from '../types';
 import { useStore } from '../store';
 import { getRelativeTime } from '../lib/utils';
 
 interface Props {
   recommendation: Recommendation;
+}
+
+const VISIBILITY_ICON = {
+  private:     Lock,
+  connections: Users,
+  public:      Globe,
+} as const;
+
+function VisibilityIcon({ visibility }: { visibility: string | null | undefined }) {
+  const Icon = VISIBILITY_ICON[visibility as keyof typeof VISIBILITY_ICON] ?? Users;
+  return <Icon size={10} className="text-zinc-600 opacity-60 shrink-0" />;
 }
 
 export function RecommendationCard({ recommendation }: Props) {
@@ -58,25 +69,28 @@ export function RecommendationCard({ recommendation }: Props) {
         {/* Title directly below users */}
         <p className="font-bold text-sm text-zinc-100 leading-snug line-clamp-2 flex-1">{item.title}</p>
 
-        {/* Participant avatars, right-aligned */}
-        {participants.length > 0 && (
-          <div className="flex justify-end mt-1.5 -space-x-1.5">
-            {participants.map((u, idx) => (
-              <img
-                key={u!.id}
-                src={u!.avatar}
-                alt={u!.name}
-                className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-950"
-                style={{ zIndex: idx }}
-              />
-            ))}
-            {participantIds.length > 5 && (
-              <div className="w-4 h-4 rounded-full bg-zinc-800 ring-1 ring-zinc-950 flex items-center justify-center" style={{ zIndex: 5 }}>
-                <span className="text-[8px] text-zinc-400 font-bold">+{participantIds.length - 5}</span>
-              </div>
-            )}
-          </div>
-        )}
+        {/* Bottom row: visibility icon (left) + participant avatars (right) */}
+        <div className="flex items-center justify-between mt-1.5">
+          <VisibilityIcon visibility={recommendation.visibility} />
+          {participants.length > 0 && (
+            <div className="flex -space-x-1.5">
+              {participants.map((u, idx) => (
+                <img
+                  key={u!.id}
+                  src={u!.avatar}
+                  alt={u!.name}
+                  className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-950"
+                  style={{ zIndex: idx }}
+                />
+              ))}
+              {participantIds.length > 5 && (
+                <div className="w-4 h-4 rounded-full bg-zinc-800 ring-1 ring-zinc-950 flex items-center justify-center" style={{ zIndex: 5 }}>
+                  <span className="text-[8px] text-zinc-400 font-bold">+{participantIds.length - 5}</span>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </Link>
   );
