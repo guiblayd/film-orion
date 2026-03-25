@@ -3,11 +3,11 @@ import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
 import { cn } from '../lib/utils';
 
-type Tab = 'todos' | 'para-mim';
+type Tab = 'descobrir' | 'circulo' | 'para-mim';
 
 export function Feed() {
   const { recommendations, currentUser, connections } = useStore();
-  const [activeTab, setActiveTab] = useState<Tab>('todos');
+  const [activeTab, setActiveTab] = useState<Tab>('descobrir');
 
   const myConnectionIds = new Set(
     connections
@@ -15,16 +15,27 @@ export function Feed() {
       .map(c => c.requester_id === currentUser.id ? c.receiver_id : c.requester_id)
   );
 
-  const isVisible = (r: typeof recommendations[0]) => {
-    if (r.from_user_id === currentUser.id || r.to_user_id === currentUser.id) return true;
-    if (r.visibility === 'public') return true;
-    if (r.visibility === 'connections') return myConnectionIds.has(r.from_user_id) || myConnectionIds.has(r.to_user_id);
-    return false;
-  };
+  const filtered = recommendations.filter(r => {
+    const isOwn = r.from_user_id === currentUser.id || r.to_user_id === currentUser.id;
+    const isConnection = myConnectionIds.has(r.from_user_id) || myConnectionIds.has(r.to_user_id);
 
-  const filtered = (activeTab === 'para-mim'
-    ? recommendations.filter(r => r.to_user_id === currentUser.id)
-    : recommendations.filter(isVisible));
+    if (activeTab === 'para-mim') return r.to_user_id === currentUser.id;
+
+    if (activeTab === 'circulo') {
+      if (isOwn) return true;
+      if (isConnection && r.visibility !== 'private') return true;
+      return false;
+    }
+
+    // descobrir — conteúdo público global
+    return r.visibility === 'public';
+  });
+
+  const emptyMessages: Record<Tab, string> = {
+    descobrir: 'Nenhuma indicação pública ainda.',
+    circulo:   'Nenhuma indicação no seu círculo ainda.',
+    'para-mim': 'Nenhuma indicação para você ainda.',
+  };
 
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">
@@ -33,8 +44,11 @@ export function Feed() {
           <h1 className="text-xl font-black tracking-tight text-zinc-100">Indica</h1>
         </div>
         <div className="flex border-t border-zinc-800/40">
-          <TabButton active={activeTab === 'todos'} onClick={() => setActiveTab('todos')}>
-            Todos
+          <TabButton active={activeTab === 'descobrir'} onClick={() => setActiveTab('descobrir')}>
+            Descobrir
+          </TabButton>
+          <TabButton active={activeTab === 'circulo'} onClick={() => setActiveTab('circulo')}>
+            Círculo
           </TabButton>
           <TabButton active={activeTab === 'para-mim'} onClick={() => setActiveTab('para-mim')}>
             Para mim
@@ -48,7 +62,7 @@ export function Feed() {
         ))}
         {filtered.length === 0 && (
           <div className="p-10 text-center text-zinc-600 text-sm">
-            {activeTab === 'para-mim' ? 'Nenhuma indicação para você ainda.' : 'Nenhuma indicação ainda.'}
+            {emptyMessages[activeTab]}
           </div>
         )}
       </div>
