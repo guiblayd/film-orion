@@ -6,12 +6,25 @@ import { cn } from '../lib/utils';
 type Tab = 'todos' | 'para-mim';
 
 export function Feed() {
-  const { recommendations, currentUser } = useStore();
+  const { recommendations, currentUser, connections } = useStore();
   const [activeTab, setActiveTab] = useState<Tab>('todos');
 
-  const filtered = activeTab === 'para-mim'
+  const myConnectionIds = new Set(
+    connections
+      .filter(c => c.requester_id === currentUser.id || c.receiver_id === currentUser.id)
+      .map(c => c.requester_id === currentUser.id ? c.receiver_id : c.requester_id)
+  );
+
+  const isVisible = (r: typeof recommendations[0]) => {
+    if (r.from_user_id === currentUser.id || r.to_user_id === currentUser.id) return true;
+    if (r.visibility === 'public') return true;
+    if (r.visibility === 'connections') return myConnectionIds.has(r.from_user_id) || myConnectionIds.has(r.to_user_id);
+    return false;
+  };
+
+  const filtered = (activeTab === 'para-mim'
     ? recommendations.filter(r => r.to_user_id === currentUser.id)
-    : recommendations;
+    : recommendations.filter(isVisible));
 
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">

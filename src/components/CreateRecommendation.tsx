@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
-import { ArrowLeft, Search, Loader2 } from 'lucide-react';
+import { ArrowLeft, Search, Loader2, Lock, Users, Globe } from 'lucide-react';
 import { Item, User } from '../types';
 import { searchTMDB } from '../services/tmdb';
 
@@ -17,6 +17,7 @@ export function CreateRecommendation() {
   const [selectedItem, setSelectedItem] = useState<Item | null>(navItem ?? null);
   const [message, setMessage] = useState('');
   const [discussionEnabled, setDiscussionEnabled] = useState(true);
+  const [visibility, setVisibility] = useState<'private' | 'connections' | 'public'>('connections');
   const [userSearch, setUserSearch] = useState('');
   const [itemSearch, setItemSearch] = useState('');
   const [tmdbResults, setTmdbResults] = useState<Item[]>([]);
@@ -66,7 +67,7 @@ export function CreateRecommendation() {
       item_id: selectedItem.id,
       message: message.trim() || undefined,
       discussion_enabled: discussionEnabled,
-      visibility: 'connections',
+      visibility,
     });
     navigate('/');
   };
@@ -208,6 +209,33 @@ export function CreateRecommendation() {
               maxLength={280}
             />
             <div className="text-right text-xs text-zinc-600 mb-5">{message.length}/280</div>
+
+            {/* Visibilidade */}
+            <label className="block text-xs font-medium text-zinc-500 mb-2 uppercase tracking-wide">
+              Visibilidade
+            </label>
+            <div className="grid grid-cols-3 gap-2 mb-5">
+              {([
+                { value: 'private',     icon: Lock,  label: 'Privado',  desc: 'Só o destinatário' },
+                { value: 'connections', icon: Users, label: 'Amigos',   desc: 'Seu círculo' },
+                { value: 'public',      icon: Globe, label: 'Público',  desc: 'Todos' },
+              ] as const).map(({ value, icon: Icon, label, desc }) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setVisibility(value)}
+                  className={`flex flex-col items-center gap-1.5 py-3 px-2 rounded-xl border transition-colors ${
+                    visibility === value
+                      ? 'border-zinc-400 bg-zinc-800 text-zinc-100'
+                      : 'border-zinc-800 bg-zinc-900/30 text-zinc-500 hover:text-zinc-300'
+                  }`}
+                >
+                  <Icon size={17} />
+                  <span className="text-xs font-semibold leading-none">{label}</span>
+                  <span className="text-[10px] leading-none text-zinc-600">{desc}</span>
+                </button>
+              ))}
+            </div>
 
             <div className="flex items-center justify-between mb-6 p-3 border border-zinc-800/50 rounded-xl bg-zinc-900/30">
               <div>
