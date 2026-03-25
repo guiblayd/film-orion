@@ -1,109 +1,138 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bookmark, Check, X } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { ArrowLeft, Bookmark, Check, X, Send } from 'lucide-react';
 import { useStore } from '../store';
 import { cn } from '../lib/utils';
+import { getTMDBDetails, LOGO_IMG, TMDBDetails } from '../services/tmdb';
+import { Item } from '../types';
 
 export function ItemDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { items, recommendations, users, currentUser, userItemStatuses, updateUserItemStatus } = useStore();
+  const location = useLocation();
 
-  const item = items.find(i => i.id === id);
-  if (!item) return <div className="p-8 text-center">Item não encontrado</div>;
+  const { items, recommendations, users, currentUser, userItemStatuses, updateUserItemStatus, addItem } = useStore();
+  const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
 
-  // Find if there's a recommendation for this user for this item
+  // Accept item from navigation state (Explore) or find in store
+  const navItem = (location.state as any)?.item as Item | undefined;
+  const item = items.find(i => i.id === id) ?? navItem;
+
+  // Ensure TMDB items from Explore are persisted in store
+  useEffect(() => {
+    if (navItem && !items.find(i => i.id === navItem.id)) {
+      addItem(navItem);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!item?.id.startsWith('tmdb_')) return;
+    const tmdbId = Number(item.id.replace('tmdb_', ''));
+    const mediaType = item.type === 'movie' ? 'movie' : 'tv';
+    getTMDBDetails(tmdbId, mediaType).then(setTmdb);
+  }, [item?.id]);
+
+  if (!item) return <div className="p-8 text-center text-zinc-500">Item não encontrado</div>;
+
   const relevantRec = recommendations.find(r => r.item_id === item.id && r.to_user_id === currentUser.id);
   const fromUser = relevantRec ? users.find(u => u.id === relevantRec.from_user_id) : null;
-
   const status = userItemStatuses.find(s => s.item_id === item.id && s.user_id === currentUser.id)?.status;
 
+  const handleIndicate = () => {
+    navigate('/create', { state: { item } });
+  };
+
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">
-      <header className="absolute top-0 left-0 right-0 z-10 p-4 flex justify-between items-center bg-gradient-to-b from-zinc-950/80 to-transparent">
-        <button onClick={() => navigate(-1)} className="p-2 bg-zinc-950/40 backdrop-blur-md rounded-full text-zinc-100 hover:bg-zinc-900/60 transition-colors">
-          <ArrowLeft size={24} />
+    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-8">
+      {/* Hero */}
+      <div className="relative w-full aspect-[2/3] max-h-[65vh]">
+        <img src={item.image} alt={item.title} className="w-full h-full object-cover object-top" />
+        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent" />
+
+        <button
+          onClick={() => navigate(-1)}
+          className="absolute top-4 left-4 p-2 bg-zinc-950/50 backdrop-blur-md rounded-full text-zinc-100"
+        >
+          <ArrowLeft size={20} />
         </button>
-      </header>
 
-      {/* Hero Image */}
-      <div className="relative w-full aspect-[2/3] max-h-[60vh]">
-        <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/40 to-transparent" />
-        
-        <div className="absolute bottom-0 left-0 right-0 p-6 text-zinc-100">
+        <div className="absolute bottom-0 left-0 right-0 px-4 pb-4">
           {fromUser && (
-            <div className="flex items-center gap-2 mb-3 bg-white/10 backdrop-blur-md w-fit px-3 py-1.5 rounded-full border border-white/10">
-              <img src={fromUser.avatar} alt={fromUser.name} className="w-5 h-5 rounded-full ring-1 ring-white/20" />
-              <span className="text-xs font-medium text-zinc-200">Indicado por {fromUser.name}</span>
+            <div className="flex items-center gap-1.5 mb-2 bg-white/10 backdrop-blur-sm w-fit px-2.5 py-1 rounded-full border border-white/10">
+              <img src={fromUser.avatar} className="w-4 h-4 rounded-full object-cover" />
+              <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
             </div>
           )}
-          <h1 className="text-3xl font-black leading-tight mb-2 text-zinc-100">{item.title}</h1>
-          {item.year && (
-            <p className="text-sm text-zinc-400 font-medium">{item.year}</p>
-          )}
+          <h1 className="text-2xl font-black text-zinc-100 leading-tight">{item.title}</h1>
+          <p className="text-sm text-zinc-400 mt-0.5">
+            {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
+          </p>
         </div>
       </div>
 
-      <div className="p-6 bg-zinc-950">
-        {relevantRec?.message && (
-          <div className="bg-zinc-900/50 p-4 rounded-xl border border-zinc-800/50 mb-6 relative">
-            <div className="absolute -top-3 left-6 bg-zinc-950 px-2 text-xs font-bold text-zinc-500 uppercase tracking-wider">
-              Mensagem
-            </div>
-            <p className="text-zinc-300 italic">"{relevantRec.message}"</p>
-          </div>
-        )}
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 mb-8">
-          <button 
+      {/* Actions */}
+      <div className="px-4 pt-4 pb-3 space-y-2">
+        <button
+          onClick={handleIndicate}
+          className="w-full flex items-center justify-center gap-2 bg-zinc-100 text-zinc-950 font-bold py-3 rounded-xl text-sm hover:bg-white transition-colors active:scale-[0.98]"
+        >
+          <Send size={15} /> Indicar para alguém
+        </button>
+        <div className="flex gap-2">
+          <button
             onClick={() => updateUserItemStatus(item.id, 'watched')}
-            className={cn(
-              "flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all ring-1",
-              status === 'watched' ? "bg-emerald-500/10 text-emerald-500 ring-emerald-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800 hover:text-zinc-300"
+            className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ring-1",
+              status === 'watched' ? "bg-emerald-500/10 text-emerald-400 ring-emerald-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800"
             )}
           >
-            <Check size={24} />
-            <span className="text-xs font-bold uppercase tracking-wider">Já vi</span>
+            <Check size={14} /> Já vi
           </button>
-          
-          <button 
+          <button
             onClick={() => updateUserItemStatus(item.id, 'saved')}
-            className={cn(
-              "flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all ring-1",
-              status === 'saved' ? "bg-blue-500/10 text-blue-500 ring-blue-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800 hover:text-zinc-300"
+            className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ring-1",
+              status === 'saved' ? "bg-blue-500/10 text-blue-400 ring-blue-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800"
             )}
           >
-            <Bookmark size={24} className={status === 'saved' ? "fill-current" : ""} />
-            <span className="text-xs font-bold uppercase tracking-wider">Salvar</span>
+            <Bookmark size={14} className={status === 'saved' ? 'fill-current' : ''} /> Salvar
           </button>
-          
-          <button 
+          <button
             onClick={() => updateUserItemStatus(item.id, 'ignored')}
-            className={cn(
-              "flex flex-col items-center justify-center gap-2 p-3 rounded-xl transition-all ring-1",
-              status === 'ignored' ? "bg-rose-500/10 text-rose-500 ring-rose-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800 hover:text-zinc-300"
+            className={cn("flex-1 flex items-center justify-center gap-1.5 py-2.5 rounded-xl text-xs font-bold transition-all ring-1",
+              status === 'ignored' ? "bg-rose-500/10 text-rose-400 ring-rose-500/30" : "bg-zinc-900 text-zinc-400 ring-zinc-800 hover:bg-zinc-800"
             )}
           >
-            <X size={24} />
-            <span className="text-xs font-bold uppercase tracking-wider">Ignorar</span>
+            <X size={14} /> Ignorar
           </button>
         </div>
-
-        {item.watch_providers && item.watch_providers.length > 0 && (
-          <div className="mb-6">
-            <h3 className="text-sm font-bold text-zinc-500 uppercase tracking-wider mb-3">Onde assistir</h3>
-            <div className="flex flex-wrap gap-2">
-              {item.watch_providers.map(provider => (
-                <span key={provider} className="px-4 py-2 bg-zinc-900 rounded-lg text-sm font-medium text-zinc-300 ring-1 ring-zinc-800">
-                  {provider}
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
+
+      {/* Streaming */}
+      {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
+        <div className="px-4 pb-4">
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Onde assistir</p>
+          <div className="flex gap-1.5 flex-wrap">
+            {tmdb.provider_logos.map(p => (
+              <img key={p.name} src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-8 h-8 rounded-lg object-cover" />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Synopsis */}
+      {tmdb?.overview && (
+        <div className="px-4 pb-4">
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Sinopse</p>
+          <p className="text-sm text-zinc-400 leading-relaxed">{tmdb.overview}</p>
+        </div>
+      )}
+
+      {/* Recommendation message */}
+      {relevantRec?.message && (
+        <div className="px-4 pb-4">
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Mensagem</p>
+          <p className="text-sm text-zinc-400 italic">"{relevantRec.message}"</p>
+        </div>
+      )}
     </div>
   );
 }

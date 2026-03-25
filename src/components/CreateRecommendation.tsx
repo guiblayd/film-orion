@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { ArrowLeft, Search, Loader2 } from 'lucide-react';
 import { Item, User } from '../types';
@@ -7,11 +7,14 @@ import { searchTMDB } from '../services/tmdb';
 
 export function CreateRecommendation() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { users, items, connections, currentUser, addRecommendation, addItem } = useStore();
+
+  const navItem = (location.state as any)?.item as Item | undefined;
 
   const [step, setStep] = useState<1 | 2 | 3>(1);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-  const [selectedItem, setSelectedItem] = useState<Item | null>(null);
+  const [selectedItem, setSelectedItem] = useState<Item | null>(navItem ?? null);
   const [message, setMessage] = useState('');
   const [discussionEnabled, setDiscussionEnabled] = useState(true);
   const [userSearch, setUserSearch] = useState('');
@@ -72,7 +75,11 @@ export function CreateRecommendation() {
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 flex flex-col">
       <header className="border-b border-zinc-800/50 px-4 py-2.5 flex items-center gap-3 sticky top-0 bg-zinc-950/90 backdrop-blur-xl z-10">
         <button
-          onClick={() => step > 1 ? setStep(step - 1 as any) : navigate(-1)}
+          onClick={() => {
+            if (step === 1) navigate(-1);
+            else if (step === 3 && navItem) setStep(1);
+            else setStep(step - 1 as any);
+          }}
           className="p-1 text-zinc-100"
         >
           <ArrowLeft size={20} />
@@ -84,7 +91,7 @@ export function CreateRecommendation() {
         </h1>
         {/* Step indicator */}
         <div className="ml-auto flex gap-1">
-          {[1, 2, 3].map(s => (
+          {(navItem ? [1, 3] : [1, 2, 3]).map(s => (
             <div key={s} className={`w-1.5 h-1.5 rounded-full transition-colors ${s <= step ? 'bg-zinc-100' : 'bg-zinc-700'}`} />
           ))}
         </div>
@@ -94,6 +101,16 @@ export function CreateRecommendation() {
         {/* Step 1: Select user */}
         {step === 1 && (
           <div className="p-4">
+            {navItem && (
+              <div className="flex gap-3 mb-4 p-3 bg-zinc-900/50 rounded-xl ring-1 ring-zinc-800/50">
+                <img src={navItem.image} alt={navItem.title} className="w-10 h-14 object-cover rounded ring-1 ring-white/10" />
+                <div className="flex flex-col justify-center">
+                  <p className="text-xs text-zinc-500 mb-0.5">Indicando</p>
+                  <p className="font-semibold text-sm text-zinc-100 line-clamp-2">{navItem.title}</p>
+                  {navItem.year && <p className="text-xs text-zinc-600 mt-0.5">{navItem.year}</p>}
+                </div>
+              </div>
+            )}
             <div className="relative mb-4">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500" size={16} />
               <input
@@ -108,7 +125,7 @@ export function CreateRecommendation() {
               {connectedUsers.map(user => (
                 <button
                   key={user.id}
-                  onClick={() => { setSelectedUser(user); setStep(2); }}
+                  onClick={() => { setSelectedUser(user); setStep(navItem ? 3 : 2); }}
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-zinc-900/60 text-left transition-colors"
                 >
                   <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover ring-1 ring-zinc-800" />

@@ -19,6 +19,7 @@ const COUNTRY_PT: Record<string, string> = {
 
 export type TMDBDetails = {
   country?: string;
+  overview?: string;
   provider_logos?: { name: string; logo_path: string }[];
 };
 
@@ -36,6 +37,7 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
       ? details.production_countries?.[0]?.iso_3166_1
       : details.origin_country?.[0];
     const country = countryCode ? (COUNTRY_PT[countryCode] ?? countryCode) : undefined;
+    const overview: string | undefined = details.overview || undefined;
 
     const providerData = providers.results?.BR || providers.results?.US || {};
     const seen = new Set<number>();
@@ -52,10 +54,64 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
         logo_path: p.logo_path as string,
       }));
 
-    return { country, provider_logos };
+    return { country, overview, provider_logos };
   } catch {
     return {};
   }
+}
+
+function mapMovie(r: any): Item {
+  return {
+    id: `tmdb_${r.id}`,
+    title: r.title,
+    image: `${IMG}${r.poster_path}`,
+    type: 'movie',
+    year: Number(r.release_date?.substring(0, 4)) || undefined,
+  };
+}
+
+function mapTV(r: any): Item {
+  const isAnime = (r.genre_ids as number[]).includes(16) && r.original_language === 'ja';
+  return {
+    id: `tmdb_${r.id}`,
+    title: r.name,
+    image: `${IMG}${r.poster_path}`,
+    type: isAnime ? 'anime' : 'series',
+    year: Number(r.first_air_date?.substring(0, 4)) || undefined,
+  };
+}
+
+async function fetchList(url: string, mapFn: (r: any) => Item): Promise<Item[]> {
+  try {
+    const res = await fetch(url);
+    if (!res.ok) return [];
+    const data = await res.json();
+    return (data.results || []).filter((r: any) => r.poster_path).map(mapFn);
+  } catch {
+    return [];
+  }
+}
+
+export function getTrending(): Promise<Item[]> {
+  return fetchList(
+    `${BASE}/trending/all/week?api_key=${API_KEY}&language=pt-BR`,
+    (r: any) => {
+      if (r.media_type === 'tv') return mapTV(r);
+      return mapMovie(r);
+    }
+  ).then(items => items.filter(i => i.image.includes('/null') === false));
+}
+
+export function getPopularMovies(): Promise<Item[]> {
+  return fetchList(`${BASE}/movie/popular?api_key=${API_KEY}&language=pt-BR&region=BR`, mapMovie);
+}
+
+export function getPopularTV(): Promise<Item[]> {
+  return fetchList(`${BASE}/tv/popular?api_key=${API_KEY}&language=pt-BR`, mapTV);
+}
+
+export function getTopRatedMovies(): Promise<Item[]> {
+  return fetchList(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=pt-BR&region=BR`, mapMovie);
 }
 
 export async function searchTMDB(query: string): Promise<Item[]> {

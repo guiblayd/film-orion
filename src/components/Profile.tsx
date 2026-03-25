@@ -106,16 +106,16 @@ export function Profile() {
       {/* Tabs */}
       <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 sticky top-[53px] z-10 flex overflow-x-auto">
         <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
-          Recebidas ({receivedRecs.length})
+          Recebidas
         </TabButton>
         <TabButton active={activeTab === 'made'} onClick={() => setActiveTab('made')}>
-          Feitas ({madeRecs.length})
+          Feitas
         </TabButton>
         <TabButton active={activeTab === 'watchlist'} onClick={() => setActiveTab('watchlist')}>
-          Watchlist ({watchlistItems.length})
+          Watchlist
         </TabButton>
         <TabButton active={activeTab === 'watched'} onClick={() => setActiveTab('watched')}>
-          Assistidos ({watchedItems.length})
+          Assistidos
         </TabButton>
       </div>
 

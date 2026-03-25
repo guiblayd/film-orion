@@ -6,6 +6,8 @@ import { CreateRecommendation } from './components/CreateRecommendation';
 import { Profile } from './components/Profile';
 import { ItemDetail } from './components/ItemDetail';
 import { RecommendationDetail } from './components/RecommendationDetail';
+import { Notifications } from './components/Notifications';
+import { Explore } from './components/Explore';
 
 function Layout() {
   return (
@@ -24,6 +26,8 @@ export default function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Feed />} />
+              <Route path="/explore" element={<Explore />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/profile/:id" element={<Profile />} />
             </Route>
             <Route path="/create" element={<CreateRecommendation />} />
