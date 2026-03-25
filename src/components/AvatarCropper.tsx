@@ -7,43 +7,26 @@ interface Props {
   onCancel: () => void;
 }
 
-const CROP_RADIUS = 140;
-
-function clampOffset(
-  x: number, y: number, s: number,
-  img: HTMLImageElement, container: HTMLDivElement
-): { x: number; y: number } {
-  const cw = container.clientWidth;
-  const ch = container.clientHeight;
-  const halfW = (img.naturalWidth * s) / 2;
-  const halfH = (img.naturalHeight * s) / 2;
-
-  let cx = x;
-  let cy = y;
-
-  // Image edges must cover the crop circle
-  if (cw / 2 + cx - halfW > cw / 2 - CROP_RADIUS) cx -= (cw / 2 + cx - halfW) - (cw / 2 - CROP_RADIUS);
-  if (cw / 2 + cx + halfW < cw / 2 + CROP_RADIUS) cx += (cw / 2 + CROP_RADIUS) - (cw / 2 + cx + halfW);
-  if (ch / 2 + cy - halfH > ch / 2 - CROP_RADIUS) cy -= (ch / 2 + cy - halfH) - (ch / 2 - CROP_RADIUS);
-  if (ch / 2 + cy + halfH < ch / 2 + CROP_RADIUS) cy += (ch / 2 + CROP_RADIUS) - (ch / 2 + cy + halfH);
-
-  return { x: cx, y: cy };
-}
+const CROP_R = 140; // crop circle radius in px (280px diameter)
 
 export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
   const [imgSrc, setImgSrc] = useState('');
-  const [imgSize, setImgSize] = useState<{ w: number; h: number } | null>(null);
+  const [nat, setNat] = useState<{ w: number; h: number } | null>(null);
   const [scale, setScale] = useState(1);
   const [minScale, setMinScale] = useState(1);
+  // offset = distance from container center to image center
   const [offset, setOffset] = useState({ x: 0, y: 0 });
 
   const imgRef = useRef<HTMLImageElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const scaleRef = useRef(scale);
+  const natRef = useRef(nat);
+  useEffect(() => { scaleRef.current = scale; }, [scale]);
+  useEffect(() => { natRef.current = nat; }, [nat]);
+
   const isDragging = useRef(false);
   const lastPos = useRef({ x: 0, y: 0 });
   const lastPinchDist = useRef(0);
-  const scaleRef = useRef(scale);
-  useEffect(() => { scaleRef.current = scale; }, [scale]);
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -53,24 +36,27 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
 
   const handleImgLoad = () => {
     const img = imgRef.current;
-    const container = containerRef.current;
-    if (!img || !container) return;
-    const cropD = CROP_RADIUS * 2;
-    const min = Math.max(cropD / img.naturalWidth, cropD / img.naturalHeight);
-    setImgSize({ w: img.naturalWidth, h: img.naturalHeight });
+    if (!img) return;
+    const min = Math.max((CROP_R * 2) / img.naturalWidth, (CROP_R * 2) / img.naturalHeight);
+    setNat({ w: img.naturalWidth, h: img.naturalHeight });
     setMinScale(min);
     setScale(min);
     setOffset({ x: 0, y: 0 });
   };
 
-  const doClamp = (x: number, y: number, s: number) => {
-    const img = imgRef.current;
-    const container = containerRef.current;
-    if (!img || !container) return { x, y };
-    return clampOffset(x, y, s, img, container);
+  // Clamp so image always fully covers the crop circle
+  const clamp = (x: number, y: number, s: number): { x: number; y: number } => {
+    const n = natRef.current;
+    if (!n) return { x, y };
+    const hw = (n.w * s) / 2;
+    const hh = (n.h * s) / 2;
+    return {
+      x: Math.min(hw - CROP_R, Math.max(CROP_R - hw, x)),
+      y: Math.min(hh - CROP_R, Math.max(CROP_R - hh, y)),
+    };
   };
 
-  // Mouse
+  // ── Mouse ──────────────────────────────────────────────────────────────────
   const onMouseDown = (e: React.MouseEvent) => {
     isDragging.current = true;
     lastPos.current = { x: e.clientX, y: e.clientY };
@@ -80,7 +66,7 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
     const dx = e.clientX - lastPos.current.x;
     const dy = e.clientY - lastPos.current.y;
     lastPos.current = { x: e.clientX, y: e.clientY };
-    setOffset(prev => doClamp(prev.x + dx, prev.y + dy, scaleRef.current));
+    setOffset(prev => clamp(prev.x + dx, prev.y + dy, scaleRef.current));
   };
   const onMouseUp = () => { isDragging.current = false; };
 
@@ -88,12 +74,12 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
     e.preventDefault();
     setScale(prev => {
       const next = Math.max(minScale, Math.min(prev * (1 - e.deltaY * 0.001), minScale * 4));
-      setOffset(o => doClamp(o.x, o.y, next));
+      setOffset(o => clamp(o.x, o.y, next));
       return next;
     });
   };
 
-  // Touch
+  // ── Touch ──────────────────────────────────────────────────────────────────
   const onTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 1) {
       isDragging.current = true;
@@ -111,7 +97,7 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
       const dx = e.touches[0].clientX - lastPos.current.x;
       const dy = e.touches[0].clientY - lastPos.current.y;
       lastPos.current = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-      setOffset(prev => doClamp(prev.x + dx, prev.y + dy, scaleRef.current));
+      setOffset(prev => clamp(prev.x + dx, prev.y + dy, scaleRef.current));
     } else if (e.touches.length === 2) {
       const dx = e.touches[0].clientX - e.touches[1].clientX;
       const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -120,41 +106,48 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
       lastPinchDist.current = dist;
       setScale(prev => {
         const next = Math.max(minScale, Math.min(prev * ratio, minScale * 4));
-        setOffset(o => doClamp(o.x, o.y, next));
+        setOffset(o => clamp(o.x, o.y, next));
         return next;
       });
     }
   };
   const onTouchEnd = () => { isDragging.current = false; };
 
+  // ── Confirm ────────────────────────────────────────────────────────────────
   const handleConfirm = () => {
     const img = imgRef.current;
-    const container = containerRef.current;
-    if (!img || !container) return;
-
+    if (!img || !nat) return;
     const OUTPUT = 512;
     const canvas = document.createElement('canvas');
     canvas.width = OUTPUT;
     canvas.height = OUTPUT;
     const ctx = canvas.getContext('2d')!;
 
-    const cw = container.clientWidth;
-    const ch = container.clientHeight;
+    // Crop region in natural image coords
+    const srcX = nat.w / 2 - offset.x / scale - CROP_R / scale;
+    const srcY = nat.h / 2 - offset.y / scale - CROP_R / scale;
+    const srcSize = (CROP_R * 2) / scale;
 
-    // Source crop region in natural image coordinates
-    const srcX = (-CROP_RADIUS - offset.x) / scale + img.naturalWidth / 2;
-    const srcY = (-CROP_RADIUS - offset.y) / scale + img.naturalHeight / 2;
-    const srcSize = (CROP_RADIUS * 2) / scale;
-
-    // Clip to circle
     ctx.beginPath();
     ctx.arc(OUTPUT / 2, OUTPUT / 2, OUTPUT / 2, 0, Math.PI * 2);
     ctx.clip();
-
     ctx.drawImage(img, srcX, srcY, srcSize, srcSize, 0, 0, OUTPUT, OUTPUT);
-
     canvas.toBlob(blob => { if (blob) onConfirm(blob); }, 'image/jpeg', 0.92);
   };
+
+  // ── Render ─────────────────────────────────────────────────────────────────
+  const cw = containerRef.current?.clientWidth ?? 0;
+  const ch = containerRef.current?.clientHeight ?? 0;
+
+  const imgStyle: React.CSSProperties = nat
+    ? {
+        position: 'absolute',
+        width: nat.w * scale,
+        height: nat.h * scale,
+        left: cw / 2 - (nat.w * scale) / 2 + offset.x,
+        top: ch / 2 - (nat.h * scale) / 2 + offset.y,
+      }
+    : { position: 'absolute', opacity: 0 };
 
   const sliderValue = minScale > 0 ? ((scale - minScale) / (minScale * 3)) * 100 : 0;
 
@@ -190,36 +183,28 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
       >
-        {imgSrc && (
-          <img
-            ref={imgRef}
-            src={imgSrc}
-            alt=""
-            draggable={false}
-            onLoad={handleImgLoad}
-            className="absolute left-1/2 top-1/2 pointer-events-none"
-            style={{
-              width: imgSize?.w ?? 0,
-              height: imgSize?.h ?? 0,
-              transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
-              transformOrigin: 'center center',
-              opacity: imgSize ? 1 : 0,
-            }}
-          />
-        )}
+        <img
+          ref={imgRef}
+          src={imgSrc}
+          alt=""
+          draggable={false}
+          onLoad={handleImgLoad}
+          style={imgStyle}
+          className="pointer-events-none"
+        />
 
-        {/* Dark overlay with circular hole */}
+        {/* Dark overlay with circular cutout */}
         <div className="absolute inset-0 pointer-events-none">
           <svg width="100%" height="100%" style={{ display: 'block' }}>
             <defs>
               <mask id="avatarCropMask">
                 <rect width="100%" height="100%" fill="white" />
-                <circle cx="50%" cy="50%" r={CROP_RADIUS} fill="black" />
+                <circle cx="50%" cy="50%" r={CROP_R} fill="black" />
               </mask>
             </defs>
             <rect width="100%" height="100%" fill="rgba(0,0,0,0.55)" mask="url(#avatarCropMask)" />
             <circle
-              cx="50%" cy="50%" r={CROP_RADIUS}
+              cx="50%" cy="50%" r={CROP_R}
               fill="none" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5"
             />
           </svg>
@@ -238,7 +223,7 @@ export function AvatarCropper({ file, onConfirm, onCancel }: Props) {
             const pct = Number(e.target.value) / 100;
             const next = minScale + pct * minScale * 3;
             setScale(next);
-            setOffset(o => doClamp(o.x, o.y, next));
+            setOffset(o => clamp(o.x, o.y, next));
           }}
           className="flex-1 accent-white h-1"
         />
