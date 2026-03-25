@@ -1,9 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Send, Bookmark, Check, X, ArrowRight, MoreVertical, Trash2, Pencil } from 'lucide-react';
+import { ArrowLeft, Send, Bookmark, Check, X, ArrowRight, MoreVertical, Trash2, Pencil, Lock, Users, Globe } from 'lucide-react';
 import { useStore } from '../store';
 import { cn, getRelativeTime } from '../lib/utils';
-import { getTMDBDetails, LOGO_IMG, TMDBDetails } from '../services/tmdb';
+import { getTMDBDetails, TMDBDetails } from '../services/tmdb';
+
+const VISIBILITY_CONFIG = {
+  private:     { icon: Lock,  label: 'Privado' },
+  connections: { icon: Users, label: 'Círculo' },
+  public:      { icon: Globe, label: 'Público' },
+} as const;
 
 export function RecommendationDetail() {
   const { id } = useParams<{ id: string }>();
@@ -161,13 +167,17 @@ export function RecommendationDetail() {
                 {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
               </p>
             )}
-            {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
-              <div className="flex gap-1 flex-wrap mt-0.5">
-                {tmdb.provider_logos.map(p => (
-                  <img key={p.name} src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-5 h-5 rounded-md object-cover" />
-                ))}
-              </div>
-            )}
+            {(() => {
+              const cfg = VISIBILITY_CONFIG[recommendation.visibility as keyof typeof VISIBILITY_CONFIG];
+              if (!cfg) return null;
+              const Icon = cfg.icon;
+              return (
+                <div className="flex items-center gap-1 mt-1">
+                  <Icon size={11} className="text-zinc-600 shrink-0" />
+                  <span className="text-[11px] text-zinc-600">{cfg.label}</span>
+                </div>
+              );
+            })()}
           </div>
         </div>
       </div>
