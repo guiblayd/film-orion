@@ -219,7 +219,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const updated = { ...currentUser, ...updates };
     setCurrentUser(updated);
     setUsers(prev => prev.map(u => u.id === currentUser.id ? updated : u));
-    supabase.from('profiles').update(updates).eq('id', currentUser.id).then(() => {});
+    // Build DB payload — map bio:undefined → null so the column is actually cleared
+    const dbPayload: Record<string, string | null> = {};
+    if (updates.name !== undefined) dbPayload.name = updates.name;
+    if (updates.avatar !== undefined) dbPayload.avatar = updates.avatar;
+    if ('bio' in updates) dbPayload.bio = updates.bio ?? null;
+    const uid = currentUser.id;
+    (async () => {
+      const { error } = await supabase.from('profiles').update(dbPayload).eq('id', uid);
+      if (error) console.error('[store] updateCurrentUser failed:', error.message, error.code, error.details);
+    })();
   };
 
   return (
