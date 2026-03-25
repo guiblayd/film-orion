@@ -52,7 +52,7 @@ const ITEMS = [
   { id: 'tmdb_840430',  title: 'Os Que Ficaram',                    image: 'https://image.tmdb.org/t/p/w300/VHSzNBTwxV8vh7wylo7O9CLdac.jpg',  type: 'movie',  year: 2023 },
   { id: 'tmdb_666277',  title: 'Vidas Passadas',                    image: 'https://image.tmdb.org/t/p/w300/toSI71gFF11VnLfz2uiNx6jjNUF.jpg', type: 'movie',  year: 2023 },
   { id: 'tmdb_438631',  title: 'Duna',                              image: 'https://image.tmdb.org/t/p/w300/gDzOcq0pfeCeqMBwKIJlSmQpjkZ.jpg', type: 'movie',  year: 2021 },
-  { id: 'tmdb_1188148', title: 'Saltburn',                          image: 'https://image.tmdb.org/t/p/w300/9ZDszdHCSHfJ9MFkKo3h5Hr30AA.jpg', type: 'movie',  year: 2023 },
+  { id: 'tmdb_930564',  title: 'Saltburn',                          image: 'https://image.tmdb.org/t/p/w300/zGTfMwG112BC66mpaveVxoWPOaB.jpg', type: 'movie',  year: 2023 },
   { id: 'tmdb_1227206', title: 'Aftersun',                          image: 'https://image.tmdb.org/t/p/w300/2RBuKGoYnrDT9w4x4UzjpLo0d54.jpg', type: 'movie',  year: 2022 },
   { id: 'tmdb_136315',  title: 'The Bear',                          image: 'https://image.tmdb.org/t/p/w300/eKfVzzEazSIjJMrw9ADa2x8ksLz.jpg', type: 'series', year: 2022 },
   { id: 'tmdb_60059',   title: 'Succession',                        image: 'https://image.tmdb.org/t/p/w300/zjg4jpK1Wp2kiRvtt5ND0kznako.jpg', type: 'series', year: 2018 },
