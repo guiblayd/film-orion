@@ -120,12 +120,12 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const deleteRecommendation = (id: string) => {
     setRecommendations(prev => prev.filter(r => r.id !== id));
-    supabase.from('recommendations').delete().eq('id', id);
+    supabase.from('recommendations').delete().eq('id', id).then(() => {});
   };
 
   const editRecommendation = (id: string, message: string | undefined) => {
     setRecommendations(prev => prev.map(r => r.id === id ? { ...r, message } : r));
-    supabase.from('recommendations').update({ message: message ?? null }).eq('id', id);
+    supabase.from('recommendations').update({ message: message ?? null }).eq('id', id).then(() => {});
   };
 
   const toggleInteraction = (recommendationId: string, type: 'support' | 'oppose') => {
@@ -133,10 +133,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(i => i.recommendation_id === recommendationId && i.user_id === currentUser.id);
       if (existing) {
         if (existing.type === type) {
-          supabase.from('recommendation_interactions').delete().eq('id', existing.id);
+          supabase.from('recommendation_interactions').delete().eq('id', existing.id).then(() => {});
           return prev.filter(i => i.id !== existing.id);
         }
-        supabase.from('recommendation_interactions').update({ type }).eq('id', existing.id);
+        supabase.from('recommendation_interactions').update({ type }).eq('id', existing.id).then(() => {});
         return prev.map(i => i.id === existing.id ? { ...i, type } : i);
       }
       const tempId = `int${Date.now()}`;
@@ -174,10 +174,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(s => s.item_id === itemId && s.user_id === currentUser.id);
       if (existing) {
         if (existing.status === status) {
-          supabase.from('user_item_statuses').delete().eq('id', existing.id);
+          supabase.from('user_item_statuses').delete().eq('id', existing.id).then(() => {});
           return prev.filter(s => s.id !== existing.id);
         }
-        supabase.from('user_item_statuses').update({ status }).eq('id', existing.id);
+        supabase.from('user_item_statuses').update({ status }).eq('id', existing.id).then(() => {});
         return prev.map(s => s.id === existing.id ? { ...s, status } : s);
       }
       const tempId = `uis${Date.now()}`;
@@ -194,7 +194,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setConnections(prev => {
       const existing = prev.find(c => c.requester_id === currentUser.id && c.receiver_id === userId);
       if (existing) {
-        supabase.from('connections').delete().eq('id', existing.id);
+        supabase.from('connections').delete().eq('id', existing.id).then(() => {});
         return prev.filter(c => c.id !== existing.id);
       }
       const tempId = `c${Date.now()}`;
@@ -212,14 +212,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     supabase.from('items').upsert({
       id: item.id, title: item.title, image: item.image,
       type: item.type, year: item.year ?? null,
-    });
+    }).then(() => {});
   };
 
   const updateCurrentUser = (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar'>>) => {
     const updated = { ...currentUser, ...updates };
     setCurrentUser(updated);
     setUsers(prev => prev.map(u => u.id === currentUser.id ? updated : u));
-    supabase.from('profiles').update(updates).eq('id', currentUser.id);
+    supabase.from('profiles').update(updates).eq('id', currentUser.id).then(() => {});
   };
 
   return (
