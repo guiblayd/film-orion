@@ -101,15 +101,15 @@ export function Profile() {
           <div className="flex-1 flex justify-around text-center">
             <div>
               <p className="text-base font-black text-zinc-100">{receivedRecs.length}</p>
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Indicações</p>
+              <p className="text-[11px] text-zinc-500">Indicações</p>
             </div>
             <div>
               <p className="text-base font-black text-zinc-100">{followersCount}</p>
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Seguidores</p>
+              <p className="text-[11px] text-zinc-500">Seguidores</p>
             </div>
             <div>
               <p className="text-base font-black text-zinc-100">{followingCount}</p>
-              <p className="text-[11px] text-zinc-500 uppercase tracking-wide">Seguindo</p>
+              <p className="text-[11px] text-zinc-500">Seguindo</p>
             </div>
           </div>
         </div>
