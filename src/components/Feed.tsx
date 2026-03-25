@@ -41,7 +41,7 @@ export function Feed() {
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">
       <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10">
         <div className="px-4 py-3">
-          <h1 className="text-xl font-black tracking-tight text-zinc-100">Indica</h1>
+          <h1 className="text-xl font-black tracking-tight text-zinc-100">FilmOrion</h1>
         </div>
         <div className="flex border-t border-zinc-800/40">
           <TabButton active={activeTab === 'descobrir'} onClick={() => setActiveTab('descobrir')}>

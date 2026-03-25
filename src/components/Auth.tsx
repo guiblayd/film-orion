@@ -108,7 +108,7 @@ export function Auth() {
         <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <span className="text-zinc-950 font-black text-xl">I</span>
         </div>
-        <h1 className="text-2xl font-black text-zinc-100 tracking-tight">Indica</h1>
+        <h1 className="text-2xl font-black text-zinc-100 tracking-tight">FilmOrion</h1>
         <p className="text-zinc-500 text-sm mt-1">Compartilhe o que vale a pena assistir</p>
       </div>
 
