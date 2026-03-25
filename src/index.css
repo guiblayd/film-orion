@@ -3,6 +3,18 @@
 @layer base {
   body {
     @apply bg-zinc-950 text-zinc-100 antialiased;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  body::-webkit-scrollbar {
+    display: none;
+  }
+  * {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  *::-webkit-scrollbar {
+    display: none;
   }
 }
 

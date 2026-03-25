@@ -1,4 +1,5 @@
-import { BrowserRouter as Router, Routes, Route, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
+import { useEffect, ReactNode } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StoreProvider, useStore } from './store';
 import { Auth } from './components/Auth';
@@ -11,7 +12,12 @@ import { ItemDetail } from './components/ItemDetail';
 import { RecommendationDetail } from './components/RecommendationDetail';
 import { Notifications } from './components/Notifications';
 import { Explore } from './components/Explore';
-import { ReactNode } from 'react';
+
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
 
 function Layout() {
   return (
@@ -51,6 +57,7 @@ export default function App() {
   return (
     <AuthProvider>
       <Router>
+        <ScrollToTop />
         <div className="min-h-screen bg-zinc-950 font-sans text-zinc-100 selection:bg-zinc-100 selection:text-zinc-950">
           <AuthGate>
             <StoreProvider>
