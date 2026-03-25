@@ -20,6 +20,7 @@ const COUNTRY_PT: Record<string, string> = {
 export type TMDBDetails = {
   country?: string;
   overview?: string;
+  backdrop?: string;
   provider_logos?: { name: string; logo_path: string }[];
   runtime?: number;
   seasons?: number;
@@ -39,6 +40,9 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
     if (!detailsRes.ok) return {};
     const details = await detailsRes.json();
     const providers = providersRes.ok ? await providersRes.json() : {};
+
+    const backdropPath = details.backdrop_path as string | null;
+    const backdrop = backdropPath ? `https://image.tmdb.org/t/p/w780${backdropPath}` : undefined;
 
     const countryCode = mediaType === 'movie'
       ? details.production_countries?.[0]?.iso_3166_1
@@ -75,7 +79,7 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
       : [];
     const vote_average = details.vote_average ? Math.round(details.vote_average * 10) / 10 : undefined;
 
-    return { country, overview, provider_logos, runtime, seasons, genres, cast, director, creators: creators.length ? creators : undefined, vote_average };
+    return { country, overview, backdrop, provider_logos, runtime, seasons, genres, cast, director, creators: creators.length ? creators : undefined, vote_average };
   } catch {
     return {};
   }
