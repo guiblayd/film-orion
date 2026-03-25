@@ -147,43 +147,43 @@ async function seed() {
   console.log('📨 Criando indicações...');
 
   const recs = [
-    { from: u2, to: u1, item: 'tmdb_496243',  days: 28, msg: 'Parasita é uma obra-prima absoluta. Assiste sem saber nada sobre a história.' },
-    { from: u3, to: u1, item: 'tmdb_95396',   days: 25, msg: 'Severance vai te deixar com uma angústia gostosa por dias. Diferente de tudo.' },
-    { from: u5, to: u1, item: 'tmdb_136315',  days: 21, msg: 'Assiste esse fim de semana, você vai me agradecer depois. The Bear é absurdo.' },
-    { from: u6, to: u1, item: 'tmdb_110316',  days: 18, msg: 'White Lotus temporada 2 é perfeita. Irônica, bela e inquietante ao mesmo tempo.' },
-    { from: u8, to: u1, item: 'tmdb_438631',  days: 12, msg: 'Duna parte 2 é ainda melhor que a primeira. Épico no sentido mais literal da palavra.' },
+    { from: u2, to: u1, item: 'tmdb_496243',  days: 28, vis: 'public',      msg: 'Parasita é uma obra-prima absoluta. Assiste sem saber nada sobre a história.' },
+    { from: u3, to: u1, item: 'tmdb_95396',   days: 25, vis: 'public',      msg: 'Severance vai te deixar com uma angústia gostosa por dias. Diferente de tudo.' },
+    { from: u5, to: u1, item: 'tmdb_136315',  days: 21, vis: 'public',      msg: 'Assiste esse fim de semana, você vai me agradecer depois. The Bear é absurdo.' },
+    { from: u6, to: u1, item: 'tmdb_110316',  days: 18, vis: 'connections', msg: 'White Lotus temporada 2 é perfeita. Irônica, bela e inquietante ao mesmo tempo.' },
+    { from: u8, to: u1, item: 'tmdb_438631',  days: 12, vis: 'private',     msg: 'Duna parte 2 é ainda melhor que a primeira. Épico no sentido mais literal da palavra.' },
 
-    { from: u1, to: u2, item: 'tmdb_60059',   days: 26, msg: 'Succession é o melhor drama que já assisti. Você vai odiar e amar os personagens.' },
-    { from: u3, to: u2, item: 'tmdb_792307',  days: 22, msg: 'Emma Stone em Pobres Criaturas é de outro planeta. Visualmente impecável.' },
-    { from: u7, to: u2, item: 'tmdb_840430',  days: 15, msg: 'Os Que Ficaram é o filme perfeito pra esse inverno. Vai chorar, mas vai sorrir também.' },
-    { from: u9, to: u2, item: 'tmdb_1188148', days: 8,  msg: 'Saltburn vai te deixar de queixo caído no final. Entra sem spoiler.' },
+    { from: u1, to: u2, item: 'tmdb_60059',   days: 26, vis: 'public',      msg: 'Succession é o melhor drama que já assisti. Você vai odiar e amar os personagens.' },
+    { from: u3, to: u2, item: 'tmdb_792307',  days: 22, vis: 'public',      msg: 'Emma Stone em Pobres Criaturas é de outro planeta. Visualmente impecável.' },
+    { from: u7, to: u2, item: 'tmdb_840430',  days: 15, vis: 'connections', msg: 'Os Que Ficaram é o filme perfeito pra esse inverno. Vai chorar, mas vai sorrir também.' },
+    { from: u9, to: u2, item: 'tmdb_1188148', days: 8,  vis: 'private',     msg: 'Saltburn vai te deixar de queixo caído no final. Entra sem spoiler.' },
 
-    { from: u1, to: u3, item: 'tmdb_872585',  days: 24, msg: 'Oppenheimer no cinema foi uma experiência única. Nolan no auge total.' },
-    { from: u5, to: u3, item: 'tmdb_666277', days: 19, msg: 'Vidas Passadas vai te deixar pensando por semanas. Cinema delicado e devastador.' },
-    { from: u6, to: u3, item: 'tmdb_136315',  days: 14, msg: 'The Bear captura caos e beleza de um jeito que poucas séries conseguem.' },
+    { from: u1, to: u3, item: 'tmdb_872585',  days: 24, vis: 'public',      msg: 'Oppenheimer no cinema foi uma experiência única. Nolan no auge total.' },
+    { from: u5, to: u3, item: 'tmdb_666277',  days: 19, vis: 'public',      msg: 'Vidas Passadas vai te deixar pensando por semanas. Cinema delicado e devastador.' },
+    { from: u6, to: u3, item: 'tmdb_136315',  days: 14, vis: 'connections', msg: 'The Bear captura caos e beleza de um jeito que poucas séries conseguem.' },
 
-    { from: u2, to: u4, item: 'tmdb_1396',    days: 30, msg: 'Se você ainda não assistiu Breaking Bad, tá perdendo a melhor série já feita.' },
-    { from: u5, to: u4, item: 'tmdb_496243',  days: 17, msg: 'Parasita é uma das raras vezes que um filme merece todo o hype que recebeu.' },
-    { from: u8, to: u4, item: 'tmdb_66732',   days: 10, msg: 'Stranger Things pra aquela maratona de fim de semana. Nostalgia do jeito certo.' },
+    { from: u2, to: u4, item: 'tmdb_1396',    days: 30, vis: 'public',      msg: 'Se você ainda não assistiu Breaking Bad, tá perdendo a melhor série já feita.' },
+    { from: u5, to: u4, item: 'tmdb_496243',  days: 17, vis: 'public',      msg: 'Parasita é uma das raras vezes que um filme merece todo o hype que recebeu.' },
+    { from: u8, to: u4, item: 'tmdb_66732',   days: 10, vis: 'connections', msg: 'Stranger Things pra aquela maratona de fim de semana. Nostalgia do jeito certo.' },
 
-    { from: u1, to: u5, item: 'tmdb_346698',  days: 23, msg: 'Barbie parece fútil mas é muito mais inteligente do que aparenta. Vai de mente aberta.' },
-    { from: u6, to: u5, item: 'tmdb_545611',  days: 16, msg: 'Tudo em Todo Lugar é caótico do jeito mais bonito possível. Emocionei demais.' },
-    { from: u9, to: u5, item: 'tmdb_1227206', days: 9,  msg: 'Aftersun é silencioso e devastador. O tipo de filme que fica com você pra sempre.' },
+    { from: u1, to: u5, item: 'tmdb_346698',  days: 23, vis: 'public',      msg: 'Barbie parece fútil mas é muito mais inteligente do que aparenta. Vai de mente aberta.' },
+    { from: u6, to: u5, item: 'tmdb_545611',  days: 16, vis: 'public',      msg: 'Tudo em Todo Lugar é caótico do jeito mais bonito possível. Emocionei demais.' },
+    { from: u9, to: u5, item: 'tmdb_1227206', days: 9,  vis: 'connections', msg: 'Aftersun é silencioso e devastador. O tipo de filme que fica com você pra sempre.' },
 
-    { from: u3, to: u6, item: 'tmdb_95396',   days: 20, msg: 'Severance vai fazer você questionar o próprio conceito de identidade.' },
-    { from: u8, to: u6, item: 'tmdb_872585',  days: 13, msg: '3 horas que passam em 1. Nolan sabia exatamente o que estava fazendo.' },
+    { from: u3, to: u6, item: 'tmdb_95396',   days: 20, vis: 'public',      msg: 'Severance vai fazer você questionar o próprio conceito de identidade.' },
+    { from: u8, to: u6, item: 'tmdb_872585',  days: 13, vis: 'public',      msg: '3 horas que passam em 1. Nolan sabia exatamente o que estava fazendo.' },
 
-    { from: u4, to: u7, item: 'tmdb_60059',   days: 27, msg: 'Succession começa devagar mas em 3 episódios você tá completamente viciado.' },
-    { from: u9, to: u7, item: 'tmdb_666277', days: 11, msg: 'Vidas Passadas é sobre tudo que poderia ter sido e não foi. Delicado demais.' },
+    { from: u4, to: u7, item: 'tmdb_60059',   days: 27, vis: 'public',      msg: 'Succession começa devagar mas em 3 episódios você tá completamente viciado.' },
+    { from: u9, to: u7, item: 'tmdb_666277',  days: 11, vis: 'connections', msg: 'Vidas Passadas é sobre tudo que poderia ter sido e não foi. Delicado demais.' },
 
-    { from: u6, to: u8, item: 'tmdb_110316',  days: 22, msg: 'White Lotus é o tipo de série que você precisa assistir com atenção total.' },
-    { from: u10, to: u8, item: 'tmdb_545611', days: 6,  msg: 'Entra com a mente aberta. Tudo em Todo Lugar é sobre caos e amor ao mesmo tempo.' },
+    { from: u6, to: u8, item: 'tmdb_110316',  days: 22, vis: 'public',      msg: 'White Lotus é o tipo de série que você precisa assistir com atenção total.' },
+    { from: u10, to: u8, item: 'tmdb_545611', days: 6,  vis: 'public',      msg: 'Entra com a mente aberta. Tudo em Todo Lugar é sobre caos e amor ao mesmo tempo.' },
 
-    { from: u7, to: u9, item: 'tmdb_792307',  days: 19, msg: 'Pobres Criaturas é feminismo e surrealismo na medida certa. Emma Stone incrível.' },
-    { from: u10, to: u9, item: 'tmdb_60059',  days: 7,  msg: 'Série que vai fazer você questionar família, poder e lealdade ao mesmo tempo.' },
+    { from: u7, to: u9, item: 'tmdb_792307',  days: 19, vis: 'public',      msg: 'Pobres Criaturas é feminismo e surrealismo na medida certa. Emma Stone incrível.' },
+    { from: u10, to: u9, item: 'tmdb_60059',  days: 7,  vis: 'connections', msg: 'Série que vai fazer você questionar família, poder e lealdade ao mesmo tempo.' },
 
-    { from: u3, to: u10, item: 'tmdb_438631', days: 16, msg: 'Duna é o sci-fi épico que o cinema precisava. A fotografia é de outro nível.' },
-    { from: u9, to: u10, item: 'tmdb_1188148',days: 4,  msg: 'Saltburn. Entra sem saber nada. Sério.' },
+    { from: u3, to: u10, item: 'tmdb_438631', days: 16, vis: 'public',      msg: 'Duna é o sci-fi épico que o cinema precisava. A fotografia é de outro nível.' },
+    { from: u9, to: u10, item: 'tmdb_1188148',days: 4,  vis: 'private',     msg: 'Saltburn. Entra sem saber nada. Sério.' },
   ];
 
   const recIds: string[] = [];
@@ -195,7 +195,7 @@ async function seed() {
       item_id:      r.item,
       message:      r.msg,
       discussion_enabled: true,
-      visibility:   'connections',
+      visibility:   r.vis,
       created_at:   daysAgo(r.days),
     }).select('id').single();
 
