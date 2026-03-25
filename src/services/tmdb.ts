@@ -39,11 +39,13 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
     const country = countryCode ? (COUNTRY_PT[countryCode] ?? countryCode) : undefined;
     const overview: string | undefined = details.overview || undefined;
 
-    const providerData = providers.results?.BR || providers.results?.US || {};
+    // Only show subscription (flatrate) providers — buy/rent can show wrong services
+    const flatrate =
+      providers.results?.BR?.flatrate ||
+      providers.results?.US?.flatrate ||
+      [];
     const seen = new Set<number>();
-    const provider_logos = (
-      [...(providerData.flatrate || []), ...(providerData.buy || []), ...(providerData.rent || [])] as any[]
-    )
+    const provider_logos = (flatrate as any[])
       .filter(p => {
         if (seen.has(p.provider_id)) return false;
         seen.add(p.provider_id);

@@ -48,10 +48,10 @@ export function RecommendationCard({ recommendation }: Props) {
         {/* from → to + timestamp */}
         <div className="flex items-center gap-1 text-xs text-zinc-500 mb-1">
           <img src={fromUser.avatar} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
-          <span className="text-zinc-400 truncate max-w-[60px]">{fromUser.name}</span>
+          <span className="text-zinc-400 truncate max-w-[90px]">{fromUser.name}</span>
           <ArrowRight size={10} className="text-zinc-700 shrink-0" />
           <img src={toUser.avatar} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
-          <span className="text-zinc-400 truncate max-w-[60px]">{toUser.name}</span>
+          <span className="text-zinc-400 truncate max-w-[90px]">{toUser.name}</span>
           <span className="ml-auto text-zinc-600 shrink-0">{getRelativeTime(recommendation.created_at)}</span>
         </div>
 
