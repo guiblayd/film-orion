@@ -172,10 +172,7 @@ export function RecommendationDetail() {
               if (!cfg) return null;
               const Icon = cfg.icon;
               return (
-                <div className="flex items-center gap-1 mt-1">
-                  <Icon size={11} className="text-zinc-600 shrink-0" />
-                  <span className="text-[11px] text-zinc-600">{cfg.label}</span>
-                </div>
+                <Icon size={12} className="text-zinc-600 mt-1" />
               );
             })()}
           </div>
