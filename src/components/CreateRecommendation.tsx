@@ -3,7 +3,20 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { ArrowLeft, Search, Loader2, Lock, Users, Globe } from 'lucide-react';
 import { Item, User } from '../types';
-import { searchTMDB } from '../services/tmdb';
+import { searchTMDB, getTrending } from '../services/tmdb';
+
+function dedupe(items: Item[]): Item[] {
+  const seen = new Set<string>();
+  return items.filter(i => {
+    if (seen.has(i.id)) return false;
+    seen.add(i.id);
+    return true;
+  });
+}
+
+function validImage(url: string) {
+  return url && !url.endsWith('/null') && !url.includes('undefined');
+}
 
 // Card de item consistente entre steps
 function ItemCard({ item, label, user }: { item: Item; label: string; user?: User | null }) {
@@ -28,7 +41,7 @@ function ItemCard({ item, label, user }: { item: Item; label: string; user?: Use
 export function CreateRecommendation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { users, items, connections, currentUser, addRecommendation, addItem } = useStore();
+  const { users, connections, currentUser, addRecommendation, addItem } = useStore();
 
   const navItem = (location.state as any)?.item as Item | undefined;
 
@@ -42,6 +55,8 @@ export function CreateRecommendation() {
   const [itemSearch, setItemSearch] = useState('');
   const [tmdbResults, setTmdbResults] = useState<Item[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [browseItems, setBrowseItems] = useState<Item[]>([]);
+  const [loadingBrowse, setLoadingBrowse] = useState(false);
 
   // Track step direction for slide animation
   const prevStepRef = useRef(step);
@@ -62,18 +77,30 @@ export function CreateRecommendation() {
     .filter(u => connectedUserIds.includes(u.id))
     .filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()));
 
+  // Fetch trending when step 2 first opens
+  useEffect(() => {
+    if (step !== 2 || browseItems.length > 0) return;
+    setLoadingBrowse(true);
+    getTrending()
+      .then(results => setBrowseItems(dedupe(results.filter(i => validImage(i.image)))))
+      .finally(() => setLoadingBrowse(false));
+  }, [step]);
+
+  // TMDB search with debounce
   useEffect(() => {
     if (!itemSearch.trim()) { setTmdbResults([]); return; }
     const timer = setTimeout(async () => {
       setIsSearching(true);
-      try { setTmdbResults(await searchTMDB(itemSearch)); }
-      catch { setTmdbResults([]); }
+      try {
+        const results = await searchTMDB(itemSearch);
+        setTmdbResults(dedupe(results.filter(i => validImage(i.image))));
+      } catch { setTmdbResults([]); }
       finally { setIsSearching(false); }
     }, 400);
     return () => clearTimeout(timer);
   }, [itemSearch]);
 
-  const displayedItems = itemSearch.trim() ? tmdbResults : items;
+  const displayedItems = itemSearch.trim() ? tmdbResults : browseItems;
 
   const handleSelectItem = (item: Item) => {
     addItem(item);
@@ -169,9 +196,16 @@ export function CreateRecommendation() {
               )}
             </div>
             {!itemSearch.trim() && (
-              <p className="text-xs text-zinc-600 text-center mb-4">Digite para buscar no catálogo do TMDB</p>
+              <p className="text-xs text-zinc-600 text-center mb-4">
+                {loadingBrowse ? 'Carregando...' : 'Em alta esta semana · ou busque qualquer título'}
+              </p>
             )}
             <div className="grid grid-cols-3 gap-2">
+              {loadingBrowse && !itemSearch.trim() && (
+                <div className="col-span-3 flex justify-center py-10">
+                  <Loader2 size={22} className="text-zinc-600 animate-spin" />
+                </div>
+              )}
               {displayedItems.map(item => (
                 <button key={item.id} onClick={() => handleSelectItem(item)} className="flex flex-col text-left group">
                   <div className="aspect-[2/3] w-full mb-1.5 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10">
