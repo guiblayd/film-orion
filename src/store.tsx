@@ -21,7 +21,7 @@ type StoreContextType = {
   updateUserItemStatus: (itemId: string, status: 'saved' | 'watched' | 'ignored') => void;
   toggleFollow: (userId: string) => void;
   addItem: (item: Item) => void;
-  updateCurrentUser: (updates: Partial<Pick<User, 'name' | 'bio'>>) => void;
+  updateCurrentUser: (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar'>>) => void;
 };
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
@@ -215,7 +215,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
   };
 
-  const updateCurrentUser = (updates: Partial<Pick<User, 'name' | 'bio'>>) => {
+  const updateCurrentUser = (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar'>>) => {
     const updated = { ...currentUser, ...updates };
     setCurrentUser(updated);
     setUsers(prev => prev.map(u => u.id === currentUser.id ? updated : u));

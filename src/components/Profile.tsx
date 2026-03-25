@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings, X } from 'lucide-react';
+import { ArrowLeft, Settings, X, Camera, Loader2 } from 'lucide-react';
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
+import { AvatarCropper } from './AvatarCropper';
+import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 
 type Tab = 'received' | 'made' | 'watchlist' | 'watched';
@@ -16,6 +18,9 @@ export function Profile() {
   const [showSettings, setShowSettings] = useState(false);
   const [editName, setEditName] = useState(currentUser.name);
   const [editBio, setEditBio] = useState(currentUser.bio || '');
+  const [cropFile, setCropFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = users.find(u => u.id === id);
   if (!user) return <div className="p-8 text-center">Usuário não encontrado</div>;
@@ -46,6 +51,30 @@ export function Profile() {
     if (!editName.trim()) return;
     updateCurrentUser({ name: editName.trim(), bio: editBio.trim() || undefined });
     setShowSettings(false);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setCropFile(file);
+    e.target.value = '';
+  };
+
+  const handleCropConfirm = async (blob: Blob) => {
+    setCropFile(null);
+    setUploading(true);
+    try {
+      const path = `${currentUser.id}/avatar.jpg`;
+      const { error } = await supabase.storage
+        .from('avatars')
+        .upload(path, blob, { contentType: 'image/jpeg', upsert: true });
+      if (error) throw error;
+      const { data } = supabase.storage.from('avatars').getPublicUrl(path);
+      updateCurrentUser({ avatar: `${data.publicUrl}?t=${Date.now()}` });
+    } catch (err) {
+      console.error('Avatar upload failed:', err);
+    } finally {
+      setUploading(false);
+    }
   };
 
   return (
@@ -155,9 +184,27 @@ export function Profile() {
         )}
       </div>
 
-      {/* Settings bottom sheet */}
+      {/* Hidden file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={handleFileChange}
+      />
+
+      {/* Avatar crop overlay */}
+      {cropFile && (
+        <AvatarCropper
+          file={cropFile}
+          onConfirm={handleCropConfirm}
+          onCancel={() => setCropFile(null)}
+        />
+      )}
+
+      {/* Settings bottom sheet — z-[60] so it sits above Navigation (z-50) */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setShowSettings(false)}>
+        <div className="fixed inset-0 z-[60] flex items-end" onClick={() => setShowSettings(false)}>
           <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
           <div
             className="relative w-full max-w-md mx-auto bg-zinc-900 rounded-t-2xl border-t border-zinc-800 p-5"
@@ -170,8 +217,32 @@ export function Profile() {
               </button>
             </div>
 
+            {/* Avatar with camera overlay */}
             <div className="flex justify-center mb-5">
-              <img src={currentUser.avatar} className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-700" />
+              <button
+                className="relative group"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploading}
+              >
+                {uploading ? (
+                  <div className="w-16 h-16 rounded-full bg-zinc-800 ring-2 ring-zinc-700 flex items-center justify-center">
+                    <Loader2 size={22} className="text-zinc-400 animate-spin" />
+                  </div>
+                ) : (
+                  <>
+                    <img
+                      src={currentUser.avatar}
+                      className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-700"
+                    />
+                    <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                      <Camera size={18} className="text-white" />
+                    </div>
+                    <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center shadow-lg">
+                      <Camera size={12} className="text-zinc-900" />
+                    </div>
+                  </>
+                )}
+              </button>
             </div>
 
             <label className="block text-xs text-zinc-500 font-medium mb-1.5 uppercase tracking-wide">Nome</label>
