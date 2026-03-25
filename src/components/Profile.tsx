@@ -80,7 +80,7 @@ export function Profile() {
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">
       {/* Header */}
-      <header className="bg-zinc-950/80 backdrop-blur-xl px-4 py-2.5 flex justify-between items-center sticky top-0 z-10 border-b border-zinc-800/50">
+      <header className="bg-zinc-950/80 backdrop-blur-xl px-4 py-2.5 flex justify-between items-center border-b border-zinc-800/50">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
           <ArrowLeft size={20} />
         </button>
@@ -133,7 +133,7 @@ export function Profile() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 sticky top-[53px] z-10 flex overflow-x-auto">
+      <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 flex overflow-x-auto">
         <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
           Recebidas
         </TabButton>

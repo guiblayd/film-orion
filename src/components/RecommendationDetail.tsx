@@ -86,11 +86,10 @@ export function RecommendationDetail() {
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen flex flex-col">
       {/* Header */}
-      <header className="bg-zinc-950/90 backdrop-blur-xl px-3 py-2.5 flex items-center gap-2 sticky top-0 z-10 border-b border-zinc-800/50">
+      <header className="bg-zinc-950/90 backdrop-blur-xl px-3 py-2.5 flex items-center border-b border-zinc-800/50">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100 shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <h1 className="text-sm font-bold text-zinc-100 truncate">{item.title}</h1>
       </header>
 
       {/* From → To + menu */}
@@ -195,10 +194,14 @@ export function RecommendationDetail() {
                 if (!user) return null;
                 return (
                   <div key={comment.id} className="flex gap-2">
-                    <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-zinc-800" />
+                    <Link to={`/profile/${user.id}`} className="shrink-0">
+                      <img src={user.avatar} alt={user.name} className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-800" />
+                    </Link>
                     <div className="flex-1 min-w-0">
                       <div className="bg-zinc-900/60 px-3 py-2 rounded-xl rounded-tl-sm ring-1 ring-zinc-800/50">
-                        <p className="text-xs font-bold text-zinc-200 mb-0.5">{user.name}</p>
+                        <Link to={`/profile/${user.id}`} className="text-xs font-bold text-zinc-200 mb-0.5 hover:underline block">
+                          {user.name}
+                        </Link>
                         <p className="text-xs text-zinc-400 leading-relaxed">{comment.content}</p>
                       </div>
                     </div>

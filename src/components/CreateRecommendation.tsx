@@ -73,7 +73,7 @@ export function CreateRecommendation() {
 
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 flex flex-col">
-      <header className="border-b border-zinc-800/50 px-4 py-2.5 flex items-center gap-3 sticky top-0 bg-zinc-950/90 backdrop-blur-xl z-10">
+      <header className="border-b border-zinc-800/50 px-4 py-2.5 flex items-center gap-3 bg-zinc-950/90 backdrop-blur-xl">
         <button
           onClick={() => {
             if (step === 1) navigate(-1);
