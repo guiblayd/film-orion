@@ -29,6 +29,7 @@ export function ItemDetail() {
   const { items, recommendations, users, currentUser, addItem } = useStore();
   const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
   const [overviewExpanded, setOverviewExpanded] = useState(false);
+  const [activeProvider, setActiveProvider] = useState<string | null>(null);
 
   const navItem = (location.state as any)?.item as Item | undefined;
   const item = items.find(i => i.id === id) ?? navItem;
@@ -161,11 +162,25 @@ export function ItemDetail() {
       {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
         <div className="px-4 pb-8 pt-2">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Disponível em</p>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2.5 flex-wrap">
             {tmdb.provider_logos.map(p => (
-              <div key={p.name} className="flex flex-col items-center gap-1">
-                <img src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-10 h-10 rounded-xl object-cover" />
-                <span className="text-[9px] text-zinc-600 max-w-[42px] text-center leading-tight">{p.name}</span>
+              <div key={p.name} className="relative">
+                <button
+                  onClick={() => setActiveProvider(prev => prev === p.name ? null : p.name)}
+                  className="block"
+                >
+                  <img
+                    src={`${LOGO_IMG}${p.logo_path}`}
+                    alt={p.name}
+                    className="w-11 h-11 rounded-xl object-cover"
+                  />
+                </button>
+                {activeProvider === p.name && (
+                  <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg whitespace-nowrap z-10 shadow-lg">
+                    <span className="text-xs text-zinc-200 font-medium">{p.name}</span>
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-700" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

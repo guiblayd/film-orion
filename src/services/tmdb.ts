@@ -3,7 +3,7 @@ import { Item } from '../types';
 const API_KEY = '418765d7c9dee1aa4c604bb76f6bb2c9';
 const BASE = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/w300';
-export const LOGO_IMG = 'https://image.tmdb.org/t/p/w45';
+export const LOGO_IMG = 'https://image.tmdb.org/t/p/w92';
 
 const COUNTRY_PT: Record<string, string> = {
   US: 'Estados Unidos', GB: 'Reino Unido', FR: 'França', DE: 'Alemanha',
