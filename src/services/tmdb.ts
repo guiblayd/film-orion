@@ -21,6 +21,13 @@ export type TMDBDetails = {
   country?: string;
   overview?: string;
   provider_logos?: { name: string; logo_path: string }[];
+  runtime?: number;
+  seasons?: number;
+  genres?: string[];
+  cast?: string[];
+  director?: string;
+  creators?: string[];
+  vote_average?: number;
 };
 
 export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'): Promise<TMDBDetails> {
@@ -56,7 +63,19 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
         logo_path: p.logo_path as string,
       }));
 
-    return { country, overview, provider_logos };
+    const runtime = mediaType === 'movie' ? (details.runtime || undefined) : undefined;
+    const seasons = mediaType === 'tv' ? (details.number_of_seasons || undefined) : undefined;
+    const genres: string[] = (details.genres || []).slice(0, 3).map((g: any) => g.name as string);
+    const cast: string[] = (details.credits?.cast || []).slice(0, 5).map((c: any) => c.name as string);
+    const director = mediaType === 'movie'
+      ? ((details.credits?.crew || []).find((c: any) => c.job === 'Director')?.name as string | undefined)
+      : undefined;
+    const creators: string[] = mediaType === 'tv'
+      ? (details.created_by || []).map((c: any) => c.name as string)
+      : [];
+    const vote_average = details.vote_average ? Math.round(details.vote_average * 10) / 10 : undefined;
+
+    return { country, overview, provider_logos, runtime, seasons, genres, cast, director, creators: creators.length ? creators : undefined, vote_average };
   } catch {
     return {};
   }
