@@ -109,13 +109,6 @@ export function ItemDetail() {
         <p className="text-sm text-zinc-400 mt-1">
           {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
         </p>
-        {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
-          <div className="flex gap-1.5 flex-wrap justify-center mt-3">
-            {tmdb.provider_logos.map(p => (
-              <img key={p.name} src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-7 h-7 rounded-md object-cover" />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Botão Indicar — largura total */}
@@ -161,6 +154,21 @@ export function ItemDetail() {
         <div className="px-4 pb-4">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Mensagem</p>
           <p className="text-sm text-zinc-400 italic">"{relevantRec.message}"</p>
+        </div>
+      )}
+
+      {/* Streaming providers */}
+      {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
+        <div className="px-4 pb-8 pt-2">
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Disponível em</p>
+          <div className="flex gap-2 flex-wrap">
+            {tmdb.provider_logos.map(p => (
+              <div key={p.name} className="flex flex-col items-center gap-1">
+                <img src={`${LOGO_IMG}${p.logo_path}`} alt={p.name} title={p.name} className="w-10 h-10 rounded-xl object-cover" />
+                <span className="text-[9px] text-zinc-600 max-w-[42px] text-center leading-tight">{p.name}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
