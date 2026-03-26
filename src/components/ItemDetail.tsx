@@ -37,9 +37,10 @@ export function ItemDetail() {
   useEffect(() => {
     const navItem = (location.state as { item?: Item } | null)?.item;
     if (!navItem) return;
+
     setItem(navItem);
     void addItem(navItem);
-  }, [location.state]);
+  }, [location.state, addItem]);
 
   useEffect(() => {
     if (item || !id) return;
@@ -50,16 +51,38 @@ export function ItemDetail() {
       if (!cancelled) setItem(data);
     };
 
-    loadItem();
-    return () => { cancelled = true; };
+    void loadItem();
+    return () => {
+      cancelled = true;
+    };
   }, [id, item]);
 
   useEffect(() => {
-    if (!item?.id.startsWith('tmdb_')) return;
+    if (!item?.id.startsWith('tmdb_')) {
+      setTmdb(null);
+      return;
+    }
+
+    let cancelled = false;
     const tmdbId = Number(item.id.replace('tmdb_', ''));
     const mediaType = item.type === 'movie' ? 'movie' : 'tv';
-    getTMDBDetails(tmdbId, mediaType).then(setTmdb);
+
+    getTMDBDetails(tmdbId, mediaType).then(details => {
+      if (!cancelled) setTmdb(details);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [item?.id, item?.type]);
+
+  useEffect(() => {
+    if (!item || item.year || !tmdb?.year) return;
+
+    const hydratedItem = { ...item, year: tmdb.year };
+    setItem(hydratedItem);
+    void addItem(hydratedItem);
+  }, [item, tmdb?.year, addItem]);
 
   useEffect(() => {
     if (!item || users.length === 0 || !currentUser.id) return;
@@ -73,27 +96,30 @@ export function ItemDetail() {
       if (!cancelled) setRecommendationCards(data);
     };
 
-    loadRecommendations();
-    return () => { cancelled = true; };
+    void loadRecommendations();
+    return () => {
+      cancelled = true;
+    };
   }, [item, users, currentUser.id]);
 
-  if (!item) return <div className="p-8 text-center text-zinc-500">Item não encontrado</div>;
+  if (!item) return <div className="p-8 text-center text-zinc-500">Item nao encontrado</div>;
 
+  const displayYear = item.year ?? tmdb?.year;
   const relevantCard = recommendationCards[0] ?? null;
   const relevantRec = relevantCard?.recommendation ?? null;
   const fromUser = relevantCard?.fromUser ?? null;
 
-  const TYPE_LABEL: Record<string, string> = { movie: 'Filme', series: 'Série', anime: 'Anime' };
+  const typeLabel: Record<string, string> = { movie: 'Filme', series: 'Serie', anime: 'Anime' };
 
   const techRows: { label: string; value: string }[] = [];
-  if (tmdb?.director) techRows.push({ label: 'Direção', value: tmdb.director });
-  if (tmdb?.creators?.length) techRows.push({ label: 'Criação', value: tmdb.creators.join(', ') });
+  if (tmdb?.director) techRows.push({ label: 'Direcao', value: tmdb.director });
+  if (tmdb?.creators?.length) techRows.push({ label: 'Criacao', value: tmdb.creators.join(', ') });
   if (tmdb?.cast?.length) techRows.push({ label: 'Elenco', value: tmdb.cast.join(', ') });
-  if (tmdb?.genres?.length) techRows.push({ label: 'Gêneros', value: tmdb.genres.join(', ') });
-  if (item.type) techRows.push({ label: 'Tipo', value: TYPE_LABEL[item.type] ?? item.type });
-  if (item.year) techRows.push({ label: 'Ano', value: String(item.year) });
-  if (tmdb?.country) techRows.push({ label: 'País', value: tmdb.country });
-  if (tmdb?.runtime) techRows.push({ label: 'Duração', value: `${tmdb.runtime} min` });
+  if (tmdb?.genres?.length) techRows.push({ label: 'Generos', value: tmdb.genres.join(', ') });
+  if (item.type) techRows.push({ label: 'Tipo', value: typeLabel[item.type] ?? item.type });
+  if (displayYear) techRows.push({ label: 'Ano', value: String(displayYear) });
+  if (tmdb?.country) techRows.push({ label: 'Pais', value: tmdb.country });
+  if (tmdb?.runtime) techRows.push({ label: 'Duracao', value: `${tmdb.runtime} min` });
   if (tmdb?.seasons) techRows.push({ label: 'Temporadas', value: String(tmdb.seasons) });
   if (tmdb?.vote_average) techRows.push({ label: 'Nota TMDB', value: `${tmdb.vote_average} / 10` });
 
@@ -135,7 +161,7 @@ export function ItemDetail() {
         )}
         <h1 className="text-xl font-black text-zinc-100 leading-snug">{item.title}</h1>
         <p className="text-sm text-zinc-400 mt-1">
-          {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
+          {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
         </p>
       </div>
 
@@ -144,7 +170,7 @@ export function ItemDetail() {
           onClick={() => navigate('/create', { state: { item } })}
           className="w-full flex items-center justify-center gap-2 bg-zinc-100 text-zinc-950 font-bold py-3 rounded-xl text-sm hover:bg-white transition-colors active:scale-[0.98]"
         >
-          <Send size={15} /> Indicar para alguém
+          <Send size={15} /> Indicar para alguem
         </button>
       </div>
 
@@ -165,7 +191,7 @@ export function ItemDetail() {
 
       {techRows.length > 0 && (
         <div className="px-4 pb-6">
-          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-1">Ficha técnica</p>
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-1">Ficha tecnica</p>
           <div>
             {techRows.map(row => (
               <TechRow key={row.label} label={row.label} value={row.value} />
@@ -183,7 +209,7 @@ export function ItemDetail() {
 
       {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
         <div className="px-4 pb-8 pt-2">
-          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Disponível em</p>
+          <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Disponivel em</p>
           <div className="flex gap-2.5 flex-wrap">
             {tmdb.provider_logos.map(provider => (
               <div key={provider.name} className="relative">

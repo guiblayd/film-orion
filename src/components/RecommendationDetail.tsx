@@ -1,6 +1,20 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Send, Bookmark, Check, X, ArrowRight, MoreVertical, Trash2, Pencil, Lock, Users, Globe } from 'lucide-react';
+import {
+  ArrowLeft,
+  Send,
+  Bookmark,
+  Check,
+  X,
+  ArrowRight,
+  MoreVertical,
+  Trash2,
+  Pencil,
+  Lock,
+  Users,
+  Globe,
+  Eye,
+} from 'lucide-react';
 import { useStore } from '../store';
 import { cn, getRelativeTime } from '../lib/utils';
 import { getTMDBDetails, TMDBDetails } from '../services/tmdb';
@@ -30,6 +44,7 @@ export function RecommendationDetail() {
   const [newComment, setNewComment] = useState('');
   const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [showStatusSheet, setShowStatusSheet] = useState(false);
   const [showEdit, setShowEdit] = useState(false);
   const [editMessage, setEditMessage] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -109,6 +124,7 @@ export function RecommendationDetail() {
   if (cardNotFound || !card) return <div className="p-8 text-center">Indicacao nao encontrada</div>;
 
   const { recommendation, item, fromUser, toUser, comments } = card;
+  const displayYear = item.year ?? tmdb?.year;
   const status = userItemStatuses.find(itemStatus => itemStatus.item_id === item.id && itemStatus.user_id === currentUser.id)?.status;
   const isToUser = currentUser.id === recommendation.to_user_id;
   const isFromUser = currentUser.id === recommendation.from_user_id;
@@ -117,6 +133,7 @@ export function RecommendationDetail() {
   const handleStatusAction = async (nextStatus: 'watched' | 'saved' | 'ignored') => {
     await updateUserItemStatus(item.id, nextStatus);
     setMenuOpen(false);
+    setShowStatusSheet(false);
   };
 
   const handleDelete = async () => {
@@ -184,26 +201,20 @@ export function RecommendationDetail() {
           {showMenu && (
             <div className="relative" ref={menuRef}>
               <button
-                onClick={() => setMenuOpen(value => !value)}
+                onClick={() => {
+                  if (isToUser) {
+                    setShowStatusSheet(true);
+                    return;
+                  }
+
+                  setMenuOpen(value => !value);
+                }}
                 className="p-1 text-zinc-500 hover:text-zinc-300 transition-colors"
               >
                 <MoreVertical size={16} />
               </button>
-              {menuOpen && (
+              {menuOpen && !isToUser && (
                 <div className="absolute right-0 top-full mt-1 w-44 bg-zinc-900 border border-zinc-800 rounded-xl shadow-xl z-30 overflow-hidden">
-                  {isToUser && (
-                    <>
-                      <button onClick={() => void handleStatusAction('watched')} className={cn('w-full flex items-center gap-2.5 px-4 py-3 text-sm transition-colors hover:bg-zinc-800', status === 'watched' ? 'text-emerald-400' : 'text-zinc-300')}>
-                        <Check size={15} /> Ja vi
-                      </button>
-                      <button onClick={() => void handleStatusAction('saved')} className={cn('w-full flex items-center gap-2.5 px-4 py-3 text-sm transition-colors hover:bg-zinc-800 border-t border-zinc-800/60', status === 'saved' ? 'text-blue-400' : 'text-zinc-300')}>
-                        <Bookmark size={15} className={status === 'saved' ? 'fill-current' : ''} /> Salvar
-                      </button>
-                      <button onClick={() => void handleStatusAction('ignored')} className={cn('w-full flex items-center gap-2.5 px-4 py-3 text-sm transition-colors hover:bg-zinc-800 border-t border-zinc-800/60', status === 'ignored' ? 'text-rose-400' : 'text-zinc-300')}>
-                        <X size={15} /> Ignorar
-                      </button>
-                    </>
-                  )}
                   {isFromUser && (
                     <>
                       <button onClick={handleOpenEdit} className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-zinc-300 transition-colors hover:bg-zinc-800">
@@ -230,9 +241,9 @@ export function RecommendationDetail() {
             <Link to={`/item/${item.id}`}>
               <h2 className="font-bold text-sm text-zinc-100 leading-snug line-clamp-2 hover:underline">{item.title}</h2>
             </Link>
-            {(item.year || tmdb?.country) && (
+            {(displayYear || tmdb?.country) && (
               <p className="text-[11px] text-zinc-500">
-                {[item.year, tmdb?.country].filter(Boolean).join(' · ')}
+                {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
               </p>
             )}
             {(() => {
@@ -306,6 +317,46 @@ export function RecommendationDetail() {
         </div>
       )}
 
+      {showStatusSheet && (
+        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setShowStatusSheet(false)}>
+          <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
+          <div
+            className="relative w-full max-w-md mx-auto rounded-t-[32px] border-t border-zinc-700 bg-zinc-800/95 px-5 pb-8 pt-3 shadow-2xl"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="mx-auto mb-5 h-1.5 w-14 rounded-full bg-zinc-500/70" />
+            <div className="border-b border-zinc-700/70 pb-5 text-center">
+              <h2 className="text-2xl font-medium tracking-tight text-zinc-100">{item.title}</h2>
+              {displayYear && <p className="mt-1 text-lg text-zinc-400">{displayYear}</p>}
+            </div>
+
+            <div className="grid grid-cols-3 divide-x divide-zinc-700/70">
+              <StatusAction
+                label="Ja vi"
+                active={status === 'watched'}
+                tone="watched"
+                icon={<Eye size={34} strokeWidth={1.75} />}
+                onClick={() => void handleStatusAction('watched')}
+              />
+              <StatusAction
+                label="Ignorar"
+                active={status === 'ignored'}
+                tone="ignored"
+                icon={<X size={34} strokeWidth={1.75} />}
+                onClick={() => void handleStatusAction('ignored')}
+              />
+              <StatusAction
+                label="Salvar"
+                active={status === 'saved'}
+                tone="saved"
+                icon={<Bookmark size={34} strokeWidth={1.75} className={status === 'saved' ? 'fill-current' : ''} />}
+                onClick={() => void handleStatusAction('saved')}
+              />
+            </div>
+          </div>
+        </div>
+      )}
+
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
@@ -356,5 +407,38 @@ export function RecommendationDetail() {
         </div>
       )}
     </div>
+  );
+}
+
+function StatusAction({
+  label,
+  icon,
+  active,
+  tone,
+  onClick,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  active: boolean;
+  tone: 'watched' | 'ignored' | 'saved';
+  onClick: () => void;
+}) {
+  const activeStyles = {
+    watched: 'text-emerald-400',
+    ignored: 'text-rose-400',
+    saved: 'text-sky-400',
+  } as const;
+
+  return (
+    <button
+      onClick={onClick}
+      className={cn(
+        'flex flex-col items-center justify-center gap-3 px-3 py-8 text-zinc-400 transition-colors hover:text-zinc-100',
+        active && activeStyles[tone]
+      )}
+    >
+      {icon}
+      <span className="text-sm font-medium">{label}</span>
+    </button>
   );
 }

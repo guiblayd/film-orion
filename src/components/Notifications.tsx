@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Bell, Check, MessageSquare, UserPlus } from 'lucide-react';
 import { useStore } from '../store';
-import { getRelativeTime } from '../lib/utils';
 import { supabase } from '../lib/supabase';
 import { AppNotification, Item, User } from '../types';
 import { formatUsername } from '../lib/username';
@@ -11,6 +10,15 @@ import { Database } from '../types/database';
 type NotificationRow = AppNotification & {
   item: Item | null;
 };
+
+function formatNotificationDateTime(dateStr: string) {
+  return new Intl.DateTimeFormat('pt-BR', {
+    day: '2-digit',
+    month: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+  }).format(new Date(dateStr));
+}
 
 export function Notifications() {
   const { users, refreshUnreadNotificationsCount } = useStore();
@@ -152,16 +160,19 @@ function NotificationCard({ notification, users }: { notification: NotificationR
       </div>
 
       <div className="min-w-0 flex-1">
+        <div className="flex items-start justify-between gap-3 mb-1">
+          <p className="text-xs text-zinc-500">{formatUsername(actor.username)}</p>
+          <div className="flex items-center gap-2 shrink-0">
+            <p className="text-[11px] text-zinc-600 text-right">{formatNotificationDateTime(notification.created_at)}</p>
+            {!notification.read_at && (
+              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+            )}
+          </div>
+        </div>
         <p className="text-sm text-zinc-300 leading-relaxed">
           <span className="font-bold text-zinc-100">{actor.name}</span> {config.message}
         </p>
-        <p className="mt-1 text-xs text-zinc-500">{formatUsername(actor.username)}</p>
-        <p className="text-xs text-zinc-600 mt-1">{getRelativeTime(notification.created_at)}</p>
       </div>
-
-      {!notification.read_at && (
-        <span className="mt-1 w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
-      )}
     </Link>
   );
 }

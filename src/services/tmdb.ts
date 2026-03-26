@@ -61,6 +61,7 @@ const COUNTRY_PT: Record<string, string> = {
 };
 
 export type TMDBDetails = {
+  year?: number;
   country?: string;
   overview?: string;
   backdrop?: string;
@@ -96,6 +97,8 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
 
     const backdropPath = details.backdrop_path as string | null;
     const backdrop = backdropPath ? `https://image.tmdb.org/t/p/w780${backdropPath}` : undefined;
+    const releaseDate = mediaType === 'movie' ? details.release_date : details.first_air_date;
+    const year = Number(releaseDate?.substring(0, 4)) || undefined;
 
     const countryCode = mediaType === 'movie'
       ? details.production_countries?.[0]?.iso_3166_1
@@ -132,6 +135,7 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
     const vote_average = details.vote_average ? Math.round(details.vote_average * 10) / 10 : undefined;
 
     return {
+      year,
       country,
       overview,
       backdrop,
