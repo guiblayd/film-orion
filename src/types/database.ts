@@ -144,6 +144,91 @@ export type Database = {
         }
         Relationships: []
       }
+      notifications: {
+        Row: {
+          actor_id: string
+          comment_id: string | null
+          connection_id: string | null
+          created_at: string
+          id: string
+          item_id: string | null
+          metadata: Json
+          read_at: string | null
+          recipient_id: string
+          recommendation_id: string | null
+          type: string
+        }
+        Insert: {
+          actor_id: string
+          comment_id?: string | null
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          read_at?: string | null
+          recipient_id: string
+          recommendation_id?: string | null
+          type: string
+        }
+        Update: {
+          actor_id?: string
+          comment_id?: string | null
+          connection_id?: string | null
+          created_at?: string
+          id?: string
+          item_id?: string | null
+          metadata?: Json
+          read_at?: string | null
+          recipient_id?: string
+          recommendation_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_actor_id_fkey"
+            columns: ["actor_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_item_id_fkey"
+            columns: ["item_id"]
+            isOneToOne: false
+            referencedRelation: "items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_recommendation_id_fkey"
+            columns: ["recommendation_id"]
+            isOneToOne: false
+            referencedRelation: "recommendations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar: string | null
@@ -151,6 +236,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          username: string
         }
         Insert: {
           avatar?: string | null
@@ -158,6 +244,7 @@ export type Database = {
           created_at?: string
           id: string
           name?: string
+          username: string
         }
         Update: {
           avatar?: string | null
@@ -165,6 +252,7 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          username?: string
         }
         Relationships: []
       }
@@ -306,7 +394,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      are_users_connected: {
+        Args: { user_a: string; user_b: string }
+        Returns: boolean
+      }
+      can_view_recommendation: {
+        Args: { rec: Database["public"]["Tables"]["recommendations"]["Row"] }
+        Returns: boolean
+      }
+      create_notification: {
+        Args: {
+          p_actor_id: string
+          p_comment_id?: string
+          p_connection_id?: string
+          p_item_id?: string
+          p_metadata?: Json
+          p_recipient_id: string
+          p_recommendation_id?: string
+          p_type: string
+        }
+        Returns: undefined
+      }
+      delete_current_user: { Args: never; Returns: undefined }
+      generate_unique_username: {
+        Args: { profile_id?: string; seed: string }
+        Returns: string
+      }
+      normalize_username: { Args: { input: string }; Returns: string }
     }
     Enums: {
       [_ in never]: never

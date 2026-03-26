@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useStore } from '../store';
 import { ArrowLeft, Search, Loader2, Lock, Users, Globe } from 'lucide-react';
 import { Item, User } from '../types';
+import { formatUsername } from '../lib/username';
 import { searchTMDB, getTrending } from '../services/tmdb';
 
 function dedupe(items: Item[]): Item[] {
@@ -26,9 +27,12 @@ function ItemCard({ item, label, user }: { item: Item; label: string; user?: Use
       <div className="flex flex-col justify-center min-w-0">
         <p className="text-xs text-zinc-500 mb-0.5">{label}</p>
         {user && (
-          <div className="flex items-center gap-1.5 mb-1">
-            <img src={user.avatar} alt={user.name} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
-            <span className="font-bold text-xs text-zinc-100 truncate">{user.name}</span>
+          <div className="mb-1">
+            <div className="flex items-center gap-1.5">
+              <img src={user.avatar} alt={user.name} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
+              <span className="font-bold text-xs text-zinc-100 truncate">{user.name}</span>
+            </div>
+            <span className="ml-5 block text-[11px] text-zinc-500">{formatUsername(user.username)}</span>
           </div>
         )}
         <p className="font-semibold text-sm text-zinc-100 line-clamp-2 leading-snug">{item.title}</p>
@@ -75,7 +79,10 @@ export function CreateRecommendation() {
 
   const connectedUsers = users
     .filter(u => connectedUserIds.includes(u.id))
-    .filter(u => u.name.toLowerCase().includes(userSearch.toLowerCase()));
+    .filter(u => (
+      u.name.toLowerCase().includes(userSearch.toLowerCase()) ||
+      u.username.toLowerCase().includes(userSearch.toLowerCase())
+    ));
 
   // Fetch trending when step 2 first opens
   useEffect(() => {
@@ -103,14 +110,15 @@ export function CreateRecommendation() {
   const displayedItems = itemSearch.trim() ? tmdbResults : browseItems;
 
   const handleSelectItem = (item: Item) => {
-    addItem(item);
+    void addItem(item);
     setSelectedItem(item);
     setStep(3);
   };
 
-  const handleCreate = () => {
+  const handleCreate = async () => {
     if (!selectedUser || !selectedItem) return;
-    addRecommendation({
+    await addItem(selectedItem);
+    await addRecommendation({
       from_user_id: currentUser.id,
       to_user_id: selectedUser.id,
       item_id: selectedItem.id,
@@ -168,7 +176,10 @@ export function CreateRecommendation() {
                   className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-zinc-900/60 text-left transition-colors"
                 >
                   <img src={user.avatar} alt={user.name} className="w-10 h-10 rounded-full object-cover ring-1 ring-zinc-800" />
-                  <span className="font-medium text-sm text-zinc-100">{user.name}</span>
+                  <div className="min-w-0">
+                    <span className="block truncate font-medium text-sm text-zinc-100">{user.name}</span>
+                    <span className="block truncate text-xs text-zinc-500">{formatUsername(user.username)}</span>
+                  </div>
                 </button>
               ))}
               {connectedUsers.length === 0 && (
@@ -282,7 +293,7 @@ export function CreateRecommendation() {
             </div>
 
             <button
-              onClick={handleCreate}
+              onClick={() => void handleCreate()}
               className="w-full bg-zinc-100 text-zinc-950 font-bold py-3 rounded-xl active:scale-[0.98] transition-transform hover:bg-white text-sm"
             >
               Enviar Indicação

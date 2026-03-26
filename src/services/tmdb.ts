@@ -1,20 +1,63 @@
 import { Item } from '../types';
 
-const API_KEY = '418765d7c9dee1aa4c604bb76f6bb2c9';
+const API_KEY = import.meta.env.VITE_TMDB_API_KEY as string | undefined;
 const BASE = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/w300';
 export const LOGO_IMG = 'https://image.tmdb.org/t/p/w92';
+export const TMDB_GENRES = [
+  { id: '18', label: 'Drama' },
+  { id: '878', label: 'Ficcao cientifica' },
+  { id: '53', label: 'Suspense' },
+  { id: '35', label: 'Comedia' },
+  { id: '10749', label: 'Romance' },
+  { id: '16', label: 'Animacao' },
+] as const;
+
+export const TMDB_PROVIDERS = [
+  { id: '8', label: 'Netflix' },
+  { id: '119', label: 'Prime Video' },
+  { id: '1899', label: 'Max' },
+  { id: '337', label: 'Disney Plus' },
+  { id: '350', label: 'Apple TV Plus' },
+] as const;
 
 const COUNTRY_PT: Record<string, string> = {
-  US: 'Estados Unidos', GB: 'Reino Unido', FR: 'França', DE: 'Alemanha',
-  IT: 'Itália', ES: 'Espanha', JP: 'Japão', KR: 'Coreia do Sul',
-  CN: 'China', IN: 'Índia', BR: 'Brasil', AU: 'Austrália',
-  CA: 'Canadá', MX: 'México', AR: 'Argentina', PT: 'Portugal',
-  RU: 'Rússia', SE: 'Suécia', DK: 'Dinamarca', NO: 'Noruega',
-  NL: 'Países Baixos', BE: 'Bélgica', CH: 'Suíça', AT: 'Áustria',
-  PL: 'Polônia', TR: 'Turquia', IL: 'Israel', TH: 'Tailândia',
-  HK: 'Hong Kong', TW: 'Taiwan', IE: 'Irlanda', NZ: 'Nova Zelândia',
-  ZA: 'África do Sul', CO: 'Colômbia', CL: 'Chile', PE: 'Peru',
+  US: 'Estados Unidos',
+  GB: 'Reino Unido',
+  FR: 'Franca',
+  DE: 'Alemanha',
+  IT: 'Italia',
+  ES: 'Espanha',
+  JP: 'Japao',
+  KR: 'Coreia do Sul',
+  CN: 'China',
+  IN: 'India',
+  BR: 'Brasil',
+  AU: 'Australia',
+  CA: 'Canada',
+  MX: 'Mexico',
+  AR: 'Argentina',
+  PT: 'Portugal',
+  RU: 'Russia',
+  SE: 'Suecia',
+  DK: 'Dinamarca',
+  NO: 'Noruega',
+  NL: 'Paises Baixos',
+  BE: 'Belgica',
+  CH: 'Suica',
+  AT: 'Austria',
+  PL: 'Polonia',
+  TR: 'Turquia',
+  IL: 'Israel',
+  TH: 'Tailandia',
+  HK: 'Hong Kong',
+  TW: 'Taiwan',
+  IE: 'Irlanda',
+  NZ: 'Nova Zelandia',
+  ZA: 'Africa do Sul',
+  CO: 'Colombia',
+  CL: 'Chile',
+  PE: 'Peru',
 };
 
 export type TMDBDetails = {
@@ -31,11 +74,21 @@ export type TMDBDetails = {
   vote_average?: number;
 };
 
+function withKey(path: string, extraParams = '') {
+  if (!API_KEY) return null;
+  const separator = extraParams ? '&' : '';
+  return `${BASE}${path}?api_key=${API_KEY}${separator}${extraParams}`;
+}
+
 export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'): Promise<TMDBDetails> {
+  const detailsUrl = withKey(`/${mediaType}/${tmdbId}`, 'language=pt-BR&append_to_response=credits');
+  const providersUrl = withKey(`/${mediaType}/${tmdbId}/watch/providers`);
+  if (!detailsUrl || !providersUrl) return {};
+
   try {
     const [detailsRes, providersRes] = await Promise.all([
-      fetch(`${BASE}/${mediaType}/${tmdbId}?api_key=${API_KEY}&language=pt-BR&append_to_response=credits`),
-      fetch(`${BASE}/${mediaType}/${tmdbId}/watch/providers?api_key=${API_KEY}`),
+      fetch(detailsUrl),
+      fetch(providersUrl),
     ]);
     if (!detailsRes.ok) return {};
     const details = await detailsRes.json();
@@ -50,68 +103,81 @@ export async function getTMDBDetails(tmdbId: number, mediaType: 'movie' | 'tv'):
     const country = countryCode ? (COUNTRY_PT[countryCode] ?? countryCode) : undefined;
     const overview: string | undefined = details.overview || undefined;
 
-    // Only show subscription (flatrate) providers — buy/rent can show wrong services
     const flatrate =
       providers.results?.BR?.flatrate ||
       providers.results?.US?.flatrate ||
       [];
     const seen = new Set<number>();
     const provider_logos = (flatrate as any[])
-      .filter(p => {
-        if (seen.has(p.provider_id)) return false;
-        seen.add(p.provider_id);
+      .filter(provider => {
+        if (seen.has(provider.provider_id)) return false;
+        seen.add(provider.provider_id);
         return true;
       })
-      .map(p => ({
-        name: p.provider_name as string,
-        logo_path: p.logo_path as string,
+      .map(provider => ({
+        name: provider.provider_name as string,
+        logo_path: provider.logo_path as string,
       }));
 
     const runtime = mediaType === 'movie' ? (details.runtime || undefined) : undefined;
     const seasons = mediaType === 'tv' ? (details.number_of_seasons || undefined) : undefined;
-    const genres: string[] = (details.genres || []).slice(0, 3).map((g: any) => g.name as string);
-    const cast: string[] = (details.credits?.cast || []).slice(0, 5).map((c: any) => c.name as string);
+    const genres: string[] = (details.genres || []).slice(0, 3).map((genre: any) => genre.name as string);
+    const cast: string[] = (details.credits?.cast || []).slice(0, 5).map((member: any) => member.name as string);
     const director = mediaType === 'movie'
-      ? ((details.credits?.crew || []).find((c: any) => c.job === 'Director')?.name as string | undefined)
+      ? ((details.credits?.crew || []).find((member: any) => member.job === 'Director')?.name as string | undefined)
       : undefined;
     const creators: string[] = mediaType === 'tv'
-      ? (details.created_by || []).map((c: any) => c.name as string)
+      ? (details.created_by || []).map((creator: any) => creator.name as string)
       : [];
     const vote_average = details.vote_average ? Math.round(details.vote_average * 10) / 10 : undefined;
 
-    return { country, overview, backdrop, provider_logos, runtime, seasons, genres, cast, director, creators: creators.length ? creators : undefined, vote_average };
+    return {
+      country,
+      overview,
+      backdrop,
+      provider_logos,
+      runtime,
+      seasons,
+      genres,
+      cast,
+      director,
+      creators: creators.length ? creators : undefined,
+      vote_average,
+    };
   } catch {
     return {};
   }
 }
 
-function mapMovie(r: any): Item {
+function mapMovie(result: any): Item {
   return {
-    id: `tmdb_${r.id}`,
-    title: r.title,
-    image: `${IMG}${r.poster_path}`,
+    id: `tmdb_${result.id}`,
+    title: result.title,
+    image: `${IMG}${result.poster_path}`,
     type: 'movie',
-    year: Number(r.release_date?.substring(0, 4)) || undefined,
+    year: Number(result.release_date?.substring(0, 4)) || undefined,
   };
 }
 
-function mapTV(r: any): Item {
-  const isAnime = (r.genre_ids as number[]).includes(16) && r.original_language === 'ja';
+function mapTV(result: any): Item {
+  const isAnime = (result.genre_ids as number[]).includes(16) && result.original_language === 'ja';
   return {
-    id: `tmdb_${r.id}`,
-    title: r.name,
-    image: `${IMG}${r.poster_path}`,
+    id: `tmdb_${result.id}`,
+    title: result.name,
+    image: `${IMG}${result.poster_path}`,
     type: isAnime ? 'anime' : 'series',
-    year: Number(r.first_air_date?.substring(0, 4)) || undefined,
+    year: Number(result.first_air_date?.substring(0, 4)) || undefined,
   };
 }
 
-async function fetchList(url: string, mapFn: (r: any) => Item): Promise<Item[]> {
+async function fetchList(url: string | null, mapFn: (result: any) => Item): Promise<Item[]> {
+  if (!url) return [];
+
   try {
-    const res = await fetch(url);
-    if (!res.ok) return [];
-    const data = await res.json();
-    return (data.results || []).filter((r: any) => r.poster_path).map(mapFn);
+    const response = await fetch(url);
+    if (!response.ok) return [];
+    const data = await response.json();
+    return (data.results || []).filter((result: any) => result.poster_path).map(mapFn);
   } catch {
     return [];
   }
@@ -119,46 +185,94 @@ async function fetchList(url: string, mapFn: (r: any) => Item): Promise<Item[]> 
 
 export function getTrending(): Promise<Item[]> {
   return fetchList(
-    `${BASE}/trending/all/week?api_key=${API_KEY}&language=pt-BR`,
-    (r: any) => {
-      if (r.media_type === 'tv') return mapTV(r);
-      return mapMovie(r);
-    }
-  ).then(items => items.filter(i => i.image.includes('/null') === false));
+    withKey('/trending/all/week', 'language=pt-BR'),
+    (result: any) => result.media_type === 'tv' ? mapTV(result) : mapMovie(result)
+  ).then(items => items.filter(item => !item.image.includes('/null')));
 }
 
 export function getPopularMovies(): Promise<Item[]> {
-  return fetchList(`${BASE}/movie/popular?api_key=${API_KEY}&language=pt-BR&region=BR`, mapMovie);
+  return fetchList(withKey('/movie/popular', 'language=pt-BR&region=BR'), mapMovie);
 }
 
 export function getPopularTV(): Promise<Item[]> {
-  return fetchList(`${BASE}/tv/popular?api_key=${API_KEY}&language=pt-BR`, mapTV);
+  return fetchList(withKey('/tv/popular', 'language=pt-BR'), mapTV);
 }
 
 export function getTopRatedMovies(): Promise<Item[]> {
-  return fetchList(`${BASE}/movie/top_rated?api_key=${API_KEY}&language=pt-BR&region=BR`, mapMovie);
+  return fetchList(withKey('/movie/top_rated', 'language=pt-BR&region=BR'), mapMovie);
 }
 
 export async function searchTMDB(query: string): Promise<Item[]> {
   if (!query.trim()) return [];
-  const res = await fetch(
-    `${BASE}/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}&language=pt-BR&include_adult=false`
+
+  const url = withKey(
+    '/search/multi',
+    `query=${encodeURIComponent(query)}&language=pt-BR&include_adult=false`
   );
-  if (!res.ok) return [];
-  const data = await res.json();
+  if (!url) return [];
+
+  const response = await fetch(url);
+  if (!response.ok) return [];
+  const data = await response.json();
 
   return (data.results || [])
-    .filter((r: any) => (r.media_type === 'movie' || r.media_type === 'tv') && r.poster_path)
+    .filter((result: any) => (result.media_type === 'movie' || result.media_type === 'tv') && result.poster_path)
     .slice(0, 20)
-    .map((r: any): Item => {
-      const isTV = r.media_type === 'tv';
-      const isAnime = isTV && (r.genre_ids as number[]).includes(16) && r.original_language === 'ja';
+    .map((result: any): Item => {
+      const isTV = result.media_type === 'tv';
+      const isAnime = isTV && (result.genre_ids as number[]).includes(16) && result.original_language === 'ja';
       return {
-        id: `tmdb_${r.id}`,
-        title: isTV ? r.name : r.title,
-        image: `${IMG}${r.poster_path}`,
+        id: `tmdb_${result.id}`,
+        title: isTV ? result.name : result.title,
+        image: `${IMG}${result.poster_path}`,
         type: isAnime ? 'anime' : isTV ? 'series' : 'movie',
-        year: Number((isTV ? r.first_air_date : r.release_date)?.substring(0, 4)) || undefined,
+        year: Number((isTV ? result.first_air_date : result.release_date)?.substring(0, 4)) || undefined,
       };
     });
+}
+
+export async function discoverTMDB({
+  mediaType = 'all',
+  genreId,
+  providerId,
+  year,
+}: {
+  mediaType?: 'all' | 'movie' | 'tv';
+  genreId?: string;
+  providerId?: string;
+  year?: string;
+}): Promise<Item[]> {
+  if (!API_KEY) return [];
+
+  const targets = mediaType === 'all' ? ['movie', 'tv'] as const : [mediaType] as const;
+  const requests = targets.map(async target => {
+    const params = new URLSearchParams({
+      language: 'pt-BR',
+      include_adult: 'false',
+      sort_by: 'popularity.desc',
+      watch_region: 'BR',
+    });
+
+    if (genreId) params.set('with_genres', genreId);
+    if (providerId) params.set('with_watch_providers', providerId);
+    if (year) {
+      if (target === 'movie') params.set('primary_release_year', year);
+      else params.set('first_air_date_year', year);
+    }
+
+    const url = withKey(`/discover/${target}`, params.toString());
+    return fetchList(url, target === 'movie' ? mapMovie : mapTV);
+  });
+
+  const lists = await Promise.all(requests);
+  return dedupeItems(lists.flat()).slice(0, 18);
+}
+
+function dedupeItems(items: Item[]) {
+  const seen = new Set<string>();
+  return items.filter(item => {
+    if (seen.has(item.id)) return false;
+    seen.add(item.id);
+    return true;
+  });
 }

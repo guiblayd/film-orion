@@ -1,17 +1,21 @@
 import { BrowserRouter as Router, Routes, Route, Outlet, useLocation } from 'react-router-dom';
-import { useEffect, ReactNode } from 'react';
+import { useEffect, ReactNode, Suspense, lazy } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { StoreProvider, useStore } from './store';
 import { Auth } from './components/Auth';
 import { LoadingScreen } from './components/LoadingScreen';
-import { Feed } from './components/Feed';
 import { Navigation } from './components/Navigation';
-import { CreateRecommendation } from './components/CreateRecommendation';
-import { Profile } from './components/Profile';
-import { ItemDetail } from './components/ItemDetail';
-import { RecommendationDetail } from './components/RecommendationDetail';
-import { Notifications } from './components/Notifications';
-import { Explore } from './components/Explore';
+import { DesktopSidebar } from './components/DesktopSidebar';
+import { DesktopAside } from './components/DesktopAside';
+import { OnboardingModal } from './components/OnboardingModal';
+
+const Feed = lazy(() => import('./components/Feed').then(module => ({ default: module.Feed })));
+const Explore = lazy(() => import('./components/Explore').then(module => ({ default: module.Explore })));
+const Notifications = lazy(() => import('./components/Notifications').then(module => ({ default: module.Notifications })));
+const Profile = lazy(() => import('./components/Profile').then(module => ({ default: module.Profile })));
+const CreateRecommendation = lazy(() => import('./components/CreateRecommendation').then(module => ({ default: module.CreateRecommendation })));
+const ItemDetail = lazy(() => import('./components/ItemDetail').then(module => ({ default: module.ItemDetail })));
+const RecommendationDetail = lazy(() => import('./components/RecommendationDetail').then(module => ({ default: module.RecommendationDetail })));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -21,10 +25,17 @@ function ScrollToTop() {
 
 function Layout() {
   return (
-    <>
-      <Outlet />
+    <div className="min-h-screen lg:px-6 lg:py-6">
+      <div className="mx-auto lg:grid lg:max-w-[1440px] lg:grid-cols-[260px_minmax(0,1fr)_320px] lg:gap-6">
+        <DesktopSidebar />
+        <main className="min-w-0">
+          <Outlet />
+        </main>
+        <DesktopAside />
+      </div>
       <Navigation />
-    </>
+      <OnboardingModal />
+    </div>
   );
 }
 
@@ -32,17 +43,19 @@ function AppRoutes() {
   const { dataLoading } = useStore();
   if (dataLoading) return <LoadingScreen />;
   return (
-    <Routes>
-      <Route element={<Layout />}>
-        <Route path="/" element={<Feed />} />
-        <Route path="/explore" element={<Explore />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/profile/:id" element={<Profile />} />
-      </Route>
-      <Route path="/create" element={<CreateRecommendation />} />
-      <Route path="/item/:id" element={<ItemDetail />} />
-      <Route path="/recommendation/:id" element={<RecommendationDetail />} />
-    </Routes>
+    <Suspense fallback={<LoadingScreen />}>
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Feed />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/notifications" element={<Notifications />} />
+          <Route path="/profile/:id" element={<Profile />} />
+        </Route>
+        <Route path="/create" element={<CreateRecommendation />} />
+        <Route path="/item/:id" element={<ItemDetail />} />
+        <Route path="/recommendation/:id" element={<RecommendationDetail />} />
+      </Routes>
+    </Suspense>
   );
 }
 

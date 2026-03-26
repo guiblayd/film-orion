@@ -1,45 +1,64 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { Compass, Sparkles } from 'lucide-react';
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
 import { cn } from '../lib/utils';
+import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 type Tab = 'descobrir' | 'circulo' | 'para-mim';
 
 export function Feed() {
-  const { recommendations, currentUser, connections } = useStore();
+  const { currentUser, connections, users, onboardingPreferences } = useStore();
   const [activeTab, setActiveTab] = useState<Tab>('descobrir');
+  const [cards, setCards] = useState<RecommendationCardData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const myConnectionIds = new Set(
+  useEffect(() => {
+    if (!currentUser.id || users.length === 0) return;
+
+    let cancelled = false;
+
+    const load = async () => {
+      setLoading(true);
+      const data = await fetchRecommendationCards(users);
+      if (!cancelled) {
+        setCards(data);
+        setLoading(false);
+      }
+    };
+
+    load();
+    return () => { cancelled = true; };
+  }, [currentUser.id, users]);
+
+  const myConnectionIds = useMemo(() => new Set(
     connections
-      .filter(c => c.requester_id === currentUser.id || c.receiver_id === currentUser.id)
-      .map(c => c.requester_id === currentUser.id ? c.receiver_id : c.requester_id)
-  );
+      .filter(connection => connection.requester_id === currentUser.id || connection.receiver_id === currentUser.id)
+      .map(connection => connection.requester_id === currentUser.id ? connection.receiver_id : connection.requester_id)
+  ), [connections, currentUser.id]);
 
-  const filtered = recommendations.filter(r => {
-    const isOwn = r.from_user_id === currentUser.id || r.to_user_id === currentUser.id;
-    const isConnection = myConnectionIds.has(r.from_user_id) || myConnectionIds.has(r.to_user_id);
+  const filtered = cards.filter(card => {
+    const { recommendation } = card;
+    const isOwn = recommendation.from_user_id === currentUser.id || recommendation.to_user_id === currentUser.id;
+    const isConnection =
+      myConnectionIds.has(recommendation.from_user_id) ||
+      myConnectionIds.has(recommendation.to_user_id);
 
-    if (activeTab === 'para-mim') return r.to_user_id === currentUser.id;
-
-    if (activeTab === 'circulo') {
-      if (isOwn) return true;
-      if (isConnection && r.visibility !== 'private') return true;
-      return false;
-    }
-
-    // descobrir — conteúdo público global
-    return r.visibility === 'public';
+    if (activeTab === 'para-mim') return recommendation.to_user_id === currentUser.id;
+    if (activeTab === 'circulo') return isOwn || (isConnection && recommendation.visibility !== 'private');
+    return recommendation.visibility === 'public';
   });
 
   const emptyMessages: Record<Tab, string> = {
     descobrir: 'Nenhuma indicação pública ainda.',
-    circulo:   'Nenhuma indicação no seu círculo ainda.',
+    circulo: 'Nenhuma indicação no seu círculo ainda.',
     'para-mim': 'Nenhuma indicação para você ainda.',
   };
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20">
-      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10">
+    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-none lg:px-6">
+      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10 lg:max-w-3xl lg:mx-auto lg:rounded-b-2xl">
         <div className="px-4 py-3">
           <h1 className="text-xl font-black tracking-tight text-zinc-100">FilmOrion</h1>
         </div>
@@ -56,11 +75,42 @@ export function Feed() {
         </div>
       </header>
 
-      <div className="flex flex-col">
-        {filtered.map(rec => (
-          <RecommendationCard key={rec.id} recommendation={rec} />
+      <div className="flex flex-col lg:max-w-3xl lg:mx-auto lg:mt-4 lg:rounded-2xl lg:overflow-hidden lg:border lg:border-zinc-800/50">
+        {connections.length === 0 && (
+          <div className="border-b border-zinc-800/50 bg-zinc-900/50 p-4">
+            <div className="flex items-start gap-3">
+              <div className="rounded-2xl bg-zinc-100/10 p-2 text-zinc-100">
+                <Sparkles size={18} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-bold text-zinc-100">Seu feed melhora muito com primeiros sinais.</p>
+                <p className="mt-1 text-sm leading-relaxed text-zinc-400">
+                  {onboardingPreferences
+                    ? 'Voce ja salvou seu gosto inicial. Agora vale seguir alguns perfis para destravar o circulo.'
+                    : 'Personalize seus gostos e siga algumas pessoas para destravar recomendacoes mais certeiras.'}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <Link to="/explore" className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-xs font-bold text-zinc-950">
+                    <Compass size={14} />
+                    Abrir Explore
+                  </Link>
+                  <Link to={`/profile/${currentUser.id}`} className="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-200">
+                    Ver perfil
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+        {loading && (
+          <div className="p-10 text-center text-zinc-600 text-sm">
+            Carregando indicações...
+          </div>
+        )}
+        {!loading && filtered.map(card => (
+          <RecommendationCard key={card.recommendation.id} card={card} />
         ))}
-        {filtered.length === 0 && (
+        {!loading && filtered.length === 0 && (
           <div className="p-10 text-center text-zinc-600 text-sm">
             {emptyMessages[activeTab]}
           </div>
@@ -75,8 +125,8 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button
       onClick={onClick}
       className={cn(
-        "flex-1 py-2.5 text-xs font-bold border-b-2 transition-colors",
-        active ? "border-zinc-100 text-zinc-100" : "border-transparent text-zinc-500 hover:text-zinc-300"
+        'flex-1 py-2.5 text-xs font-bold border-b-2 transition-colors',
+        active ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       )}
     >
       {children}

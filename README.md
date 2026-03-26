@@ -1,20 +1,26 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# FilmOrion
 
-# Run and deploy your AI Studio app
+Rede social de recomendacoes de filmes, series e animes com feed social, perfis, comentarios, notificacoes e integracao com Supabase + TMDB.
 
-This contains everything you need to run your app locally.
+## Rodar localmente
 
-View your app in AI Studio: https://ai.studio/apps/c86b64d0-8bc6-4016-8d82-c2a219abc936
+Pre-requisitos: Node.js 20+ e um projeto Supabase configurado.
 
-## Run Locally
+1. Instale as dependencias com `npm install`.
+2. Copie `.env.example` para `.env.local`.
+3. Preencha `VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY` e `VITE_TMDB_API_KEY`.
+4. Rode as migrations do Supabase.
+5. Inicie o app com `npm run dev`.
 
-**Prerequisites:**  Node.js
+## Banco de dados
 
+- `npm run db:push`: aplica migrations no projeto Supabase vinculado.
+- `npm run db:types`: regenera os tipos do banco em `src/types/database.ts`.
+- `npm run db:seed`: popula o banco com usuarios e recomendacoes de demonstracao.
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Stack
+
+- React 19 + Vite
+- Tailwind CSS 4
+- Supabase Auth, Database e Storage
+- TMDB para descoberta e detalhes de conteudo

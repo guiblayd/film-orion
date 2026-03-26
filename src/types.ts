@@ -1,6 +1,7 @@
 export type User = {
   id: string;
   name: string;
+  username: string;
   avatar: string;
   bio?: string;
 };
@@ -53,4 +54,31 @@ export type UserItemStatus = {
   user_id: string;
   item_id: string;
   status: 'saved' | 'watched' | 'ignored';
+};
+
+export type NotificationType =
+  | 'recommendation_received'
+  | 'comment_added'
+  | 'connection_created'
+  | 'recommendation_status_changed';
+
+export type AppNotification = {
+  id: string;
+  recipient_id: string;
+  actor_id: string;
+  type: NotificationType;
+  recommendation_id?: string;
+  comment_id?: string;
+  connection_id?: string;
+  item_id?: string;
+  metadata?: Record<string, string | number | boolean | null>;
+  read_at?: string;
+  created_at: string;
+};
+
+export type OnboardingPreferences = {
+  favoriteTypes: Item['type'][];
+  favoriteGenres: string[];
+  favoriteProviders: string[];
+  completed_at: string;
 };

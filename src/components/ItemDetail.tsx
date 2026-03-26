@@ -4,6 +4,7 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { useStore } from '../store';
 import { getTMDBDetails, LOGO_IMG, TMDBDetails } from '../services/tmdb';
 import { Item } from '../types';
+import { fetchItemById, fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
 const W300 = 'https://image.tmdb.org/t/p/w300';
@@ -25,32 +26,62 @@ export function ItemDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
+  const { users, currentUser, addItem } = useStore();
 
-  const { items, recommendations, users, currentUser, addItem } = useStore();
+  const [item, setItem] = useState<Item | null>(((location.state as { item?: Item } | null)?.item) ?? null);
   const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
   const [overviewExpanded, setOverviewExpanded] = useState(false);
   const [activeProvider, setActiveProvider] = useState<string | null>(null);
-
-  const navItem = (location.state as any)?.item as Item | undefined;
-  const item = items.find(i => i.id === id) ?? navItem;
+  const [recommendationCards, setRecommendationCards] = useState<RecommendationCardData[]>([]);
 
   useEffect(() => {
-    if (navItem && !items.find(i => i.id === navItem.id)) {
-      addItem(navItem);
-    }
-  }, []);
+    const navItem = (location.state as { item?: Item } | null)?.item;
+    if (!navItem) return;
+    setItem(navItem);
+    void addItem(navItem);
+  }, [location.state]);
+
+  useEffect(() => {
+    if (item || !id) return;
+
+    let cancelled = false;
+    const loadItem = async () => {
+      const data = await fetchItemById(id);
+      if (!cancelled) setItem(data);
+    };
+
+    loadItem();
+    return () => { cancelled = true; };
+  }, [id, item]);
 
   useEffect(() => {
     if (!item?.id.startsWith('tmdb_')) return;
     const tmdbId = Number(item.id.replace('tmdb_', ''));
     const mediaType = item.type === 'movie' ? 'movie' : 'tv';
     getTMDBDetails(tmdbId, mediaType).then(setTmdb);
-  }, [item?.id]);
+  }, [item?.id, item?.type]);
+
+  useEffect(() => {
+    if (!item || users.length === 0 || !currentUser.id) return;
+
+    let cancelled = false;
+    const loadRecommendations = async () => {
+      const data = await fetchRecommendationCards(users, {
+        itemId: item.id,
+        toUserId: currentUser.id,
+      });
+      if (!cancelled) setRecommendationCards(data);
+    };
+
+    loadRecommendations();
+    return () => { cancelled = true; };
+  }, [item, users, currentUser.id]);
 
   if (!item) return <div className="p-8 text-center text-zinc-500">Item não encontrado</div>;
 
-  const relevantRec = recommendations.find(r => r.item_id === item.id && r.to_user_id === currentUser.id);
-  const fromUser = relevantRec ? users.find(u => u.id === relevantRec.from_user_id) : null;
+  const relevantCard = recommendationCards[0] ?? null;
+  const relevantRec = relevantCard?.recommendation ?? null;
+  const fromUser = relevantCard?.fromUser ?? null;
 
   const TYPE_LABEL: Record<string, string> = { movie: 'Filme', series: 'Série', anime: 'Anime' };
 
@@ -69,10 +100,8 @@ export function ItemDetail() {
   const backdropSrc = tmdb?.backdrop ?? posterUrl(item.image);
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-8">
-
-      {/* Backdrop — sem blur, cena real do filme */}
-      <div className="relative w-full h-56 overflow-hidden">
+    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-8 lg:max-w-3xl">
+      <div className="relative w-full h-56 overflow-hidden lg:rounded-b-3xl">
         <img
           src={backdropSrc}
           alt=""
@@ -88,7 +117,6 @@ export function ItemDetail() {
         </button>
       </div>
 
-      {/* Poster centralizado sobrepondo o backdrop */}
       <div className="flex justify-center -mt-24 relative z-10 mb-4">
         <img
           src={posterUrl(item.image)}
@@ -98,11 +126,10 @@ export function ItemDetail() {
         />
       </div>
 
-      {/* Título, ano, país e providers */}
       <div className="px-4 text-center mb-4">
         {fromUser && (
           <div className="flex items-center justify-center gap-1.5 mb-2 mx-auto bg-white/10 backdrop-blur-sm w-fit px-2.5 py-1 rounded-full border border-white/10">
-            <img src={fromUser.avatar} className="w-4 h-4 rounded-full object-cover shrink-0" />
+            <img src={fromUser.avatar} alt={fromUser.name} className="w-4 h-4 rounded-full object-cover shrink-0" />
             <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
           </div>
         )}
@@ -112,7 +139,6 @@ export function ItemDetail() {
         </p>
       </div>
 
-      {/* Botão Indicar — largura total */}
       <div className="px-4 pb-5">
         <button
           onClick={() => navigate('/create', { state: { item } })}
@@ -122,7 +148,6 @@ export function ItemDetail() {
         </button>
       </div>
 
-      {/* Synopsis */}
       {tmdb?.overview && (
         <div className="px-4 pb-5">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Sinopse</p>
@@ -130,7 +155,7 @@ export function ItemDetail() {
             {tmdb.overview}
           </p>
           <button
-            onClick={() => setOverviewExpanded(v => !v)}
+            onClick={() => setOverviewExpanded(value => !value)}
             className="mt-1.5 text-xs text-zinc-500 hover:text-zinc-300 transition-colors"
           >
             {overviewExpanded ? 'Resumir' : 'Ver mais'}
@@ -138,7 +163,6 @@ export function ItemDetail() {
         </div>
       )}
 
-      {/* Ficha técnica */}
       {techRows.length > 0 && (
         <div className="px-4 pb-6">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-1">Ficha técnica</p>
@@ -150,7 +174,6 @@ export function ItemDetail() {
         </div>
       )}
 
-      {/* Recommendation message */}
       {relevantRec?.message && (
         <div className="px-4 pb-4">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-2">Mensagem</p>
@@ -158,26 +181,25 @@ export function ItemDetail() {
         </div>
       )}
 
-      {/* Streaming providers */}
       {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
         <div className="px-4 pb-8 pt-2">
           <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">Disponível em</p>
           <div className="flex gap-2.5 flex-wrap">
-            {tmdb.provider_logos.map(p => (
-              <div key={p.name} className="relative">
+            {tmdb.provider_logos.map(provider => (
+              <div key={provider.name} className="relative">
                 <button
-                  onClick={() => setActiveProvider(prev => prev === p.name ? null : p.name)}
+                  onClick={() => setActiveProvider(previous => previous === provider.name ? null : provider.name)}
                   className="block"
                 >
                   <img
-                    src={`${LOGO_IMG}${p.logo_path}`}
-                    alt={p.name}
+                    src={`${LOGO_IMG}${provider.logo_path}`}
+                    alt={provider.name}
                     className="w-11 h-11 rounded-xl object-cover"
                   />
                 </button>
-                {activeProvider === p.name && (
+                {activeProvider === provider.name && (
                   <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2.5 py-1 bg-zinc-800 border border-zinc-700 rounded-lg whitespace-nowrap z-10 shadow-lg">
-                    <span className="text-xs text-zinc-200 font-medium">{p.name}</span>
+                    <span className="text-xs text-zinc-200 font-medium">{provider.name}</span>
                     <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-700" />
                   </div>
                 )}
