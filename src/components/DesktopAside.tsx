@@ -18,7 +18,7 @@ export function DesktopAside() {
 
   return (
     <aside className="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-6 xl:self-start">
-      <section className="rounded-[28px] border border-zinc-800/60 bg-zinc-900/50 p-5">
+      <section className="px-2 py-3">
         <div className="flex items-center gap-2 text-zinc-400">
           <Sparkles size={16} />
           <span className="text-xs font-semibold uppercase tracking-[0.22em]">Resumo</span>
@@ -33,14 +33,14 @@ export function DesktopAside() {
         </p>
         <div className="mt-4 flex flex-wrap gap-2">
           {(onboardingPreferences?.favoriteTypes ?? ['movie', 'series']).slice(0, 3).map(type => (
-            <span key={type} className="rounded-full border border-zinc-700 px-3 py-1 text-xs text-zinc-300">
+            <span key={type} className="rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-300">
               {type === 'movie' ? 'Filmes' : type === 'series' ? 'Series' : 'Animes'}
             </span>
           ))}
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-zinc-800/60 bg-zinc-900/50 p-5">
+      <section className="border-t border-zinc-800/40 px-2 py-5">
         <div className="flex items-center gap-2 text-zinc-400">
           <UserPlus2 size={16} />
           <span className="text-xs font-semibold uppercase tracking-[0.22em]">Sugestoes</span>
@@ -58,7 +58,7 @@ export function DesktopAside() {
               </Link>
               <button
                 onClick={() => void toggleFollow(user.id)}
-                className="rounded-full border border-zinc-700 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:bg-zinc-800"
+                className="rounded-full border border-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:border-zinc-700 hover:text-zinc-100"
               >
                 Seguir
               </button>
@@ -70,17 +70,17 @@ export function DesktopAside() {
         </div>
       </section>
 
-      <section className="rounded-[28px] border border-zinc-800/60 bg-gradient-to-br from-zinc-900 via-zinc-900 to-zinc-950 p-5">
+      <section className="border-t border-zinc-800/40 px-2 py-5">
         <div className="flex items-center gap-2 text-zinc-400">
           <Wand2 size={16} />
           <span className="text-xs font-semibold uppercase tracking-[0.22em]">Atalhos</span>
         </div>
         <div className="mt-4 space-y-2">
-          <Link to="/create" className="flex items-center gap-3 rounded-2xl border border-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800/60">
+          <Link to="/create" className="flex items-center gap-3 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:text-zinc-100">
             <Film size={16} />
             Fazer uma nova indicacao
           </Link>
-          <Link to="/explore" className="flex items-center gap-3 rounded-2xl border border-zinc-800 px-4 py-3 text-sm font-semibold text-zinc-100 hover:bg-zinc-800/60">
+          <Link to="/explore" className="flex items-center gap-3 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:text-zinc-100">
             <Sparkles size={16} />
             Abrir descoberta personalizada
           </Link>

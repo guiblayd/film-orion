@@ -25,7 +25,7 @@ export function RecommendationCard({ card }: Props) {
   return (
     <Link
       to={`/recommendation/${recommendation.id}`}
-      className="flex gap-3 px-3 py-2.5 border-b border-zinc-800/50 bg-zinc-950 hover:bg-zinc-900/40 transition-colors active:bg-zinc-900/60"
+      className="flex gap-3 border-b border-zinc-800/50 bg-zinc-950 px-3 py-2.5 transition-colors hover:bg-zinc-900/40 active:bg-zinc-900/60 lg:bg-transparent lg:px-0 lg:hover:bg-transparent lg:active:bg-transparent"
     >
       <img
         src={item.image}

@@ -58,7 +58,7 @@ export function Feed() {
 
   return (
     <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-none lg:px-6">
-      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10 lg:max-w-3xl lg:mx-auto lg:rounded-b-2xl">
+      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10 lg:max-w-3xl lg:mx-auto">
         <div className="px-4 py-3">
           <h1 className="text-xl font-black tracking-tight text-zinc-100">FilmOrion</h1>
         </div>
@@ -75,11 +75,11 @@ export function Feed() {
         </div>
       </header>
 
-      <div className="flex flex-col lg:max-w-3xl lg:mx-auto lg:mt-4 lg:rounded-2xl lg:overflow-hidden lg:border lg:border-zinc-800/50">
+      <div className="flex flex-col lg:max-w-3xl lg:mx-auto lg:mt-4">
         {connections.length === 0 && (
-          <div className="border-b border-zinc-800/50 bg-zinc-900/50 p-4">
+          <div className="border-b border-zinc-800/50 p-4 lg:px-0 lg:py-5">
             <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-zinc-100/10 p-2 text-zinc-100">
+              <div className="rounded-2xl bg-zinc-100/10 p-2 text-zinc-100 lg:bg-transparent lg:p-0">
                 <Sparkles size={18} />
               </div>
               <div className="min-w-0 flex-1">
