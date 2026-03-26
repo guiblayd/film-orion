@@ -25,8 +25,8 @@ import { Recommendation } from '../types';
 
 const VISIBILITY_CONFIG = {
   private: { icon: Lock, label: 'Privado' },
-  connections: { icon: Users, label: 'Circulo' },
-  public: { icon: Globe, label: 'Publico' },
+  connections: { icon: Users, label: 'Círculo' },
+  public: { icon: Globe, label: 'Público' },
 } as const;
 
 export function RecommendationDetail() {
@@ -140,7 +140,7 @@ export function RecommendationDetail() {
   }, []);
 
   if (dataLoading || cardLoading) return <LoadingScreen />;
-  if (cardNotFound || !card) return <div className="p-8 text-center">Indicacao nao encontrada</div>;
+  if (cardNotFound || !card) return <div className="p-8 text-center">Indicação não encontrada</div>;
 
   const { recommendation, item, fromUser, toUser, comments } = card;
   const displayYear = item.year ?? tmdb?.year;
@@ -267,23 +267,23 @@ export function RecommendationDetail() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen flex flex-col lg:max-w-3xl">
-      <header className="bg-zinc-950/90 backdrop-blur-xl px-3 py-2.5 flex items-center border-b border-zinc-800/50 lg:rounded-b-2xl">
+    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen flex flex-col lg:max-w-none lg:pb-12">
+      <header className="bg-zinc-950/90 backdrop-blur-xl px-3 py-2.5 flex items-center border-b border-zinc-800/50 lg:bg-transparent lg:backdrop-blur-none lg:border-b-0 lg:px-0 lg:py-0">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100 shrink-0">
           <ArrowLeft size={20} />
         </button>
       </header>
 
-      <div className="px-4 pt-3 pb-2">
+      <div className="px-4 pt-3 pb-2 lg:max-w-[860px] lg:px-0 lg:pt-8">
         <div className="flex items-center gap-2 text-sm">
           <Link to={`/profile/${fromUser.id}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <img src={fromUser.avatar} alt={fromUser.name} className="w-6 h-6 rounded-full object-cover ring-1 ring-zinc-800" />
-            <span className="font-semibold text-zinc-200">{fromUser.name}</span>
+            <span className="font-medium text-zinc-200">{fromUser.name}</span>
           </Link>
           <ArrowRight size={13} className="text-zinc-600 shrink-0" />
           <Link to={`/profile/${toUser.id}`} className="flex items-center gap-1.5 hover:opacity-80 transition-opacity">
             <img src={toUser.avatar} alt={toUser.name} className="w-6 h-6 rounded-full object-cover ring-1 ring-zinc-800" />
-            <span className="font-semibold text-zinc-200">{toUser.name}</span>
+            <span className="font-medium text-zinc-200">{toUser.name}</span>
           </Link>
           <span className="text-xs text-zinc-600 shrink-0 ml-auto">{getRelativeTime(recommendation.created_at)}</span>
 
@@ -310,7 +310,7 @@ export function RecommendationDetail() {
                         <Pencil size={15} /> Editar mensagem
                       </button>
                       <button onClick={handleOpenDelete} className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-rose-400 transition-colors hover:bg-zinc-800 border-t border-zinc-800/60">
-                        <Trash2 size={15} /> Excluir indicacao
+                        <Trash2 size={15} /> Excluir indicação
                       </button>
                     </>
                   )}
@@ -321,14 +321,14 @@ export function RecommendationDetail() {
         </div>
       </div>
 
-      <div className="px-4 pb-3 border-b border-zinc-800/50">
-        <div className="flex gap-2.5 items-stretch">
+      <div className="px-4 pb-3 border-b border-zinc-800/50 lg:max-w-[860px] lg:px-0 lg:pb-6">
+        <div className="flex gap-2.5 items-stretch lg:grid lg:grid-cols-[120px_minmax(0,1fr)] lg:gap-5">
           <Link to={`/item/${item.id}`} className="shrink-0">
-            <img src={item.image} alt={item.title} className="w-14 h-20 object-cover rounded-lg ring-1 ring-white/10" />
+            <img src={item.image} alt={item.title} className="w-14 h-20 object-cover rounded-lg ring-1 ring-white/10 lg:h-40 lg:w-28" />
           </Link>
           <div className="flex-1 min-w-0 flex flex-col justify-center gap-1">
             <Link to={`/item/${item.id}`}>
-              <h2 className="font-bold text-sm text-zinc-100 leading-snug line-clamp-2 hover:underline">{item.title}</h2>
+              <h2 className="font-semibold text-sm text-zinc-100 leading-snug line-clamp-2 hover:underline lg:text-[28px] lg:leading-tight lg:font-medium">{item.title}</h2>
             </Link>
             {(displayYear || tmdb?.country) && (
               <p className="text-[11px] text-zinc-500">
@@ -346,18 +346,18 @@ export function RecommendationDetail() {
       </div>
 
       {recommendation.message && (
-        <div className="px-4 py-2.5 border-b border-zinc-800/50 bg-zinc-900/20">
-          <p className="text-xs text-zinc-400 italic leading-relaxed">"{recommendation.message}"</p>
+        <div className="px-4 py-2.5 border-b border-zinc-800/50 bg-zinc-900/20 lg:max-w-[860px] lg:px-0 lg:bg-transparent lg:py-5">
+          <p className="text-xs text-zinc-400 italic leading-relaxed lg:text-[15px]">"{recommendation.message}"</p>
         </div>
       )}
 
-      <div className="flex-1 px-3 py-3 pb-20">
+      <div className="flex-1 px-3 py-3 pb-20 lg:max-w-[860px] lg:px-0 lg:py-6">
         {!recommendation.discussion_enabled ? (
-          <p className="text-center text-zinc-600 text-xs py-8">Discussao desativada para esta indicacao.</p>
+          <p className="text-center text-zinc-600 text-xs py-8">Discussão desativada para esta indicação.</p>
         ) : (
           <>
             <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">
-              {comments.length > 0 ? `${comments.length} comentario${comments.length > 1 ? 's' : ''}` : 'Comentarios'}
+              {comments.length > 0 ? `${comments.length} comentário${comments.length > 1 ? 's' : ''}` : 'Comentários'}
             </p>
             <div className="space-y-3">
               {comments.map(comment => {
@@ -368,11 +368,11 @@ export function RecommendationDetail() {
                       <img src={comment.user.avatar} alt={comment.user.name} className="w-7 h-7 rounded-full object-cover ring-1 ring-zinc-800" />
                     </Link>
                     <div className="flex-1 min-w-0">
-                      <div className="bg-zinc-900/60 px-3 py-2 rounded-xl rounded-tl-sm ring-1 ring-zinc-800/50">
-                        <Link to={`/profile/${comment.user.id}`} className="text-xs font-bold text-zinc-200 mb-0.5 hover:underline block">
+                      <div className="bg-zinc-900/60 px-3 py-2 rounded-xl rounded-tl-sm ring-1 ring-zinc-800/50 lg:bg-transparent lg:px-0 lg:py-0 lg:ring-0">
+                        <Link to={`/profile/${comment.user.id}`} className="text-xs font-medium text-zinc-200 mb-0.5 hover:underline block">
                           {comment.user.name}
                         </Link>
-                        <p className="text-xs text-zinc-400 leading-relaxed">{comment.content}</p>
+                        <p className="text-xs text-zinc-400 leading-relaxed lg:text-sm">{comment.content}</p>
                       </div>
                     </div>
                   </div>
@@ -388,7 +388,7 @@ export function RecommendationDetail() {
 
       {recommendation.discussion_enabled && (
         <div className="fixed bottom-0 left-0 right-0 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/50 px-3 py-2 z-20">
-          <div className="max-w-md mx-auto lg:max-w-3xl">
+          <div className="max-w-md mx-auto lg:max-w-[860px]">
             <form onSubmit={handleSendComment} className="flex items-center gap-2 relative">
               <img src={currentUser.avatar} alt={currentUser.name} className="w-7 h-7 rounded-full object-cover shrink-0 ring-1 ring-zinc-800" />
               <input
@@ -407,7 +407,7 @@ export function RecommendationDetail() {
       )}
 
       {showStatusSheet && (
-        <div className="fixed inset-0 z-50 flex items-end" onClick={closeStatusSheet}>
+        <div className="fixed inset-0 z-50 flex items-end lg:items-center lg:justify-center" onClick={closeStatusSheet}>
           <div
             className={cn(
               'absolute inset-0 bg-zinc-950/55 transition-opacity duration-200',
@@ -417,7 +417,7 @@ export function RecommendationDetail() {
           <div
             ref={statusSheetRef}
             className={cn(
-              'relative w-full max-w-md mx-auto rounded-t-[32px] border-t border-zinc-700 bg-zinc-800/95 px-5 pb-8 pt-3 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+              'relative w-full max-w-md mx-auto rounded-t-[32px] border-t border-zinc-700 bg-zinc-800/95 px-5 pb-8 pt-3 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] lg:max-w-lg lg:rounded-3xl lg:border lg:px-6 lg:pt-5',
               statusSheetActive ? 'translate-y-0' : 'translate-y-full'
             )}
             style={statusSheetDragging ? { transform: `translateY(${statusSheetOffset}px)`, transitionDuration: '0ms' } : undefined}
@@ -474,8 +474,8 @@ export function RecommendationDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
           <div className="relative w-full max-w-sm bg-zinc-900 rounded-2xl border border-zinc-800 p-5 shadow-xl">
-            <h2 className="font-bold text-base text-zinc-100 mb-1">Excluir indicacao?</h2>
-            <p className="text-sm text-zinc-400 mb-6">Esta acao nao pode ser desfeita. A indicacao e todos os comentarios serao removidos.</p>
+            <h2 className="font-bold text-base text-zinc-100 mb-1">Excluir indicação?</h2>
+            <p className="text-sm text-zinc-400 mb-6">Esta ação não pode ser desfeita. A indicação e todos os comentários serão removidos.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
@@ -496,22 +496,22 @@ export function RecommendationDetail() {
 
       {showEdit && (
         <div className="fixed inset-0 z-50 bg-zinc-950">
-          <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:max-w-3xl">
-            <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/95 px-4 py-2.5 backdrop-blur-xl">
+          <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:max-w-none">
+            <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/95 px-4 py-2.5 backdrop-blur-xl lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none lg:border-b-0">
               <button onClick={() => setShowEdit(false)} className="p-1 text-zinc-100">
                 <ArrowLeft size={20} />
               </button>
-              <h2 className="text-sm font-bold text-zinc-100">Editar indicacao</h2>
+              <h2 className="text-sm font-bold text-zinc-100">Editar indicação</h2>
             </header>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto p-4 lg:max-w-[980px] lg:px-0 lg:pt-8">
               <RecommendationComposerForm
                 item={item}
                 user={toUser}
                 message={editMessage}
                 visibility={editVisibility}
                 discussionEnabled={editDiscussionEnabled}
-                submitLabel={isSavingEdit ? 'Salvando...' : 'Salvar alteracoes'}
+                submitLabel={isSavingEdit ? 'Salvando...' : 'Salvar alterações'}
                 onMessageChange={setEditMessage}
                 onVisibilityChange={setEditVisibility}
                 onDiscussionEnabledChange={setEditDiscussionEnabled}

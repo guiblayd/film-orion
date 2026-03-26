@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sparkles, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useStore } from '../store';
 import { ONBOARDING_GENRES, ONBOARDING_PROVIDERS } from '../lib/onboarding';
 import { Item } from '../types';
@@ -33,11 +33,8 @@ export function OnboardingModal() {
       <div className="w-full max-w-2xl rounded-[32px] border border-zinc-800 bg-zinc-950 p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className="flex items-center gap-2 text-zinc-400">
-              <Sparkles size={16} />
-              <span className="text-xs font-semibold uppercase tracking-[0.22em]">Primeiros passos</span>
-            </div>
-            <h2 className="mt-3 text-2xl font-black tracking-tight text-zinc-100">Vamos montar seu gosto inicial.</h2>
+            <span className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-400">Primeiros passos</span>
+            <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-100">Vamos montar seu gosto inicial.</h2>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">
               Escolha alguns formatos, generos e streamings favoritos para o app te recomendar melhor mesmo antes de voce seguir pessoas.
             </p>
@@ -92,7 +89,7 @@ export function OnboardingModal() {
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <button
             onClick={submit}
-            className="flex-1 rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-bold text-zinc-950 hover:bg-white"
+            className="flex-1 rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-medium text-zinc-950 hover:bg-white"
           >
             Salvar preferencias
           </button>

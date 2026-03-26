@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Item, User } from '../types';
 import { useStore } from '../store';
-import { getTrending, getPopularMovies, getPopularTV, getTopRatedMovies, getNetflixNewReleases } from '../services/tmdb';
+import { getNetflixNewReleases, getPopularMovies, getPopularTV, getTopRatedMovies, getTrending } from '../services/tmdb';
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 function useItemNav() {
@@ -38,10 +38,7 @@ export function Explore() {
     };
 
     void loadSocial();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [currentUser.id, users]);
 
   useEffect(() => {
@@ -59,9 +56,9 @@ export function Explore() {
       if (cancelled) return;
 
       setSections([
-        { label: 'Em alta essa semana', items: trending },
+        { label: 'Em alta esta semana', items: trending },
         { label: 'Filmes populares', items: popularMovies },
-        { label: 'Series populares', items: popularTV },
+        { label: 'Séries populares', items: popularTV },
         { label: 'Novidades na Netflix', items: netflixNewReleases },
         { label: 'Melhores avaliados', items: topRated },
       ]);
@@ -69,10 +66,7 @@ export function Explore() {
     };
 
     void loadSections();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, []);
 
   const currentConnectionIds = useMemo(() => new Set(
@@ -114,12 +108,16 @@ export function Explore() {
   };
 
   return (
-    <div className="mx-auto max-w-md min-h-screen bg-zinc-950 pb-20">
-      <header className="border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl">
-        <h1 className="text-xl font-black tracking-tight text-zinc-100">Explorar</h1>
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-12">
+      <header className="border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+        <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Explorar</p>
+        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-3 lg:text-[32px]">Catálogo e descoberta</h1>
+        <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
+          Um desktop pensado para navegar por catálogo, tendências e indicações do seu círculo sem depender de blocos pesados.
+        </p>
       </header>
 
-      <div className="space-y-6 py-4">
+      <div className="space-y-8 py-4 lg:space-y-10 lg:py-8">
         {friendRecs.length > 0 && (
           <Carousel
             label="Indicados por amigos"
@@ -144,7 +142,7 @@ export function Explore() {
         )}
 
         {loading ? (
-          <SkeletonCarousels />
+          <SkeletonSections />
         ) : (
           sections.map(section => (
             <Carousel
@@ -174,52 +172,57 @@ function Carousel({
   if (items.length === 0) return null;
 
   return (
-    <div>
-      <h2 className="mb-2.5 px-4 text-sm font-bold text-zinc-100">{label}</h2>
-      <div className="hide-scrollbar flex gap-2.5 overflow-x-auto px-4 pb-1">
+    <section>
+      <div className="mb-3 flex items-end justify-between px-4 lg:mb-4 lg:px-0">
+        <h2 className="text-sm font-medium text-zinc-100 lg:text-base">{label}</h2>
+      </div>
+
+      <div className="hide-scrollbar flex gap-2.5 overflow-x-auto px-4 pb-1 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7 lg:overflow-visible lg:px-0 xl:grid-cols-6">
         {items.map(item => (
           <button
             key={item.id}
             onClick={() => onPress(item)}
-            className="group flex w-28 shrink-0 flex-col text-left"
+            className="group flex w-28 shrink-0 flex-col text-left lg:w-auto"
           >
-            <div className="relative mb-1.5 aspect-[2/3] w-28 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10">
+            <div className="relative mb-2 aspect-[2/3] w-28 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10 lg:w-full lg:rounded-xl">
               <img
                 src={item.image}
                 alt={item.title}
-                className="h-full w-full object-cover transition-opacity group-active:opacity-80"
+                className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
               {renderOverlay?.(item)}
             </div>
-            <p className="line-clamp-2 text-[11px] font-semibold leading-snug text-zinc-300 transition-colors group-hover:text-zinc-100">
+            <p className="line-clamp-2 text-[11px] font-medium leading-snug text-zinc-300 transition-colors group-hover:text-zinc-100 lg:text-sm lg:leading-6">
               {item.title}
             </p>
             {item.year && (
-              <p className="mt-0.5 text-[10px] text-zinc-600">{item.year}</p>
+              <p className="mt-0.5 text-[10px] text-zinc-600 lg:text-xs">{item.year}</p>
             )}
           </button>
         ))}
       </div>
-    </div>
+    </section>
   );
 }
 
-function SkeletonCarousels() {
+function SkeletonSections() {
+  const labels = ['Em alta esta semana', 'Filmes populares', 'Séries populares', 'Novidades na Netflix', 'Melhores avaliados'];
+
   return (
     <>
-      {['Em alta essa semana', 'Filmes populares', 'Series populares', 'Novidades na Netflix', 'Melhores avaliados'].map(label => (
-        <div key={label}>
-          <div className="mb-2.5 h-5 w-36 rounded bg-zinc-800 animate-pulse" />
-          <div className="flex gap-2.5 px-4">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="w-28 shrink-0">
-                <div className="mb-1.5 aspect-[2/3] w-28 rounded-lg bg-zinc-800 animate-pulse" />
-                <div className="mb-1 h-3 w-full rounded bg-zinc-800 animate-pulse" />
-                <div className="h-3 w-2/3 rounded bg-zinc-800 animate-pulse" />
+      {labels.map(label => (
+        <section key={label}>
+          <div className="mb-4 h-5 w-40 rounded bg-zinc-800/70 px-4 lg:px-0" />
+          <div className="flex gap-2.5 px-4 lg:grid lg:grid-cols-5 lg:gap-4 lg:px-0 xl:grid-cols-6">
+            {Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className="w-28 shrink-0 lg:w-auto">
+                <div className="mb-2 aspect-[2/3] w-28 animate-pulse rounded-lg bg-zinc-800 lg:w-full lg:rounded-xl" />
+                <div className="mb-1 h-3 w-full animate-pulse rounded bg-zinc-800" />
+                <div className="h-3 w-2/3 animate-pulse rounded bg-zinc-800" />
               </div>
             ))}
           </div>
-        </div>
+        </section>
       ))}
     </>
   );

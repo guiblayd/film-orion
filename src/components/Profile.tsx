@@ -262,14 +262,14 @@ export function Profile() {
   const deleteConfirmed = deleteConfirmation.trim() === deletePhrase;
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-3xl">
-      <header className="bg-zinc-950/80 backdrop-blur-xl px-4 py-2.5 flex justify-between items-center border-b border-zinc-800/50 lg:rounded-b-2xl">
+    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-none lg:pb-12">
+      <header className="bg-zinc-950/80 backdrop-blur-xl px-4 py-2.5 flex justify-between items-center border-b border-zinc-800/50 lg:bg-transparent lg:backdrop-blur-none lg:border-b-0 lg:px-0 lg:py-0">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
           <ArrowLeft size={20} />
         </button>
-        <div className="min-w-0 text-center">
-          <h1 className="truncate text-sm font-bold text-zinc-100">{user.name}</h1>
-          <p className="truncate text-[11px] text-zinc-500">{formatUsername(user.username)}</p>
+        <div className="min-w-0 text-center lg:text-left">
+          <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[28px] lg:tracking-tight">{user.name}</h1>
+          <p className="truncate text-[11px] text-zinc-500 lg:mt-1">{formatUsername(user.username)}</p>
         </div>
         {isOwnProfile ? (
           <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 hover:text-zinc-200">
@@ -280,34 +280,34 @@ export function Profile() {
         )}
       </header>
 
-      <div className="px-4 py-4 border-b border-zinc-800/50">
-        <div className="flex items-center gap-5 mb-3">
-          <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full object-cover ring-2 ring-zinc-800 shrink-0" />
-          <div className="flex-1 flex justify-around text-center">
+      <div className="px-4 py-4 border-b border-zinc-800/50 lg:border-b-0 lg:px-0 lg:py-0 lg:sticky lg:top-8 lg:self-start">
+        <div className="flex items-center gap-5 mb-3 lg:block">
+          <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full object-cover ring-2 ring-zinc-800 shrink-0 lg:w-24 lg:h-24" />
+          <div className="flex-1 flex justify-around text-center lg:mt-5 lg:justify-between">
             <div>
-              <p className="text-base font-black text-zinc-100">{receivedCards.length}</p>
+              <p className="text-base font-semibold text-zinc-100">{receivedCards.length}</p>
               <p className="text-[11px] text-zinc-500">Indicações</p>
             </div>
             <div>
-              <p className="text-base font-black text-zinc-100">{followersCount}</p>
+              <p className="text-base font-semibold text-zinc-100">{followersCount}</p>
               <p className="text-[11px] text-zinc-500">Seguidores</p>
             </div>
             <div>
-              <p className="text-base font-black text-zinc-100">{followingCount}</p>
+              <p className="text-base font-semibold text-zinc-100">{followingCount}</p>
               <p className="text-[11px] text-zinc-500">Seguindo</p>
             </div>
           </div>
         </div>
 
-        <p className="text-sm font-bold text-zinc-100">{user.name}</p>
+        <p className="text-sm font-medium text-zinc-100 lg:text-lg">{user.name}</p>
         <p className="mt-0.5 text-xs font-medium text-zinc-500">{formatUsername(user.username)}</p>
-        {user.bio && <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed">{user.bio}</p>}
+        {user.bio && <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed lg:mt-2 lg:text-sm">{user.bio}</p>}
 
         {!isOwnProfile && (
           <button
             onClick={() => void handleToggleFollow()}
             className={cn(
-              'w-full mt-3 py-2 rounded-lg text-sm font-bold transition-colors',
+              'w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors lg:w-auto lg:px-5',
               isFollowing
                 ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
                 : 'bg-zinc-100 text-zinc-950 hover:bg-white'
@@ -318,7 +318,7 @@ export function Profile() {
         )}
       </div>
 
-      <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 flex overflow-x-auto">
+      <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 flex overflow-x-auto lg:bg-transparent lg:backdrop-blur-none">
         <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
           Recebidas
         </TabButton>
@@ -346,9 +346,9 @@ export function Profile() {
         )}
         {activeTab === 'watchlist' && (
           watchlistItems.length > 0 ? (
-            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20">
+            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-5 lg:gap-4 lg:bg-transparent lg:pt-6">
               {watchlistItems.map(item => (
-                <button key={item.id} className="aspect-[2/3] relative cursor-pointer" onClick={() => navigate(`/item/${item.id}`)}>
+                <button key={item.id} className="aspect-[2/3] relative cursor-pointer overflow-hidden lg:rounded-xl" onClick={() => navigate(`/item/${item.id}`)}>
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </button>
               ))}
@@ -357,9 +357,9 @@ export function Profile() {
         )}
         {activeTab === 'watched' && (
           watchedItems.length > 0 ? (
-            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20">
+            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-5 lg:gap-4 lg:bg-transparent lg:pt-6">
               {watchedItems.map(item => (
-                <button key={item.id} className="aspect-[2/3] relative cursor-pointer" onClick={() => navigate(`/item/${item.id}`)}>
+                <button key={item.id} className="aspect-[2/3] relative cursor-pointer overflow-hidden lg:rounded-xl" onClick={() => navigate(`/item/${item.id}`)}>
                   <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
                 </button>
               ))}
@@ -385,14 +385,14 @@ export function Profile() {
       )}
 
       {showSettings && (
-        <div className="fixed inset-0 z-[60] flex items-end" onClick={() => setShowSettings(false)}>
+        <div className="fixed inset-0 z-[60] flex items-end lg:items-center lg:justify-center" onClick={() => setShowSettings(false)}>
           <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
           <div
-            className="relative w-full max-w-md mx-auto bg-zinc-900 rounded-t-2xl border-t border-zinc-800 p-5"
+            className="relative w-full max-w-md mx-auto bg-zinc-900 rounded-t-2xl border-t border-zinc-800 p-5 lg:max-w-2xl lg:rounded-3xl lg:border lg:border-zinc-800 lg:p-6"
             onClick={event => event.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-5">
-              <h2 className="font-bold text-base text-zinc-100">Editar perfil</h2>
+              <h2 className="font-medium text-base text-zinc-100">Editar perfil</h2>
               <button onClick={() => setShowSettings(false)} className="text-zinc-500 hover:text-zinc-300 p-1">
                 <X size={18} />
               </button>
@@ -470,7 +470,7 @@ export function Profile() {
             <button
               onClick={() => void handleSaveSettings()}
               disabled={!editName.trim() || usernameAvailability === 'checking'}
-              className="w-full bg-zinc-100 text-zinc-950 font-bold py-2.5 rounded-xl disabled:opacity-40 hover:bg-white transition-colors"
+              className="w-full bg-zinc-100 text-zinc-950 font-medium py-2.5 rounded-xl disabled:opacity-40 hover:bg-white transition-colors lg:w-auto lg:min-w-[180px]"
             >
               Salvar
             </button>
@@ -565,7 +565,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button
       onClick={onClick}
       className={cn(
-        'px-3 py-2.5 text-xs font-bold whitespace-nowrap border-b-2 transition-colors flex-1',
+        'flex-1 whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-semibold transition-colors lg:flex-none lg:mr-8 lg:px-0 lg:py-3 lg:text-sm lg:font-medium',
         active ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       )}
     >

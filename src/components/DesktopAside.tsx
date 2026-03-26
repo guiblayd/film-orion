@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Sparkles, UserPlus2, Film, Wand2 } from 'lucide-react';
 import { useStore } from '../store';
 import { formatUsername } from '../lib/username';
 
@@ -17,72 +16,68 @@ export function DesktopAside() {
     .slice(0, 3);
 
   return (
-    <aside className="hidden xl:flex xl:flex-col xl:gap-4 xl:sticky xl:top-6 xl:self-start">
-      <section className="px-2 py-3">
-        <div className="flex items-center gap-2 text-zinc-400">
-          <Sparkles size={16} />
-          <span className="text-xs font-semibold uppercase tracking-[0.22em]">Resumo</span>
-        </div>
-        <p className="mt-3 text-lg font-bold text-zinc-100">
-          {location.pathname === '/explore' ? 'Descoberta guiada pelo seu gosto.' : 'Acompanhe o que seu circulo anda indicando.'}
+    <aside className="hidden xl:sticky xl:top-8 xl:flex xl:flex-col xl:self-start">
+      <section className="pb-6">
+        <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">
+          {location.pathname === '/explore' ? 'Mapa' : 'Panorama'}
         </p>
-        <p className="mt-2 text-sm leading-relaxed text-zinc-400">
+        <p className="mt-3 text-lg font-medium leading-snug text-zinc-100">
+          {location.pathname === '/explore'
+            ? 'Uma curadoria aberta para navegar por catálogo e recomendações.'
+            : 'Seu desktop agora funciona como leitura contínua, sem cara de celular ampliado.'}
+        </p>
+        <p className="mt-3 text-sm leading-relaxed text-zinc-500">
           {onboardingPreferences
             ? `Baseado em ${onboardingPreferences.favoriteGenres.slice(0, 2).join(' e ') || 'seu gosto atual'}.`
-            : 'Personalize seus gostos para destravar recomendacoes melhores e um explore mais inteligente.'}
+            : 'Complete seus gostos iniciais para receber sugestões mais alinhadas ao que você costuma ver.'}
         </p>
-        <div className="mt-4 flex flex-wrap gap-2">
-          {(onboardingPreferences?.favoriteTypes ?? ['movie', 'series']).slice(0, 3).map(type => (
-            <span key={type} className="rounded-full border border-zinc-800 px-3 py-1 text-xs text-zinc-300">
-              {type === 'movie' ? 'Filmes' : type === 'series' ? 'Series' : 'Animes'}
-            </span>
-          ))}
-        </div>
       </section>
 
-      <section className="border-t border-zinc-800/40 px-2 py-5">
-        <div className="flex items-center gap-2 text-zinc-400">
-          <UserPlus2 size={16} />
-          <span className="text-xs font-semibold uppercase tracking-[0.22em]">Sugestoes</span>
+      <section className="border-t border-zinc-800/50 py-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-sm font-medium text-zinc-200">Perfis para seguir</h2>
+          <Link to="/explore" className="text-xs text-zinc-500 transition-colors hover:text-zinc-300">
+            Ver mais
+          </Link>
         </div>
-        <div className="mt-4 space-y-3">
+        <div className="mt-4 space-y-4">
           {suggestedUsers.map(user => (
-            <div key={user.id} className="flex items-center gap-3">
-              <Link to={`/profile/${user.id}`} className="flex min-w-0 flex-1 items-center gap-3">
-                <img src={user.avatar} alt={user.name} className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-700" />
+            <div key={user.id} className="flex items-start gap-3">
+              <Link to={`/profile/${user.id}`} className="flex min-w-0 flex-1 items-start gap-3">
+                <img src={user.avatar} alt={user.name} className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-800" />
                 <div className="min-w-0">
-                  <p className="truncate text-sm font-semibold text-zinc-100">{user.name}</p>
+                  <p className="truncate text-sm font-medium text-zinc-100">{user.name}</p>
                   <p className="truncate text-xs text-zinc-500">{formatUsername(user.username)}</p>
-                  <p className="truncate text-xs text-zinc-600">{user.bio || 'Compartilha indicacoes e listas publicas.'}</p>
+                  <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-zinc-600">
+                    {user.bio || 'Compartilha indicações e referências do que anda assistindo.'}
+                  </p>
                 </div>
               </Link>
               <button
                 onClick={() => void toggleFollow(user.id)}
-                className="rounded-full border border-zinc-800 px-3 py-1.5 text-xs font-semibold text-zinc-200 hover:border-zinc-700 hover:text-zinc-100"
+                className="rounded-full border border-zinc-800 px-3 py-1.5 text-xs font-medium text-zinc-300 transition-colors hover:border-zinc-700 hover:text-zinc-100"
               >
                 Seguir
               </button>
             </div>
           ))}
           {suggestedUsers.length === 0 && (
-            <p className="text-sm text-zinc-500">Voce ja esta seguindo os perfis em destaque por aqui.</p>
+            <p className="text-sm leading-relaxed text-zinc-500">Você já está seguindo os perfis em destaque por aqui.</p>
           )}
         </div>
       </section>
 
-      <section className="border-t border-zinc-800/40 px-2 py-5">
-        <div className="flex items-center gap-2 text-zinc-400">
-          <Wand2 size={16} />
-          <span className="text-xs font-semibold uppercase tracking-[0.22em]">Atalhos</span>
-        </div>
-        <div className="mt-4 space-y-2">
-          <Link to="/create" className="flex items-center gap-3 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:text-zinc-100">
-            <Film size={16} />
-            Fazer uma nova indicacao
+      <section className="border-t border-zinc-800/50 py-6">
+        <h2 className="text-sm font-medium text-zinc-200">Acesso rápido</h2>
+        <div className="mt-4 space-y-2 text-sm">
+          <Link to="/create" className="block text-zinc-400 transition-colors hover:text-zinc-100">
+            Fazer uma nova indicação
           </Link>
-          <Link to="/explore" className="flex items-center gap-3 py-2 text-sm font-semibold text-zinc-200 transition-colors hover:text-zinc-100">
-            <Sparkles size={16} />
-            Abrir descoberta personalizada
+          <Link to="/notifications" className="block text-zinc-400 transition-colors hover:text-zinc-100">
+            Revisar alertas recentes
+          </Link>
+          <Link to={`/profile/${currentUser.id}`} className="block text-zinc-400 transition-colors hover:text-zinc-100">
+            Atualizar perfil e preferências
           </Link>
         </div>
       </section>

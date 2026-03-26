@@ -53,6 +53,7 @@ export function Notifications() {
         const nextItem = toItem(item);
         return [nextItem.id, nextItem] as const;
       }));
+
       const nextNotifications = (data ?? []).map(notification => {
         const nextNotification = toNotification(notification);
         return {
@@ -84,19 +85,23 @@ export function Notifications() {
       }
     };
 
-    load();
+    void load();
     return () => { cancelled = true; };
   }, [users, refreshUnreadNotificationsCount]);
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-3xl lg:px-6">
-      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 px-4 py-3 sticky top-0 z-10 lg:max-w-3xl lg:mx-auto lg:rounded-b-2xl">
-        <h1 className="text-xl font-black tracking-tight text-zinc-100">Notificações</h1>
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-12">
+      <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+        <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Alertas</p>
+        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-3 lg:text-[32px]">Notificações</h1>
+        <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
+          Uma leitura contínua das interações recentes, sem caixas fechadas nem excesso de destaque visual.
+        </p>
       </header>
 
-      <div className="lg:max-w-3xl lg:mx-auto lg:mt-4 lg:rounded-2xl lg:border lg:border-zinc-800/50 lg:overflow-hidden">
+      <div className="lg:max-w-[860px] lg:pt-8">
         {loading && (
-          <div className="p-10 text-center text-zinc-600 text-sm">
+          <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
             Carregando notificações...
           </div>
         )}
@@ -106,7 +111,7 @@ export function Notifications() {
         ))}
 
         {!loading && notifications.length === 0 && (
-          <div className="p-10 text-center text-zinc-600 text-sm">
+          <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
             Nenhuma notificação ainda.
           </div>
         )}
@@ -150,27 +155,27 @@ function NotificationCard({ notification, users }: { notification: NotificationR
   return (
     <Link
       to={config.href}
-      className="flex items-start gap-3 px-4 py-3 border-b border-zinc-800/50 hover:bg-zinc-900/40 transition-colors"
+      className="flex items-start gap-3 border-b border-zinc-800/50 px-4 py-3 transition-colors hover:bg-zinc-900/40 lg:px-0 lg:py-5"
     >
       <div className="relative shrink-0">
-        <img src={actor.avatar} alt={actor.name} className="w-10 h-10 rounded-full object-cover ring-1 ring-zinc-800" />
-        <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center">
+        <img src={actor.avatar} alt={actor.name} className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-800 lg:h-11 lg:w-11" />
+        <div className="absolute -bottom-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full border border-zinc-800 bg-zinc-900 lg:h-6 lg:w-6">
           <config.icon size={11} className={config.iconClassName} />
         </div>
       </div>
 
       <div className="min-w-0 flex-1">
-        <div className="flex items-start justify-between gap-3 mb-1">
+        <div className="mb-1 flex items-start justify-between gap-3">
           <p className="text-xs text-zinc-500">{formatUsername(actor.username)}</p>
-          <div className="flex items-center gap-2 shrink-0">
-            <p className="text-[11px] text-zinc-600 text-right">{formatNotificationDateTime(notification.created_at)}</p>
+          <div className="flex shrink-0 items-center gap-2">
+            <p className="text-right text-[11px] text-zinc-600">{formatNotificationDateTime(notification.created_at)}</p>
             {!notification.read_at && (
-              <span className="w-2.5 h-2.5 rounded-full bg-rose-500 shrink-0" />
+              <span className="h-2.5 w-2.5 shrink-0 rounded-full bg-rose-500" />
             )}
           </div>
         </div>
-        <p className="text-sm text-zinc-300 leading-relaxed">
-          <span className="font-bold text-zinc-100">{actor.name}</span> {config.message}
+        <p className="text-sm leading-relaxed text-zinc-300 lg:text-[15px] lg:leading-7">
+          <span className="font-medium text-zinc-100">{actor.name}</span> {config.message}
         </p>
       </div>
     </Link>

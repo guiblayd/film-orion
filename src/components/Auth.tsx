@@ -105,10 +105,10 @@ export function Auth() {
     <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6 py-12">
       {/* Branding */}
       <div className="mb-10 text-center">
-        <div className="w-12 h-12 bg-zinc-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-          <span className="text-zinc-950 font-black text-xl">I</span>
+        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100">
+          <span className="text-xl font-semibold text-zinc-950">I</span>
         </div>
-        <h1 className="text-2xl font-black text-zinc-100 tracking-tight">FilmOrion</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
         <p className="text-zinc-500 text-sm mt-1">Compartilhe o que vale a pena assistir</p>
       </div>
 
@@ -291,7 +291,7 @@ function SubmitButton({ loading, onClick, children }: { loading: boolean; onClic
     <button
       onClick={onClick}
       disabled={loading}
-      className="w-full bg-zinc-100 text-zinc-950 font-bold py-3 rounded-xl text-sm hover:bg-white transition-colors active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
     >
       {loading && <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-950 rounded-full animate-spin" />}
       {children}

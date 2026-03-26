@@ -1,6 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Compass, Sparkles } from 'lucide-react';
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
 import { cn } from '../lib/utils';
@@ -28,7 +27,7 @@ export function Feed() {
       }
     };
 
-    load();
+    void load();
     return () => { cancelled = true; };
   }, [currentUser.id, users]);
 
@@ -57,12 +56,20 @@ export function Feed() {
   };
 
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-none lg:px-6">
-      <header className="bg-zinc-950/80 backdrop-blur-xl border-b border-zinc-800/50 sticky top-0 z-10 lg:max-w-3xl lg:mx-auto">
-        <div className="px-4 py-3">
-          <h1 className="text-xl font-black tracking-tight text-zinc-100">FilmOrion</h1>
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-10">
+      <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
+        <div className="px-4 py-3 lg:px-0 lg:py-0">
+          <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Feed</p>
+          <div className="lg:mt-3 lg:flex lg:items-end lg:justify-between">
+            <div>
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[32px] lg:leading-tight">FilmOrion</h1>
+              <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
+                Acompanhe o que está circulando no catálogo aberto, no seu círculo e nas indicações feitas para você.
+              </p>
+            </div>
+          </div>
         </div>
-        <div className="flex border-t border-zinc-800/40">
+        <div className="flex border-t border-zinc-800/40 lg:mt-6 lg:border-t-0 lg:border-b lg:border-zinc-800/50">
           <TabButton active={activeTab === 'descobrir'} onClick={() => setActiveTab('descobrir')}>
             Descobrir
           </TabButton>
@@ -75,43 +82,38 @@ export function Feed() {
         </div>
       </header>
 
-      <div className="flex flex-col lg:max-w-3xl lg:mx-auto lg:mt-4">
+      <div className="flex flex-col lg:max-w-[860px] lg:pr-6">
         {connections.length === 0 && (
-          <div className="border-b border-zinc-800/50 p-4 lg:px-0 lg:py-5">
-            <div className="flex items-start gap-3">
-              <div className="rounded-2xl bg-zinc-100/10 p-2 text-zinc-100 lg:bg-transparent lg:p-0">
-                <Sparkles size={18} />
-              </div>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold text-zinc-100">Seu feed melhora muito com primeiros sinais.</p>
-                <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-                  {onboardingPreferences
-                    ? 'Voce ja salvou seu gosto inicial. Agora vale seguir alguns perfis para destravar o circulo.'
-                    : 'Personalize seus gostos e siga algumas pessoas para destravar recomendacoes mais certeiras.'}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <Link to="/explore" className="inline-flex items-center gap-2 rounded-full bg-zinc-100 px-4 py-2 text-xs font-bold text-zinc-950">
-                    <Compass size={14} />
-                    Abrir Explore
-                  </Link>
-                  <Link to={`/profile/${currentUser.id}`} className="inline-flex items-center gap-2 rounded-full border border-zinc-700 px-4 py-2 text-xs font-semibold text-zinc-200">
-                    Ver perfil
-                  </Link>
-                </div>
-              </div>
+          <div className="border-b border-zinc-800/50 px-4 py-4 lg:px-0 lg:py-6">
+            <p className="text-sm font-medium text-zinc-100 lg:text-base">Seu feed melhora bastante com contexto.</p>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500">
+              {onboardingPreferences
+                ? 'Seu gosto inicial já está salvo. Agora vale seguir alguns perfis para abrir melhor o seu círculo.'
+                : 'Personalize seus gostos e siga algumas pessoas para receber recomendações mais certeiras.'}
+            </p>
+            <div className="mt-4 flex flex-wrap gap-5 text-sm">
+              <Link to="/explore" className="font-medium text-zinc-200 transition-colors hover:text-white">
+                Abrir explorar
+              </Link>
+              <Link to={`/profile/${currentUser.id}`} className="text-zinc-500 transition-colors hover:text-zinc-300">
+                Ver perfil
+              </Link>
             </div>
           </div>
         )}
+
         {loading && (
-          <div className="p-10 text-center text-zinc-600 text-sm">
+          <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
             Carregando indicações...
           </div>
         )}
+
         {!loading && filtered.map(card => (
           <RecommendationCard key={card.recommendation.id} card={card} />
         ))}
+
         {!loading && filtered.length === 0 && (
-          <div className="p-10 text-center text-zinc-600 text-sm">
+          <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
             {emptyMessages[activeTab]}
           </div>
         )}
@@ -120,12 +122,20 @@ export function Feed() {
   );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex-1 py-2.5 text-xs font-bold border-b-2 transition-colors',
+        'flex-1 border-b-2 py-2.5 text-xs font-semibold transition-colors lg:flex-none lg:mr-8 lg:px-0 lg:py-3 lg:text-sm lg:font-medium',
         active ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       )}
     >
