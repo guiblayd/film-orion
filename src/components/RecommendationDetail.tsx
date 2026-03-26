@@ -45,6 +45,9 @@ export function RecommendationDetail() {
   const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [showStatusSheet, setShowStatusSheet] = useState(false);
+  const [statusSheetActive, setStatusSheetActive] = useState(false);
+  const [statusSheetDragging, setStatusSheetDragging] = useState(false);
+  const [statusSheetOffset, setStatusSheetOffset] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
   const [editMessage, setEditMessage] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -52,6 +55,9 @@ export function RecommendationDetail() {
   const [cardLoading, setCardLoading] = useState(true);
   const [cardNotFound, setCardNotFound] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const statusSheetRef = useRef<HTMLDivElement>(null);
+  const statusSheetCloseTimerRef = useRef<number | null>(null);
+  const statusSheetDragStartRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!id) {
@@ -120,6 +126,14 @@ export function RecommendationDetail() {
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
+  useEffect(() => {
+    return () => {
+      if (statusSheetCloseTimerRef.current) {
+        window.clearTimeout(statusSheetCloseTimerRef.current);
+      }
+    };
+  }, []);
+
   if (dataLoading || cardLoading) return <LoadingScreen />;
   if (cardNotFound || !card) return <div className="p-8 text-center">Indicacao nao encontrada</div>;
 
@@ -130,10 +144,69 @@ export function RecommendationDetail() {
   const isFromUser = currentUser.id === recommendation.from_user_id;
   const showMenu = isToUser || isFromUser;
 
+  const openStatusSheet = () => {
+    if (statusSheetCloseTimerRef.current) {
+      window.clearTimeout(statusSheetCloseTimerRef.current);
+      statusSheetCloseTimerRef.current = null;
+    }
+
+    setShowStatusSheet(true);
+    setStatusSheetDragging(false);
+    setStatusSheetOffset(0);
+    window.requestAnimationFrame(() => setStatusSheetActive(true));
+  };
+
+  const closeStatusSheet = () => {
+    if (statusSheetCloseTimerRef.current) {
+      window.clearTimeout(statusSheetCloseTimerRef.current);
+    }
+
+    statusSheetDragStartRef.current = null;
+    setStatusSheetDragging(false);
+    setStatusSheetOffset(0);
+    setStatusSheetActive(false);
+    statusSheetCloseTimerRef.current = window.setTimeout(() => {
+      setShowStatusSheet(false);
+      statusSheetCloseTimerRef.current = null;
+    }, 260);
+  };
+
+  const handleStatusSheetPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (event.pointerType === 'mouse' && event.button !== 0) return;
+    statusSheetDragStartRef.current = event.clientY;
+    setStatusSheetDragging(true);
+    event.currentTarget.setPointerCapture(event.pointerId);
+  };
+
+  const handleStatusSheetPointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (statusSheetDragStartRef.current === null) return;
+    const nextOffset = Math.max(0, event.clientY - statusSheetDragStartRef.current);
+    setStatusSheetOffset(nextOffset);
+  };
+
+  const handleStatusSheetPointerEnd = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (statusSheetDragStartRef.current === null) return;
+
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+
+    const sheetHeight = statusSheetRef.current?.offsetHeight ?? 0;
+    const closeThreshold = Math.min(160, Math.max(90, sheetHeight * 0.22));
+    const shouldClose = statusSheetOffset > closeThreshold;
+
+    statusSheetDragStartRef.current = null;
+    setStatusSheetDragging(false);
+    setStatusSheetOffset(0);
+
+    if (shouldClose) closeStatusSheet();
+    else setStatusSheetActive(true);
+  };
+
   const handleStatusAction = async (nextStatus: 'watched' | 'saved' | 'ignored') => {
     await updateUserItemStatus(item.id, nextStatus);
     setMenuOpen(false);
-    setShowStatusSheet(false);
+    closeStatusSheet();
   };
 
   const handleDelete = async () => {
@@ -203,7 +276,7 @@ export function RecommendationDetail() {
               <button
                 onClick={() => {
                   if (isToUser) {
-                    setShowStatusSheet(true);
+                    openStatusSheet();
                     return;
                   }
 
@@ -318,14 +391,38 @@ export function RecommendationDetail() {
       )}
 
       {showStatusSheet && (
-        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setShowStatusSheet(false)}>
-          <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
+        <div className="fixed inset-0 z-50 flex items-end" onClick={closeStatusSheet}>
           <div
-            className="relative w-full max-w-md mx-auto rounded-t-[32px] border-t border-zinc-700 bg-zinc-800/95 px-5 pb-8 pt-3 shadow-2xl"
+            className={cn(
+              'absolute inset-0 bg-zinc-950/55 transition-opacity duration-200',
+              statusSheetActive ? 'opacity-100' : 'opacity-0'
+            )}
+          />
+          <div
+            ref={statusSheetRef}
+            className={cn(
+              'relative w-full max-w-md mx-auto rounded-t-[32px] border-t border-zinc-700 bg-zinc-800/95 px-5 pb-8 pt-3 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)]',
+              statusSheetActive ? 'translate-y-0' : 'translate-y-full'
+            )}
+            style={statusSheetDragging ? { transform: `translateY(${statusSheetOffset}px)`, transitionDuration: '0ms' } : undefined}
             onClick={event => event.stopPropagation()}
           >
-            <div className="mx-auto mb-5 h-1.5 w-14 rounded-full bg-zinc-500/70" />
-            <div className="border-b border-zinc-700/70 pb-5 text-center">
+            <div
+              className="touch-none select-none"
+              onPointerDown={handleStatusSheetPointerDown}
+              onPointerMove={handleStatusSheetPointerMove}
+              onPointerUp={handleStatusSheetPointerEnd}
+              onPointerCancel={handleStatusSheetPointerEnd}
+            >
+              <div className="mx-auto mb-5 h-1.5 w-14 rounded-full bg-zinc-500/70" />
+            </div>
+            <div
+              className="border-b border-zinc-700/70 pb-5 text-center touch-none"
+              onPointerDown={handleStatusSheetPointerDown}
+              onPointerMove={handleStatusSheetPointerMove}
+              onPointerUp={handleStatusSheetPointerEnd}
+              onPointerCancel={handleStatusSheetPointerEnd}
+            >
               <h2 className="text-2xl font-medium tracking-tight text-zinc-100">{item.title}</h2>
               {displayYear && <p className="mt-1 text-lg text-zinc-400">{displayYear}</p>}
             </div>
