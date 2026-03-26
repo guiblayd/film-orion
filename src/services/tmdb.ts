@@ -183,6 +183,53 @@ async function fetchList(url: string | null, mapFn: (result: any) => Item): Prom
   }
 }
 
+async function discoverList({
+  mediaType,
+  providerId,
+  genreId,
+  sortBy = 'popularity.desc',
+  year,
+  releaseDateGte,
+  releaseDateLte,
+  firstAirDateGte,
+  firstAirDateLte,
+}: {
+  mediaType: 'movie' | 'tv';
+  providerId?: string;
+  genreId?: string;
+  sortBy?: string;
+  year?: string;
+  releaseDateGte?: string;
+  releaseDateLte?: string;
+  firstAirDateGte?: string;
+  firstAirDateLte?: string;
+}) {
+  const params = new URLSearchParams({
+    language: 'pt-BR',
+    include_adult: 'false',
+    sort_by: sortBy,
+    watch_region: 'BR',
+  });
+
+  if (providerId) params.set('with_watch_providers', providerId);
+  if (genreId) params.set('with_genres', genreId);
+
+  if (year) {
+    if (mediaType === 'movie') params.set('primary_release_year', year);
+    else params.set('first_air_date_year', year);
+  }
+
+  if (mediaType === 'movie') {
+    if (releaseDateGte) params.set('primary_release_date.gte', releaseDateGte);
+    if (releaseDateLte) params.set('primary_release_date.lte', releaseDateLte);
+  } else {
+    if (firstAirDateGte) params.set('first_air_date.gte', firstAirDateGte);
+    if (firstAirDateLte) params.set('first_air_date.lte', firstAirDateLte);
+  }
+
+  return fetchList(withKey(`/discover/${mediaType}`, params.toString()), mediaType === 'movie' ? mapMovie : mapTV);
+}
+
 export function getTrending(): Promise<Item[]> {
   return fetchList(
     withKey('/trending/all/week', 'language=pt-BR'),
@@ -200,6 +247,28 @@ export function getPopularTV(): Promise<Item[]> {
 
 export function getTopRatedMovies(): Promise<Item[]> {
   return fetchList(withKey('/movie/top_rated', 'language=pt-BR&region=BR'), mapMovie);
+}
+
+export async function getNetflixNewReleases(): Promise<Item[]> {
+  const currentYear = new Date().getFullYear();
+  const recentStart = `${currentYear - 1}-01-01`;
+
+  const [movies, series] = await Promise.all([
+    discoverList({
+      mediaType: 'movie',
+      providerId: '8',
+      sortBy: 'primary_release_date.desc',
+      releaseDateGte: recentStart,
+    }),
+    discoverList({
+      mediaType: 'tv',
+      providerId: '8',
+      sortBy: 'first_air_date.desc',
+      firstAirDateGte: recentStart,
+    }),
+  ]);
+
+  return dedupeItems([...movies, ...series]).slice(0, 18);
 }
 
 export async function searchTMDB(query: string): Promise<Item[]> {
@@ -245,24 +314,12 @@ export async function discoverTMDB({
   if (!API_KEY) return [];
 
   const targets = mediaType === 'all' ? ['movie', 'tv'] as const : [mediaType] as const;
-  const requests = targets.map(async target => {
-    const params = new URLSearchParams({
-      language: 'pt-BR',
-      include_adult: 'false',
-      sort_by: 'popularity.desc',
-      watch_region: 'BR',
-    });
-
-    if (genreId) params.set('with_genres', genreId);
-    if (providerId) params.set('with_watch_providers', providerId);
-    if (year) {
-      if (target === 'movie') params.set('primary_release_year', year);
-      else params.set('first_air_date_year', year);
-    }
-
-    const url = withKey(`/discover/${target}`, params.toString());
-    return fetchList(url, target === 'movie' ? mapMovie : mapTV);
-  });
+  const requests = targets.map(target => discoverList({
+    mediaType: target,
+    providerId,
+    genreId,
+    year,
+  }));
 
   const lists = await Promise.all(requests);
   return dedupeItems(lists.flat()).slice(0, 18);

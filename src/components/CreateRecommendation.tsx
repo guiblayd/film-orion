@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import { ArrowLeft, Search, Loader2, Lock, Users, Globe } from 'lucide-react';
 import { Item, User } from '../types';
 import { formatUsername } from '../lib/username';
-import { searchTMDB, getTrending } from '../services/tmdb';
+import { searchTMDB, getPopularMovies, getTrending } from '../services/tmdb';
 
 function dedupe(items: Item[]): Item[] {
   const seen = new Set<string>();
@@ -84,12 +84,19 @@ export function CreateRecommendation() {
       u.username.toLowerCase().includes(userSearch.toLowerCase())
     ));
 
-  // Fetch trending when step 2 first opens
+  // Fetch popular movies when step 2 first opens
   useEffect(() => {
     if (step !== 2 || browseItems.length > 0) return;
     setLoadingBrowse(true);
-    getTrending()
-      .then(results => setBrowseItems(dedupe(results.filter(i => validImage(i.image)))))
+    getPopularMovies()
+      .then(async results => {
+        const popular = dedupe(results.filter(i => validImage(i.image)));
+        if (popular.length > 0) return popular;
+
+        const fallback = await getTrending();
+        return dedupe(fallback.filter(i => validImage(i.image)));
+      })
+      .then(results => setBrowseItems(results))
       .finally(() => setLoadingBrowse(false));
   }, [step]);
 
@@ -208,7 +215,7 @@ export function CreateRecommendation() {
             </div>
             {!itemSearch.trim() && (
               <p className="text-xs text-zinc-600 text-center mb-4">
-                {loadingBrowse ? 'Carregando...' : 'Em alta esta semana · ou busque qualquer título'}
+                {loadingBrowse ? 'Carregando...' : 'Filmes populares agora · ou busque qualquer titulo'}
               </p>
             )}
             <div className="grid grid-cols-3 gap-2">

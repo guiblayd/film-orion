@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Item, User } from '../types';
 import { useStore } from '../store';
-import { getTrending, getPopularMovies, getPopularTV, getTopRatedMovies } from '../services/tmdb';
+import { getTrending, getPopularMovies, getPopularTV, getTopRatedMovies, getNetflixNewReleases } from '../services/tmdb';
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 function useItemNav() {
@@ -48,20 +48,22 @@ export function Explore() {
     let cancelled = false;
 
     const loadSections = async () => {
-      const [trending, popular, topRated, popularTV] = await Promise.all([
+      const [trending, popularMovies, popularTV, netflixNewReleases, topRated] = await Promise.all([
         getTrending(),
         getPopularMovies(),
-        getTopRatedMovies(),
         getPopularTV(),
+        getNetflixNewReleases(),
+        getTopRatedMovies(),
       ]);
 
       if (cancelled) return;
 
       setSections([
         { label: 'Em alta essa semana', items: trending },
-        { label: 'Filmes populares', items: popular },
-        { label: 'Melhores avaliados', items: topRated },
+        { label: 'Filmes populares', items: popularMovies },
         { label: 'Series populares', items: popularTV },
+        { label: 'Novidades na Netflix', items: netflixNewReleases },
+        { label: 'Melhores avaliados', items: topRated },
       ]);
       setLoading(false);
     };
@@ -205,7 +207,7 @@ function Carousel({
 function SkeletonCarousels() {
   return (
     <>
-      {['Em alta essa semana', 'Filmes populares', 'Melhores avaliados', 'Series populares'].map(label => (
+      {['Em alta essa semana', 'Filmes populares', 'Series populares', 'Novidades na Netflix', 'Melhores avaliados'].map(label => (
         <div key={label}>
           <div className="mb-2.5 h-5 w-36 rounded bg-zinc-800 animate-pulse" />
           <div className="flex gap-2.5 px-4">

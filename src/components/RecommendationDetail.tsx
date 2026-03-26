@@ -5,17 +5,19 @@ import { useStore } from '../store';
 import { cn, getRelativeTime } from '../lib/utils';
 import { getTMDBDetails, TMDBDetails } from '../services/tmdb';
 import { fetchRecommendationCardById, RecommendationCardData } from '../services/recommendations';
+import { LoadingScreen } from './LoadingScreen';
 
 const VISIBILITY_CONFIG = {
   private: { icon: Lock, label: 'Privado' },
-  connections: { icon: Users, label: 'Círculo' },
-  public: { icon: Globe, label: 'Público' },
+  connections: { icon: Users, label: 'Circulo' },
+  public: { icon: Globe, label: 'Publico' },
 } as const;
 
 export function RecommendationDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const {
+    dataLoading,
     users,
     currentUser,
     addComment,
@@ -32,38 +34,79 @@ export function RecommendationDetail() {
   const [editMessage, setEditMessage] = useState('');
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [card, setCard] = useState<RecommendationCardData | null>(null);
+  const [cardLoading, setCardLoading] = useState(true);
+  const [cardNotFound, setCardNotFound] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!id || users.length === 0) return;
+    if (!id) {
+      setCard(null);
+      setCardNotFound(true);
+      setCardLoading(false);
+      return;
+    }
+
+    if (dataLoading || users.length === 0) {
+      setCardLoading(true);
+      return;
+    }
 
     let cancelled = false;
+
     const load = async () => {
+      setCardLoading(true);
+      setCardNotFound(false);
+
       const nextCard = await fetchRecommendationCardById(id, users);
-      if (!cancelled) setCard(nextCard);
+      if (cancelled) return;
+
+      setCard(nextCard);
+      setCardNotFound(!nextCard);
+      setCardLoading(false);
     };
 
-    load();
-    return () => { cancelled = true; };
-  }, [id, users]);
+    void load();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [id, users, dataLoading]);
 
   useEffect(() => {
-    if (!card?.item.id.startsWith('tmdb_')) return;
+    if (!card?.item.id.startsWith('tmdb_')) {
+      setTmdb(null);
+      return;
+    }
+
+    let cancelled = false;
     const tmdbId = Number(card.item.id.replace('tmdb_', ''));
     const mediaType = card.item.type === 'movie' ? 'movie' : 'tv';
-    getTMDBDetails(tmdbId, mediaType).then(setTmdb);
+
+    setTmdb(null);
+    getTMDBDetails(tmdbId, mediaType).then(details => {
+      if (!cancelled) setTmdb(details);
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [card?.item.id, card?.item.type]);
 
   useEffect(() => {
     if (!menuOpen) return;
+
     const handler = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setMenuOpen(false);
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMenuOpen(false);
+      }
     };
+
     document.addEventListener('mousedown', handler);
     return () => document.removeEventListener('mousedown', handler);
   }, [menuOpen]);
 
-  if (!card) return <div className="p-8 text-center">Indicação não encontrada</div>;
+  if (dataLoading || cardLoading) return <LoadingScreen />;
+  if (cardNotFound || !card) return <div className="p-8 text-center">Indicacao nao encontrada</div>;
 
   const { recommendation, item, fromUser, toUser, comments } = card;
   const status = userItemStatuses.find(itemStatus => itemStatus.item_id === item.id && itemStatus.user_id === currentUser.id)?.status;
@@ -151,7 +194,7 @@ export function RecommendationDetail() {
                   {isToUser && (
                     <>
                       <button onClick={() => void handleStatusAction('watched')} className={cn('w-full flex items-center gap-2.5 px-4 py-3 text-sm transition-colors hover:bg-zinc-800', status === 'watched' ? 'text-emerald-400' : 'text-zinc-300')}>
-                        <Check size={15} /> Já vi
+                        <Check size={15} /> Ja vi
                       </button>
                       <button onClick={() => void handleStatusAction('saved')} className={cn('w-full flex items-center gap-2.5 px-4 py-3 text-sm transition-colors hover:bg-zinc-800 border-t border-zinc-800/60', status === 'saved' ? 'text-blue-400' : 'text-zinc-300')}>
                         <Bookmark size={15} className={status === 'saved' ? 'fill-current' : ''} /> Salvar
@@ -167,7 +210,7 @@ export function RecommendationDetail() {
                         <Pencil size={15} /> Editar mensagem
                       </button>
                       <button onClick={handleOpenDelete} className="w-full flex items-center gap-2.5 px-4 py-3 text-sm text-rose-400 transition-colors hover:bg-zinc-800 border-t border-zinc-800/60">
-                        <Trash2 size={15} /> Excluir indicação
+                        <Trash2 size={15} /> Excluir indicacao
                       </button>
                     </>
                   )}
@@ -210,11 +253,11 @@ export function RecommendationDetail() {
 
       <div className="flex-1 px-3 py-3 pb-20">
         {!recommendation.discussion_enabled ? (
-          <p className="text-center text-zinc-600 text-xs py-8">Discussão desativada para esta indicação.</p>
+          <p className="text-center text-zinc-600 text-xs py-8">Discussao desativada para esta indicacao.</p>
         ) : (
           <>
             <p className="text-[11px] text-zinc-600 font-medium uppercase tracking-wider mb-3">
-              {comments.length > 0 ? `${comments.length} comentário${comments.length > 1 ? 's' : ''}` : 'Comentários'}
+              {comments.length > 0 ? `${comments.length} comentario${comments.length > 1 ? 's' : ''}` : 'Comentarios'}
             </p>
             <div className="space-y-3">
               {comments.map(comment => {
@@ -267,8 +310,8 @@ export function RecommendationDetail() {
         <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
           <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
           <div className="relative w-full max-w-sm bg-zinc-900 rounded-2xl border border-zinc-800 p-5 shadow-xl">
-            <h2 className="font-bold text-base text-zinc-100 mb-1">Excluir indicação?</h2>
-            <p className="text-sm text-zinc-400 mb-6">Esta ação não pode ser desfeita. A indicação e todos os comentários serão removidos.</p>
+            <h2 className="font-bold text-base text-zinc-100 mb-1">Excluir indicacao?</h2>
+            <p className="text-sm text-zinc-400 mb-6">Esta acao nao pode ser desfeita. A indicacao e todos os comentarios serao removidos.</p>
             <div className="flex gap-3">
               <button
                 onClick={() => setShowDeleteConfirm(false)}
