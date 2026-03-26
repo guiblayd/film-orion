@@ -20,6 +20,8 @@ import { cn, getRelativeTime } from '../lib/utils';
 import { getTMDBDetails, TMDBDetails } from '../services/tmdb';
 import { fetchRecommendationCardById, RecommendationCardData } from '../services/recommendations';
 import { LoadingScreen } from './LoadingScreen';
+import { RecommendationComposerForm } from './RecommendationComposerForm';
+import { Recommendation } from '../types';
 
 const VISIBILITY_CONFIG = {
   private: { icon: Lock, label: 'Privado' },
@@ -50,6 +52,9 @@ export function RecommendationDetail() {
   const [statusSheetOffset, setStatusSheetOffset] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
   const [editMessage, setEditMessage] = useState('');
+  const [editVisibility, setEditVisibility] = useState<Recommendation['visibility']>('connections');
+  const [editDiscussionEnabled, setEditDiscussionEnabled] = useState(true);
+  const [isSavingEdit, setIsSavingEdit] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [card, setCard] = useState<RecommendationCardData | null>(null);
   const [cardLoading, setCardLoading] = useState(true);
@@ -221,16 +226,27 @@ export function RecommendationDetail() {
 
   const handleOpenEdit = () => {
     setEditMessage(recommendation.message ?? '');
+    setEditVisibility(recommendation.visibility);
+    setEditDiscussionEnabled(recommendation.discussion_enabled);
     setMenuOpen(false);
     setShowEdit(true);
   };
 
   const handleSaveEdit = async () => {
-    const updatedRecommendation = await editRecommendation(recommendation.id, editMessage.trim() || undefined);
-    if (updatedRecommendation) {
-      setCard(previous => previous ? { ...previous, recommendation: updatedRecommendation } : previous);
+    setIsSavingEdit(true);
+    try {
+      const updatedRecommendation = await editRecommendation(recommendation.id, {
+        message: editMessage.trim() || undefined,
+        visibility: editVisibility,
+        discussion_enabled: editDiscussionEnabled,
+      });
+      if (updatedRecommendation) {
+        setCard(previous => previous ? { ...previous, recommendation: updatedRecommendation } : previous);
+        setShowEdit(false);
+      }
+    } finally {
+      setIsSavingEdit(false);
     }
-    setShowEdit(false);
   };
 
   const handleSendComment = async (event: React.FormEvent) => {
@@ -479,27 +495,30 @@ export function RecommendationDetail() {
       )}
 
       {showEdit && (
-        <div className="fixed inset-0 z-50 flex items-end" onClick={() => setShowEdit(false)}>
-          <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
-          <div className="relative w-full max-w-md mx-auto bg-zinc-900 rounded-t-2xl border-t border-zinc-800 p-5" onClick={event => event.stopPropagation()}>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="font-bold text-sm text-zinc-100">Editar mensagem</h2>
-              <button onClick={() => setShowEdit(false)} className="text-zinc-500 hover:text-zinc-300 p-1">
-                <X size={18} />
+        <div className="fixed inset-0 z-50 bg-zinc-950">
+          <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:max-w-3xl">
+            <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/95 px-4 py-2.5 backdrop-blur-xl">
+              <button onClick={() => setShowEdit(false)} className="p-1 text-zinc-100">
+                <ArrowLeft size={20} />
               </button>
+              <h2 className="text-sm font-bold text-zinc-100">Editar indicacao</h2>
+            </header>
+
+            <div className="flex-1 overflow-y-auto p-4">
+              <RecommendationComposerForm
+                item={item}
+                user={toUser}
+                message={editMessage}
+                visibility={editVisibility}
+                discussionEnabled={editDiscussionEnabled}
+                submitLabel={isSavingEdit ? 'Salvando...' : 'Salvar alteracoes'}
+                onMessageChange={setEditMessage}
+                onVisibilityChange={setEditVisibility}
+                onDiscussionEnabledChange={setEditDiscussionEnabled}
+                onSubmit={handleSaveEdit}
+                submitting={isSavingEdit}
+              />
             </div>
-            <textarea
-              value={editMessage}
-              onChange={event => setEditMessage(event.target.value)}
-              rows={4}
-              maxLength={280}
-              placeholder="Mensagem opcional..."
-              className="w-full bg-zinc-800 rounded-xl px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 ring-1 ring-zinc-700 outline-none focus:ring-zinc-600 resize-none mb-1"
-            />
-            <div className="text-right text-xs text-zinc-600 mb-4">{editMessage.length}/280</div>
-            <button onClick={() => void handleSaveEdit()} className="w-full bg-zinc-100 text-zinc-950 font-bold py-2.5 rounded-xl hover:bg-white transition-colors text-sm">
-              Salvar
-            </button>
           </div>
         </div>
       )}

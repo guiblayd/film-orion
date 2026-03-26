@@ -19,7 +19,10 @@ type StoreContextType = {
   skipOnboarding: () => void;
   addRecommendation: (rec: Omit<Recommendation, 'id' | 'created_at'>) => Promise<Recommendation | null>;
   deleteRecommendation: (id: string) => Promise<void>;
-  editRecommendation: (id: string, message: string | undefined) => Promise<Recommendation | null>;
+  editRecommendation: (
+    id: string,
+    updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
+  ) => Promise<Recommendation | null>;
   toggleInteraction: (recommendationId: string, type: 'support' | 'oppose') => Promise<RecommendationInteraction | null>;
   addComment: (recommendationId: string, content: string) => Promise<Comment | null>;
   updateUserItemStatus: (itemId: string, status: 'saved' | 'watched' | 'ignored') => Promise<UserItemStatus | null>;
@@ -149,10 +152,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     if (error) console.error('deleteRecommendation:', error.message);
   };
 
-  const editRecommendation = async (id: string, message: string | undefined) => {
+  const editRecommendation = async (
+    id: string,
+    updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
+  ) => {
     const { data, error } = await supabase
       .from('recommendations')
-      .update({ message: message ?? null })
+      .update({
+        message: updates.message ?? null,
+        discussion_enabled: updates.discussion_enabled,
+        visibility: updates.visibility,
+      })
       .eq('id', id)
       .select()
       .single();
