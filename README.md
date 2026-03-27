@@ -2,7 +2,7 @@
 
 FilmOrion é um aplicativo de recomendações de filmes, séries e animes. A proposta do projeto é organizar indicações entre pessoas com mais contexto: quem indicou, para quem indicou, qual foi a mensagem e como esse título aparece no feed, no perfil e nos detalhes da recomendação.
 
-<img width="472" height="756" alt="image" src="https://github.com/user-attachments/assets/7d5608e3-aeef-4bff-a25d-14d5f7304df7" /> <img width="467" height="761" alt="image" src="https://github.com/user-attachments/assets/9bdc0a3b-9af8-4213-bc89-d3965052382c" /> <img width="470" height="751" alt="image" src="https://github.com/user-attachments/assets/3b4230f1-288f-4bc0-9588-13e46b0ca52d" />
+<img width="272" height="556" alt="image" src="https://github.com/user-attachments/assets/7d5608e3-aeef-4bff-a25d-14d5f7304df7" /> <img width="267" height="561" alt="image" src="https://github.com/user-attachments/assets/9bdc0a3b-9af8-4213-bc89-d3965052382c" /> <img width="270" height="551" alt="image" src="https://github.com/user-attachments/assets/3b4230f1-288f-4bc0-9588-13e46b0ca52d" />
 
 
 
