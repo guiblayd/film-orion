@@ -313,11 +313,25 @@ export function Profile() {
 
   return (
     <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
-      <header className="flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
-        <button onClick={() => navigate(-1)} className="p-1 text-zinc-100 lg:hidden">
+      <header className="flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-2.5 backdrop-blur-xl lg:hidden">
+        <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
           <ArrowLeft size={20} />
         </button>
-        <div className="min-w-0 text-center lg:text-left">
+        <div className="min-w-0 text-center">
+          <h1 className="truncate text-sm font-medium text-zinc-100">{user.name}</h1>
+          <p className="truncate text-[11px] text-zinc-500">{formatUsername(user.username)}</p>
+        </div>
+        {isOwnProfile ? (
+          <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 transition-colors hover:text-zinc-200">
+            <Settings size={20} />
+          </button>
+        ) : (
+          <div className="w-8" />
+        )}
+      </header>
+
+      <header className="hidden items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-0 py-0 backdrop-blur-xl lg:flex lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
+        <div className="min-w-0 text-left">
           <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[30px] lg:tracking-tight">{user.name}</h1>
           <p className="truncate text-[11px] text-zinc-500 lg:mt-1 lg:text-sm">
             {isOwnProfile ? `${receivedCards.length} indica\u00e7\u00f5es` : formatUsername(user.username)}
@@ -332,7 +346,49 @@ export function Profile() {
         )}
       </header>
 
-      <section className="border-b border-zinc-800/50 px-4 py-4 lg:px-0 lg:py-6">
+      <section className="border-b border-zinc-800/50 px-4 py-4 lg:hidden">
+        <div className="mb-3 flex items-center gap-5">
+          <img
+            src={user.avatar}
+            alt={user.name}
+            className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-zinc-800"
+          />
+          <div className="flex flex-1 justify-around text-center">
+            <div>
+              <p className="text-base font-semibold text-zinc-100">{receivedCards.length}</p>
+              <p className="text-[11px] text-zinc-500">Indica\u00e7\u00f5es</p>
+            </div>
+            <div>
+              <p className="text-base font-semibold text-zinc-100">{followersCount}</p>
+              <p className="text-[11px] text-zinc-500">Seguidores</p>
+            </div>
+            <div>
+              <p className="text-base font-semibold text-zinc-100">{followingCount}</p>
+              <p className="text-[11px] text-zinc-500">Seguindo</p>
+            </div>
+          </div>
+        </div>
+
+        <p className="text-sm font-medium text-zinc-100">{user.name}</p>
+        <p className="mt-1 text-xs font-medium text-zinc-500">{formatUsername(user.username)}</p>
+        {user.bio ? <p className="mt-2 text-xs leading-relaxed text-zinc-400">{user.bio}</p> : null}
+
+        {!isOwnProfile && (
+          <button
+            onClick={() => void handleToggleFollow()}
+            className={cn(
+              'mt-4 w-full rounded-lg py-2 text-sm font-medium transition-colors',
+              isFollowing
+                ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                : 'bg-zinc-100 text-zinc-950 hover:bg-white'
+            )}
+          >
+            {isFollowing ? 'Seguindo' : 'Seguir'}
+          </button>
+        )}
+      </section>
+
+      <section className="hidden border-b border-zinc-800/50 px-0 py-0 lg:block lg:px-0 lg:py-6">
         <div className="flex items-start justify-between gap-4">
           <div className="min-w-0 flex-1">
             <img

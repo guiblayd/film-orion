@@ -37,12 +37,12 @@ export function RecommendationCard({ card }: Props) {
   return (
     <Link
       to={`/recommendation/${recommendation.id}`}
-      className="flex items-start gap-3 border-b border-zinc-800/50 bg-zinc-950 px-4 py-5 transition-colors hover:bg-zinc-900/40 active:bg-zinc-900/60 lg:gap-4 lg:bg-transparent lg:px-0 lg:py-6 lg:hover:bg-zinc-900/25 lg:active:bg-zinc-900/35"
+      className="flex gap-3 border-b border-zinc-800/50 bg-zinc-950 px-3 py-2.5 transition-colors hover:bg-zinc-900/40 active:bg-zinc-900/60 lg:gap-4 lg:bg-transparent lg:px-0 lg:py-6 lg:hover:bg-zinc-900/25 lg:active:bg-zinc-900/35"
     >
       <img
         src={item.image}
         alt={item.title}
-        className="h-[126px] w-[88px] shrink-0 rounded-xl object-cover ring-1 ring-white/10 lg:hidden"
+        className="mt-0.5 h-16 w-11 shrink-0 rounded object-cover ring-1 ring-white/10 lg:hidden"
       />
 
       <img
@@ -53,54 +53,54 @@ export function RecommendationCard({ card }: Props) {
 
       <div className="min-w-0 flex-1 py-0.5">
         <div className="lg:hidden">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0 flex-1">
-              <div className="flex min-w-0 items-center gap-1.5 text-[13px] leading-5 text-zinc-400">
-                <img
-                  src={fromUser.avatar}
-                  alt={fromUser.name}
-                  className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-zinc-800"
-                />
-                <span className="truncate">{fromUser.name}</span>
-                <ArrowRight size={12} className="shrink-0 text-zinc-700" />
-                <img
-                  src={toUser.avatar}
-                  alt={toUser.name}
-                  className="h-6 w-6 shrink-0 rounded-full object-cover ring-1 ring-zinc-800"
-                />
-                <span className="truncate">{recipientLabel}</span>
-              </div>
+          <div className="mb-1 flex items-center gap-1 text-xs text-zinc-500">
+            <div className="flex min-w-0 flex-1 items-center gap-1">
+              <img
+                src={fromUser.avatar}
+                alt={fromUser.name}
+                className="h-4 w-4 shrink-0 rounded-full object-cover ring-1 ring-zinc-800"
+              />
+              <span className="truncate text-zinc-400">{fromUser.name}</span>
+              <ArrowRight size={10} className="shrink-0 text-zinc-700" />
+              <img
+                src={toUser.avatar}
+                alt={toUser.name}
+                className="h-4 w-4 shrink-0 rounded-full object-cover ring-1 ring-zinc-800"
+              />
+              <span className="truncate text-zinc-400">{recipientLabel}</span>
             </div>
-
-            <span className="shrink-0 pt-0.5 text-[12px] text-zinc-600">{relativeTime}</span>
+            <span className="ml-auto shrink-0 text-zinc-600">{relativeTime}</span>
           </div>
 
-          <p className="mt-2 line-clamp-3 text-[15px] font-semibold leading-snug text-zinc-100">
+          <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-100">
             {item.title}
           </p>
 
-          <div className="mt-5 flex items-center justify-between">
-            <span className="inline-flex items-center">
-              <VisibilityIcon visibility={recommendation.visibility} size={14} />
-            </span>
+          <div className="mt-1.5 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <VisibilityIcon visibility={recommendation.visibility} />
+            </div>
 
             {participants.length > 0 ? (
-              <span className="flex -space-x-2">
+              <div className="flex -space-x-1.5">
                 {participants.map((participant, index) => (
                   <img
                     key={participant.id}
                     src={participant.avatar}
                     alt={participant.name}
-                    className="h-8 w-8 rounded-full object-cover ring-2 ring-zinc-950"
-                    style={{ zIndex: participants.length - index }}
+                    className="h-4 w-4 rounded-full object-cover ring-1 ring-zinc-950"
+                    style={{ zIndex: index }}
                   />
                 ))}
                 {participantCount > participants.length ? (
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-800 text-[10px] font-semibold text-zinc-300 ring-2 ring-zinc-950">
-                    +{participantCount - participants.length}
-                  </span>
+                  <div
+                    className="flex h-4 w-4 items-center justify-center rounded-full bg-zinc-800 ring-1 ring-zinc-950"
+                    style={{ zIndex: participants.length }}
+                  >
+                    <span className="text-[8px] font-semibold text-zinc-400">+{participantCount - participants.length}</span>
+                  </div>
                 ) : null}
-              </span>
+              </div>
             ) : null}
           </div>
         </div>

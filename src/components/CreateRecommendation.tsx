@@ -30,7 +30,7 @@ function ItemCard({ item, label, user }: { item: Item; label: string; user?: Use
         className="h-[68px] w-12 shrink-0 rounded-lg object-cover ring-1 ring-white/10 lg:h-[210px] lg:w-[140px] lg:rounded-2xl"
       />
       <div className="min-w-0 flex flex-col justify-center">
-        <p className="mb-1 text-xs text-zinc-500 lg:text-[13px] lg:font-medium">{label}</p>
+        <p className="mb-0.5 text-xs text-zinc-500 lg:mb-1 lg:text-[13px] lg:font-medium">{label}</p>
         {user && (
           <div className="mb-1.5">
             <div className="flex items-center gap-1.5 lg:gap-2">

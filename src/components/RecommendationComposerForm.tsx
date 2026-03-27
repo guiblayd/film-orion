@@ -79,7 +79,7 @@ export function RecommendationComposerForm({
       <SummaryCard item={item} user={user} label={summaryLabel} />
 
       <div className="lg:pt-2">
-        <label className="mb-1.5 block text-xs font-medium text-zinc-500 lg:text-[13px]">
+        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500 lg:text-[13px] lg:normal-case lg:tracking-normal">
           Mensagem (opcional)
         </label>
         <textarea
@@ -91,7 +91,7 @@ export function RecommendationComposerForm({
         />
         <div className="mb-6 text-right text-xs text-zinc-600">{message.length}/280</div>
 
-        <label className="mb-2 block text-xs font-medium text-zinc-500 lg:text-[13px]">
+        <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-500 lg:text-[13px] lg:normal-case lg:tracking-normal">
           Visibilidade
         </label>
         <div className="mb-7 grid grid-cols-3 gap-2 lg:gap-4">
