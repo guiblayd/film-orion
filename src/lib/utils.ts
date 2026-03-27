@@ -15,6 +15,6 @@ export function getRelativeTime(dateStr: string) {
   const d = Math.floor(h / 24);
   if (d < 30) return `${d}d`;
   const mo = Math.floor(d / 30);
-  if (mo < 12) return `${mo} meses`;
+  if (mo < 12) return `${mo}m`;
   return `${Math.floor(d / 365)} anos`;
 }

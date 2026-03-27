@@ -63,7 +63,7 @@ export function Feed() {
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
         <div className="px-4 py-3 lg:px-0 lg:py-0">
           <div className="lg:hidden">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">{'In\u00edcio'}</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
           </div>
           <DesktopPageHeader
             title={'In\u00edcio'}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Globe, Lock, Users } from 'lucide-react';
-import { formatUsername } from '../lib/username';
+import { ArrowRight, Globe, Lock, Users } from 'lucide-react';
 import { getRelativeTime } from '../lib/utils';
 import { RecommendationCardData } from '../services/recommendations';
 import { useStore } from '../store';
@@ -44,17 +43,9 @@ export function RecommendationCard({ card }: Props) {
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[13px] leading-5 text-zinc-500 lg:text-[15px] lg:leading-6">
               <span className="font-semibold text-zinc-100">{fromUser.name}</span>
-              <span>indicou para</span>
-              <span className="inline-flex min-w-0 items-center gap-1.5 text-zinc-300">
-                <img
-                  src={toUser.avatar}
-                  alt={toUser.name}
-                  className="h-4 w-4 shrink-0 rounded-full object-cover ring-1 ring-zinc-800"
-                />
-                <span className="truncate">{recipientLabel}</span>
-              </span>
+              <ArrowRight size={12} className="shrink-0 text-zinc-700" />
+              <span className="truncate text-zinc-300">{recipientLabel}</span>
             </div>
-            <p className="mt-0.5 text-xs text-zinc-600 lg:text-[13px]">{formatUsername(fromUser.username)}</p>
           </div>
 
           <span className="shrink-0 pt-0.5 text-[11px] text-zinc-600 lg:text-xs">
@@ -82,11 +73,10 @@ export function RecommendationCard({ card }: Props) {
             <p className="mt-1 text-xs text-zinc-500 lg:text-[13px]">
               {getItemTypeLabel(item.type)}
               {item.year ? ` \u2022 ${item.year}` : ''}
+              <span className="ml-1.5 inline-flex items-center align-middle">
+                <VisibilityIcon visibility={recommendation.visibility} />
+              </span>
             </p>
-            <div className="mt-2 flex items-center gap-1.5 text-xs text-zinc-500 lg:mt-3 lg:text-[13px]">
-              <VisibilityIcon visibility={recommendation.visibility} />
-              <span>{getVisibilityLabel(recommendation.visibility)}</span>
-            </div>
           </div>
         </div>
 
@@ -118,12 +108,6 @@ export function RecommendationCard({ card }: Props) {
       </div>
     </Link>
   );
-}
-
-function getVisibilityLabel(visibility: string | null | undefined) {
-  if (visibility === 'private') return 'Privado';
-  if (visibility === 'public') return 'P\u00fablico';
-  return 'C\u00edrculo';
 }
 
 function getItemTypeLabel(type: string) {
