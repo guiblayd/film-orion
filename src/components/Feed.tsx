@@ -63,10 +63,10 @@ export function Feed() {
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
         <div className="px-4 py-3 lg:px-0 lg:py-0">
           <div className="lg:hidden">
-            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">In\u00edcio</h1>
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">{'In\u00edcio'}</h1>
           </div>
           <DesktopPageHeader
-            title="In\u00edcio"
+            title={'In\u00edcio'}
             className="hidden lg:block lg:pb-0"
           />
         </div>
@@ -75,7 +75,7 @@ export function Feed() {
             Descobrir
           </TabButton>
           <TabButton active={activeTab === 'circulo'} onClick={() => setActiveTab('circulo')}>
-            C\u00edrculo
+            {'C\u00edrculo'}
           </TabButton>
           <TabButton active={activeTab === 'para-mim'} onClick={() => setActiveTab('para-mim')}>
             Para mim
@@ -86,7 +86,7 @@ export function Feed() {
       <div className="flex flex-col">
         {loading ? (
           <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
-            Carregando indica\u00e7\u00f5es...
+            {'Carregando indica\u00e7\u00f5es...'}
           </div>
         ) : null}
 

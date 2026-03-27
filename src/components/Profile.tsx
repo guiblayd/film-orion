@@ -43,7 +43,7 @@ export function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = users.find(profileUser => profileUser.id === id);
-  if (!user) return <div className="p-8 text-center">Usu\u00e1rio n\u00e3o encontrado</div>;
+  if (!user) return <div className="p-8 text-center">{'Usu\u00e1rio n\u00e3o encontrado'}</div>;
 
   const isOwnProfile = currentUser.id === user.id;
   const isFollowing = connections.some(
@@ -271,12 +271,12 @@ export function Profile() {
       {activeTab === 'received' && (
         receivedCards.length > 0
           ? receivedCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-          : <EmptyState message="Nenhuma indica\u00e7\u00e3o recebida." />
+          : <EmptyState message={'Nenhuma indica\u00e7\u00e3o recebida.'} />
       )}
       {activeTab === 'made' && (
         madeCards.length > 0
           ? madeCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-          : <EmptyState message="Nenhuma indica\u00e7\u00e3o feita." />
+          : <EmptyState message={'Nenhuma indica\u00e7\u00e3o feita.'} />
       )}
       {activeTab === 'watchlist' && (
         watchlistItems.length > 0 ? (
@@ -352,7 +352,7 @@ export function Profile() {
             </div>
 
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-500 lg:mt-5 lg:text-[15px]">
-              <span><span className="font-semibold text-zinc-100">{receivedCards.length}</span> indica\u00e7\u00f5es</span>
+              <span><span className="font-semibold text-zinc-100">{receivedCards.length}</span>{' indica\u00e7\u00f5es'}</span>
               <span><span className="font-semibold text-zinc-100">{followersCount}</span> seguidores</span>
               <span><span className="font-semibold text-zinc-100">{followingCount}</span> seguindo</span>
             </div>
@@ -479,7 +479,7 @@ export function Profile() {
                 </div>
 
                 <div className="mt-5 rounded-[24px] border border-zinc-800/70 p-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">Pr\u00e9via</p>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">{'Pr\u00e9via'}</p>
                   <p className="mt-4 text-xl font-medium text-zinc-100">{editName.trim() || 'Seu nome'}</p>
                   <p className="mt-1 text-sm text-zinc-500">{formatUsername(normalizedUsername || currentUser.username)}</p>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
@@ -524,7 +524,7 @@ export function Profile() {
                   onChange={event => setEditBio(event.target.value)}
                   rows={4}
                   className="mb-5 w-full resize-none rounded-lg bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-1 ring-zinc-700 focus:ring-zinc-600 lg:rounded-2xl lg:px-4 lg:py-3.5 lg:text-base"
-                  placeholder="Fale um pouco sobre voc\u00ea..."
+                  placeholder={'Fale um pouco sobre voc\u00ea...'}
                   maxLength={150}
                 />
 
@@ -582,7 +582,7 @@ export function Profile() {
               <div className="min-w-0">
                 <h2 className="text-base font-bold text-zinc-100">Excluir conta?</h2>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-                  Essa a\u00e7\u00e3o \u00e9 permanente. Seu perfil, suas recomenda\u00e7\u00f5es, coment\u00e1rios e conex\u00f5es ser\u00e3o removidos.
+                  {'Essa a\u00e7\u00e3o \u00e9 permanente. Seu perfil, suas recomenda\u00e7\u00f5es, coment\u00e1rios e conex\u00f5es ser\u00e3o removidos.'}
                 </p>
                 <p className="mt-3 text-xs text-zinc-500">
                   Para confirmar, digite <span className="font-semibold text-zinc-300">{deletePhrase}</span>.
