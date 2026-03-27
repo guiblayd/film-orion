@@ -1,29 +1,33 @@
 # FilmOrion
 
-FilmOrion e uma rede social de recomendacoes de filmes, series e animes. A proposta do projeto e combinar descoberta de catalogo com contexto social: quem indicou, para quem indicou, o que esta circulando no feed e como cada pessoa organiza seus gostos.
+FilmOrion é um aplicativo de recomendações de filmes, séries e animes. A proposta do projeto é organizar indicações entre pessoas com mais contexto: quem indicou, para quem indicou, qual foi a mensagem e como esse título aparece no feed, no perfil e nos detalhes da recomendação.
 
-O app foi construido com React + Vite no frontend, Supabase no backend e TMDB para busca e descoberta de conteudo.
+O foco do produto não é ser uma rede social genérica. O centro da experiência é a indicação em si.
 
-## Visao geral
+## Visão geral
 
-No FilmOrion, cada recomendacao funciona como uma unidade social:
+No FilmOrion, cada recomendação funciona como uma unidade de contexto:
 
-- uma pessoa indica um titulo para outra
-- a recomendacao pode incluir mensagem
-- a visibilidade pode ser privada, para o circulo ou publica
-- outros usuarios podem interagir e discutir quando a conversa estiver habilitada
+- uma pessoa indica um título para outra
+- a recomendação pode incluir mensagem
+- a visibilidade pode ser privada, para o círculo ou pública
+- a conversa pode ser aberta ou desativada
+- o catálogo é enriquecido com dados do TMDB
 
-O projeto foi pensado para uma experiencia mobile-first, com adaptacao de layout para desktop.
+O projeto foi pensado com abordagem mobile-first, com adaptação de layout para desktop.
 
-## Principais funcionalidades
+## Funcionalidades
 
-- Feed social com abas para descobrir, ver o circulo e acompanhar o que foi indicado para voce
-- Criacao de recomendacoes com mensagem, visibilidade e controle de discussao
-- Perfis com seguidores, seguindo, historico de indicacoes, watchlist e itens assistidos
-- Exploracao de catalogo com dados do TMDB
-- Notificacoes de atividade social
-- Autenticacao, perfis e upload de avatar via Supabase
-- Estrutura preparada para PWA e deploy na Vercel
+- Feed com abas para descobrir indicações públicas, acompanhar o círculo e ver o que foi enviado para você
+- Criação de recomendações com mensagem, visibilidade e controle de discussão
+- Perfis com histórico de indicações, watchlist, itens assistidos, seguidores e seguindo
+- Exploração de catálogo com busca, destaques e metadados do TMDB
+- Página de detalhe para item e para recomendação
+- Notificações de atividade
+- Autenticação com email/senha e Google
+- Modo visitante com navegação em somente leitura
+- Upload de avatar e persistência com Supabase
+- Estrutura pronta para PWA e deploy na Vercel
 
 ## Stack
 
@@ -38,47 +42,41 @@ O projeto foi pensado para uma experiencia mobile-first, com adaptacao de layout
 
 ## Como rodar localmente
 
-### Pre-requisitos
+### Pré-requisitos
 
 - Node.js 20+
 - npm
-- Projeto Supabase configurado
-- Chave de API do TMDB
-- Supabase CLI instalada se voce for usar migrations, tipos ou seed
+- um projeto Supabase configurado
+- uma chave de API do TMDB
+- Supabase CLI instalada, caso você vá usar migrations, tipos ou seed
 
-### Instalacao
+### Instalação
 
 ```bash
 npm install
 ```
 
-### Variaveis de ambiente
+### Variáveis de ambiente
 
-Copie o arquivo de exemplo:
+Crie um arquivo `.env.local` a partir de `.env.example` e preencha os valores:
 
-```bash
-cp .env.example .env.local
-```
-
-Preencha as variaveis abaixo:
-
-| Variavel | Obrigatoria | Uso |
+| Variável | Obrigatória | Uso |
 | --- | --- | --- |
 | `VITE_SUPABASE_URL` | Sim | URL do projeto Supabase |
-| `VITE_SUPABASE_ANON_KEY` | Sim | Chave anonima usada pelo frontend |
-| `SUPABASE_SERVICE_ROLE_KEY` | So para seed | Necessaria apenas para o script de seed |
-| `VITE_TMDB_API_KEY` | Sim | Busca, detalhes e descoberta de catalogo |
+| `VITE_SUPABASE_ANON_KEY` | Sim | Chave pública usada pelo frontend |
+| `SUPABASE_SERVICE_ROLE_KEY` | Só para seed | Necessária apenas para o script de seed |
+| `VITE_TMDB_API_KEY` | Sim | Busca, detalhes e descoberta de catálogo |
 
 ### Banco de dados
 
-Se estiver conectando o projeto a um backend novo, rode:
+Se estiver conectando o projeto a um backend novo:
 
 ```bash
 npm run db:link
 npm run db:push
 ```
 
-Se quiser popular o banco com dados de demonstracao:
+Se quiser popular o banco com dados de demonstração:
 
 ```bash
 npm run db:seed
@@ -96,20 +94,20 @@ npm run db:types
 npm run dev
 ```
 
-O app sobe por padrao em:
+Por padrão, o app sobe em:
 
 ```text
 http://localhost:3000
 ```
 
-## Scripts disponiveis
+## Scripts disponíveis
 
-| Comando | Descricao |
+| Comando | Descrição |
 | --- | --- |
 | `npm run dev` | Inicia o ambiente de desenvolvimento |
-| `npm run build` | Gera o build de producao |
+| `npm run build` | Gera o build de produção |
 | `npm run preview` | Faz preview local do build |
-| `npm run lint` | Valida tipos com TypeScript |
+| `npm run lint` | Valida a tipagem com TypeScript |
 | `npm run clean` | Remove a pasta `dist` |
 | `npm run db:link` | Vincula o projeto local ao Supabase |
 | `npm run db:push` | Aplica migrations no projeto vinculado |
@@ -132,43 +130,43 @@ http://localhost:3000
 |   |-- types/
 |   |-- App.tsx
 |   |-- main.tsx
-|   |-- store.tsx
+|   `-- store.tsx
 |-- supabase/
 |-- vercel.json
-|-- vite.config.ts
+`-- vite.config.ts
 ```
 
-### Pastas mais importantes
+### Pastas principais
 
-- `src/components`: telas e componentes visuais da aplicacao
-- `src/contexts`: contexto de autenticacao e estados compartilhados
-- `src/lib`: utilitarios e configuracoes auxiliares
-- `src/services`: integracoes com Supabase e TMDB
-- `src/store.tsx`: estado global da aplicacao
-- `scripts`: automacoes de seed e suporte ao desenvolvimento
+- `src/components`: telas e componentes visuais
+- `src/contexts`: contexto de autenticação
+- `src/lib`: utilitários e configurações auxiliares
+- `src/services`: integrações com Supabase e TMDB
+- `src/store.tsx`: estado global da aplicação
+- `scripts`: rotinas de seed e apoio ao desenvolvimento
 - `supabase`: migrations e arquivos relacionados ao banco
 
 ## Deploy
 
-O projeto esta preparado para deploy na Vercel com fallback de SPA configurado em `vercel.json`.
+O projeto está preparado para deploy na Vercel com fallback de SPA configurado em `vercel.json`.
 
-Para publicar com seguranca:
+Antes de publicar:
 
-1. configure as mesmas variaveis de ambiente do ambiente local
-2. gere um build de verificacao com `npm run build`
-3. publique na Vercel apontando para este repositorio
+1. configure as mesmas variáveis de ambiente do ambiente local
+2. rode `npm run build` para validar o build de produção
+3. publique na Vercel apontando para este repositório
 
-## Observacoes importantes
+## Notas
 
-- O projeto usa textos visiveis em PT-BR, entao vale revisar copy e acentuacao antes de publicar mudancas de interface.
-- `SUPABASE_SERVICE_ROLE_KEY` nao deve ser usada no frontend. Ela existe apenas para rotinas de seed e manutencao local.
-- O feed, os perfis e os fluxos de recomendacao misturam comportamento mobile e desktop, entao alteracoes de layout devem ser verificadas nos dois contextos.
+- `SUPABASE_SERVICE_ROLE_KEY` não deve ser usada no frontend. Ela existe apenas para seed e rotinas locais de manutenção.
+- Alterações de interface devem ser verificadas em mobile e desktop.
+- O produto mistura descoberta de catálogo, recomendações entre pessoas e navegação por perfis, então mudanças de fluxo costumam impactar mais de uma tela.
 
-## Contribuicao
+## Contribuição
 
-Se voce for evoluir o projeto:
+Se você for evoluir o projeto:
 
-- abra uma issue para bugs ou ideias de produto
 - mantenha o build passando antes de abrir PR
-- revise impacto em mobile e desktop
-- documente mudancas de banco quando houver migrations novas
+- revise o impacto em mobile e desktop
+- documente mudanças de banco quando houver novas migrations
+- use `.env.example` como referência, sem expor credenciais reais
