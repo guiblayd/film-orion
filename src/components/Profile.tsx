@@ -43,7 +43,7 @@ export function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const user = users.find(profileUser => profileUser.id === id);
-  if (!user) return <div className="p-8 text-center">Usuário não encontrado</div>;
+  if (!user) return <div className="p-8 text-center">Usu\u00e1rio n\u00e3o encontrado</div>;
 
   const isOwnProfile = currentUser.id === user.id;
   const isFollowing = connections.some(
@@ -185,7 +185,7 @@ export function Profile() {
     }
 
     if (usernameAvailability === 'taken') {
-      setFormError('Esse @username já está em uso.');
+      setFormError('Esse @username j\u00e1 est\u00e1 em uso.');
       return;
     }
 
@@ -253,7 +253,7 @@ export function Profile() {
       const { error } = await supabase.rpc('delete_current_user');
       if (error) {
         console.error('delete_current_user:', error.message);
-        setDangerError('Não foi possível excluir sua conta agora.');
+        setDangerError('N\u00e3o foi poss\u00edvel excluir sua conta agora.');
         return;
       }
 
@@ -271,16 +271,16 @@ export function Profile() {
       {activeTab === 'received' && (
         receivedCards.length > 0
           ? receivedCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-          : <EmptyState message="Nenhuma indicação recebida." />
+          : <EmptyState message="Nenhuma indica\u00e7\u00e3o recebida." />
       )}
       {activeTab === 'made' && (
         madeCards.length > 0
           ? madeCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-          : <EmptyState message="Nenhuma indicação feita." />
+          : <EmptyState message="Nenhuma indica\u00e7\u00e3o feita." />
       )}
       {activeTab === 'watchlist' && (
         watchlistItems.length > 0 ? (
-          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-5 lg:bg-transparent lg:pt-6 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-4 lg:bg-transparent lg:pt-4">
             {watchlistItems.map(item => (
               <button
                 key={item.id}
@@ -295,7 +295,7 @@ export function Profile() {
       )}
       {activeTab === 'watched' && (
         watchedItems.length > 0 ? (
-          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-5 lg:bg-transparent lg:pt-6 xl:grid-cols-5">
+          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-4 lg:bg-transparent lg:pt-4">
             {watchedItems.map(item => (
               <button
                 key={item.id}
@@ -312,14 +312,16 @@ export function Profile() {
   );
 
   return (
-    <DesktopPage width="wide" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
+    <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100 lg:hidden">
           <ArrowLeft size={20} />
         </button>
         <div className="min-w-0 text-center lg:text-left">
           <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[30px] lg:tracking-tight">{user.name}</h1>
-          <p className="truncate text-[11px] text-zinc-500 lg:mt-1 lg:text-sm">{formatUsername(user.username)}</p>
+          <p className="truncate text-[11px] text-zinc-500 lg:mt-1 lg:text-sm">
+            {isOwnProfile ? `${receivedCards.length} indica\u00e7\u00f5es` : formatUsername(user.username)}
+          </p>
         </div>
         {isOwnProfile ? (
           <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 transition-colors hover:text-zinc-200">
@@ -330,70 +332,91 @@ export function Profile() {
         )}
       </header>
 
-      <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12 lg:items-start lg:pt-6">
-        <aside className="border-b border-zinc-800/50 px-4 py-4 lg:sticky lg:top-8 lg:self-start lg:border-b-0 lg:px-0 lg:py-2">
-          <div className="mb-3 flex items-center gap-5 lg:block">
+      <section className="border-b border-zinc-800/50 px-4 py-4 lg:px-0 lg:py-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="min-w-0 flex-1">
             <img
               src={user.avatar}
               alt={user.name}
-              className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-zinc-800 lg:h-28 lg:w-28"
+              className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-zinc-800 lg:h-24 lg:w-24"
             />
-            <div className="flex flex-1 justify-around text-center lg:mt-6 lg:justify-between">
-              <div>
-                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{receivedCards.length}</p>
-                <p className="text-[11px] text-zinc-500">Indicações</p>
-              </div>
-              <div>
-                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{followersCount}</p>
-                <p className="text-[11px] text-zinc-500">Seguidores</p>
-              </div>
-              <div>
-                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{followingCount}</p>
-                <p className="text-[11px] text-zinc-500">Seguindo</p>
-              </div>
+
+            <div className="mt-4 min-w-0">
+              <p className="truncate text-lg font-semibold text-zinc-100 lg:text-[30px] lg:leading-tight">{user.name}</p>
+              <p className="mt-1 truncate text-sm text-zinc-500">{formatUsername(user.username)}</p>
+              {user.bio ? (
+                <p className="mt-3 max-w-2xl text-sm leading-relaxed text-zinc-300 lg:text-[15px] lg:leading-7">
+                  {user.bio}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-500 lg:mt-5 lg:text-[15px]">
+              <span><span className="font-semibold text-zinc-100">{receivedCards.length}</span> indica\u00e7\u00f5es</span>
+              <span><span className="font-semibold text-zinc-100">{followersCount}</span> seguidores</span>
+              <span><span className="font-semibold text-zinc-100">{followingCount}</span> seguindo</span>
             </div>
           </div>
 
-          <p className="text-sm font-medium text-zinc-100 lg:text-[28px] lg:leading-tight">{user.name}</p>
-          <p className="mt-1 text-xs font-medium text-zinc-500 lg:text-sm">{formatUsername(user.username)}</p>
-          {user.bio && <p className="mt-2 text-xs leading-relaxed text-zinc-400 lg:mt-4 lg:text-sm lg:leading-7">{user.bio}</p>}
-
-          {!isOwnProfile && (
-            <button
-              onClick={() => void handleToggleFollow()}
-              className={cn(
-                'mt-4 w-full rounded-lg py-2 text-sm font-medium transition-colors lg:mt-6 lg:rounded-2xl lg:py-3',
-                isFollowing
-                  ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                  : 'bg-zinc-100 text-zinc-950 hover:bg-white'
-              )}
-            >
-              {isFollowing ? 'Seguindo' : 'Seguir'}
-            </button>
-          )}
-        </aside>
-
-        <section className="min-w-0">
-          <div className="flex overflow-x-auto border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none">
-            <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
-              Recebidas
-            </TabButton>
-            <TabButton active={activeTab === 'made'} onClick={() => setActiveTab('made')}>
-              Feitas
-            </TabButton>
-            <TabButton active={activeTab === 'watchlist'} onClick={() => setActiveTab('watchlist')}>
-              Watchlist
-            </TabButton>
-            <TabButton active={activeTab === 'watched'} onClick={() => setActiveTab('watched')}>
-              Assistidos
-            </TabButton>
+          <div className="hidden lg:block">
+            {isOwnProfile ? (
+              <button
+                onClick={() => setShowSettings(true)}
+                className="rounded-full border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900/60"
+              >
+                Editar perfil
+              </button>
+            ) : (
+              <button
+                onClick={() => void handleToggleFollow()}
+                className={cn(
+                  'rounded-full px-5 py-2 text-sm font-medium transition-colors',
+                  isFollowing
+                    ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                    : 'bg-zinc-100 text-zinc-950 hover:bg-white'
+                )}
+              >
+                {isFollowing ? 'Seguindo' : 'Seguir'}
+              </button>
+            )}
           </div>
+        </div>
 
-          <div className="flex flex-col lg:pt-5">
-            {activeTabContent}
-          </div>
-        </section>
-      </div>
+        {!isOwnProfile && (
+          <button
+            onClick={() => void handleToggleFollow()}
+            className={cn(
+              'mt-4 w-full rounded-full py-2 text-sm font-medium transition-colors lg:hidden',
+              isFollowing
+                ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                : 'bg-zinc-100 text-zinc-950 hover:bg-white'
+            )}
+          >
+            {isFollowing ? 'Seguindo' : 'Seguir'}
+          </button>
+        )}
+      </section>
+
+      <section className="min-w-0">
+        <div className="flex overflow-x-auto border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none">
+          <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
+            Recebidas
+          </TabButton>
+          <TabButton active={activeTab === 'made'} onClick={() => setActiveTab('made')}>
+            Feitas
+          </TabButton>
+          <TabButton active={activeTab === 'watchlist'} onClick={() => setActiveTab('watchlist')}>
+            Watchlist
+          </TabButton>
+          <TabButton active={activeTab === 'watched'} onClick={() => setActiveTab('watched')}>
+            Assistidos
+          </TabButton>
+        </div>
+
+        <div className="flex flex-col lg:pt-2">
+          {activeTabContent}
+        </div>
+      </section>
 
       <input
         ref={fileInputRef}
@@ -456,7 +479,7 @@ export function Profile() {
                 </div>
 
                 <div className="mt-5 rounded-[24px] border border-zinc-800/70 p-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">Prévia</p>
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">Pr\u00e9via</p>
                   <p className="mt-4 text-xl font-medium text-zinc-100">{editName.trim() || 'Seu nome'}</p>
                   <p className="mt-1 text-sm text-zinc-500">{formatUsername(normalizedUsername || currentUser.username)}</p>
                   <p className="mt-4 text-sm leading-7 text-zinc-400">
@@ -489,10 +512,10 @@ export function Profile() {
                 </div>
                 <p className="mb-4 text-xs text-zinc-500">
                   {usernameAvailability === 'checking' && 'Verificando disponibilidade...'}
-                  {usernameAvailability === 'available' && usernameChanged && 'Esse @username está disponível.'}
-                  {usernameAvailability === 'taken' && 'Esse @username já está em uso.'}
+                  {usernameAvailability === 'available' && usernameChanged && 'Esse @username est\u00e1 dispon\u00edvel.'}
+                  {usernameAvailability === 'taken' && 'Esse @username j\u00e1 est\u00e1 em uso.'}
                   {usernameAvailability === 'invalid' && usernameValidationError}
-                  {usernameAvailability === 'idle' && 'Use de 3 a 24 caracteres com letras minúsculas, números e underscore.'}
+                  {usernameAvailability === 'idle' && 'Use de 3 a 24 caracteres com letras min\u00fasculas, n\u00fameros e underscore.'}
                 </p>
 
                 <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">Bio</label>
@@ -501,7 +524,7 @@ export function Profile() {
                   onChange={event => setEditBio(event.target.value)}
                   rows={4}
                   className="mb-5 w-full resize-none rounded-lg bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-1 ring-zinc-700 focus:ring-zinc-600 lg:rounded-2xl lg:px-4 lg:py-3.5 lg:text-base"
-                  placeholder="Fale um pouco sobre você..."
+                  placeholder="Fale um pouco sobre voc\u00ea..."
                   maxLength={150}
                 />
 
@@ -559,7 +582,7 @@ export function Profile() {
               <div className="min-w-0">
                 <h2 className="text-base font-bold text-zinc-100">Excluir conta?</h2>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-                  Essa ação é permanente. Seu perfil, suas recomendações, comentários e conexões serão removidos.
+                  Essa a\u00e7\u00e3o \u00e9 permanente. Seu perfil, suas recomenda\u00e7\u00f5es, coment\u00e1rios e conex\u00f5es ser\u00e3o removidos.
                 </p>
                 <p className="mt-3 text-xs text-zinc-500">
                   Para confirmar, digite <span className="font-semibold text-zinc-300">{deletePhrase}</span>.

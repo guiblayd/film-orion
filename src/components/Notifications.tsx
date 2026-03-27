@@ -97,9 +97,7 @@ export function Notifications() {
           <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Notificações</h1>
         </div>
         <DesktopPageHeader
-          eyebrow="Alertas"
           title="Notificações"
-          description="Uma leitura contínua das interações recentes, sem caixas fechadas nem excesso de destaque visual."
           className="hidden lg:block lg:pb-0"
         />
       </header>

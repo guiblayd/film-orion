@@ -112,12 +112,10 @@ export function Explore() {
     <DesktopPage width="wide" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
         <div className="lg:hidden">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Catálogo e descoberta</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Explorar</h1>
         </div>
         <DesktopPageHeader
-          eyebrow="Explorar"
-          title="Catálogo e descoberta"
-          description="Um desktop pensado para navegar por catálogo, tendências e indicações do seu círculo sem depender de blocos pesados."
+          title="Explorar"
           className="hidden lg:block lg:pb-0"
         />
       </header>

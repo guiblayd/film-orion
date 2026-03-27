@@ -26,9 +26,9 @@ type DesktopPageHeaderProps = {
 };
 
 const PAGE_WIDTHS = {
-  stream: 'lg:max-w-[860px]',
-  wide: 'lg:max-w-[1120px]',
-  detail: 'lg:max-w-[1040px]',
+  stream: 'lg:max-w-[760px]',
+  wide: 'lg:max-w-[1040px]',
+  detail: 'lg:max-w-[980px]',
 } as const;
 
 export function DesktopFrame({
@@ -41,13 +41,13 @@ export function DesktopFrame({
   const showAside = useDefaultAside || Boolean(aside);
 
   return (
-    <div className={cn('min-h-screen lg:px-8 lg:py-8 xl:px-10', className)}>
+    <div className={cn('min-h-screen lg:px-6 lg:py-6 xl:px-8', className)}>
       <div
         className={cn(
-          'mx-auto lg:grid lg:max-w-[1680px] lg:gap-10',
+          'mx-auto lg:grid lg:max-w-[1480px] lg:gap-8',
           showAside
             ? 'lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)_300px]'
-            : 'lg:grid-cols-[220px_minmax(0,1fr)] xl:grid-cols-[240px_minmax(0,1fr)]'
+            : 'lg:grid-cols-[210px_minmax(0,1fr)] xl:grid-cols-[220px_minmax(0,1fr)]'
         )}
       >
         <DesktopSidebar />
@@ -74,15 +74,15 @@ export function DesktopPageHeader({
   className,
 }: DesktopPageHeaderProps) {
   return (
-    <header className={cn('pb-6 lg:pb-8', className)}>
+    <header className={cn('pb-4 lg:pb-5', className)}>
       {eyebrow ? (
         <p className="hidden text-[11px] uppercase tracking-[0.24em] text-zinc-500 lg:block">{eyebrow}</p>
       ) : null}
-      <div className="lg:mt-4 lg:flex lg:items-end lg:justify-between lg:gap-8">
+      <div className="lg:mt-2 lg:flex lg:items-end lg:justify-between lg:gap-8">
         <div className="min-w-0">
-          <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[40px] lg:leading-[1.02]">{title}</h1>
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[30px] lg:leading-tight">{title}</h1>
           {description ? (
-            <p className="hidden max-w-3xl text-[15px] leading-7 text-zinc-500 lg:mt-3 lg:block">{description}</p>
+            <p className="hidden max-w-3xl text-[14px] leading-6 text-zinc-500 lg:mt-2 lg:block">{description}</p>
           ) : null}
         </div>
         {actions ? <div className="hidden shrink-0 lg:flex lg:items-center lg:gap-3">{actions}</div> : null}

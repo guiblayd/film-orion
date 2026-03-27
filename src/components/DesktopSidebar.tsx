@@ -16,26 +16,13 @@ export function DesktopSidebar() {
   const { currentUser, unreadNotificationsCount } = useStore();
 
   return (
-    <aside className="hidden lg:sticky lg:top-8 lg:flex lg:h-[calc(100vh-64px)] lg:flex-col lg:justify-between lg:self-start">
+    <aside className="hidden lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-48px)] lg:flex-col lg:justify-between lg:self-start">
       <div>
-        <div className="pb-8">
-          <p className="text-[10px] uppercase tracking-[0.28em] text-zinc-500">FilmOrion</p>
-          <h1 className="mt-3 max-w-[12rem] text-[28px] font-semibold leading-[1.05] tracking-tight text-zinc-100">
-            Descoberta com contexto.
-          </h1>
-          <p className="mt-3 max-w-[16rem] text-sm leading-relaxed text-zinc-500">
-            Um desktop pensado para ler, explorar e decidir sem excesso de moldura.
-          </p>
-        </div>
-
-        <Link
-          to="/create"
-          className="mb-8 inline-flex h-11 items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
-        >
-          Nova indica\u00e7\u00e3o
+        <Link to="/" className="mb-8 block text-[20px] font-semibold tracking-tight text-zinc-100">
+          FilmOrion
         </Link>
 
-        <nav className="space-y-1.5">
+        <nav className="space-y-1">
           {NAV_ITEMS.map(item => (
             <DesktopNavLink
               key={item.to}
@@ -47,12 +34,19 @@ export function DesktopSidebar() {
             />
           ))}
         </nav>
+
+        <Link
+          to="/create"
+          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
+        >
+          Indicar
+        </Link>
       </div>
 
-      <div className="border-t border-zinc-800/50 pt-5">
+      <div className="pt-5">
         <Link
           to={`/profile/${currentUser.id}`}
-          className="group flex items-center gap-3 rounded-[22px] px-3 py-3 transition-colors hover:bg-zinc-900/50"
+          className="group flex items-center gap-3 rounded-full px-2 py-2 transition-colors hover:bg-zinc-900/40"
         >
           <img src={currentUser.avatar} alt={currentUser.name} className="h-10 w-10 rounded-full object-cover ring-1 ring-zinc-800" />
           <div className="min-w-0">
@@ -61,7 +55,7 @@ export function DesktopSidebar() {
               {formatUsername(currentUser.username)}
             </p>
           </div>
-          <UserIcon size={16} className="ml-auto text-zinc-600 transition-colors group-hover:text-zinc-400" />
+          <UserIcon size={16} className="ml-auto text-zinc-700 transition-colors group-hover:text-zinc-500" />
         </Link>
       </div>
     </aside>
@@ -86,8 +80,8 @@ function DesktopNavLink({
       to={to}
       end={end}
       className={({ isActive }) => cn(
-        'group flex items-center gap-3 rounded-full px-3 py-2.5 text-sm transition-colors',
-        isActive ? 'bg-zinc-900/80 text-zinc-100' : 'text-zinc-500 hover:bg-zinc-900/40 hover:text-zinc-100'
+        'group flex items-center gap-3 rounded-full px-2 py-2.5 text-sm transition-colors',
+        isActive ? 'text-zinc-100' : 'text-zinc-500 hover:bg-zinc-900/30 hover:text-zinc-100'
       )}
     >
       {({ isActive }) => (
@@ -100,7 +94,9 @@ function DesktopNavLink({
               </span>
             )}
           </div>
-          <span className={cn('font-medium', isActive ? 'text-zinc-100' : 'text-zinc-400 group-hover:text-zinc-200')}>{label}</span>
+          <span className={cn('text-[15px]', isActive ? 'font-semibold text-zinc-100' : 'font-medium text-zinc-400 group-hover:text-zinc-200')}>
+            {label}
+          </span>
         </>
       )}
     </NavLink>

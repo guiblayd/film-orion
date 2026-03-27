@@ -25,7 +25,7 @@ function ScrollToTop() {
 function Layout() {
   return (
     <>
-      <DesktopFrame useDefaultAside>
+      <DesktopFrame>
         <Outlet />
       </DesktopFrame>
       <Navigation />
