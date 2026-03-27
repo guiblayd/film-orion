@@ -142,10 +142,12 @@ export function Profile() {
         const nextItem = toItem(item);
         return [nextItem.id, nextItem] as const;
       }));
+
       const nextWatchlistItems = (statuses ?? [])
         .filter(status => status.status === 'saved')
         .map(status => itemsById.get(status.item_id))
         .filter((item): item is Item => Boolean(item));
+
       const nextWatchedItems = (statuses ?? [])
         .filter(status => status.status === 'watched')
         .map(status => itemsById.get(status.item_id))
@@ -161,9 +163,11 @@ export function Profile() {
       setWatchedItems(nextWatchedItems);
     };
 
-    loadProfileData();
-    return () => { cancelled = true; };
-  }, [user.id, users, connections]);
+    void loadProfileData();
+    return () => {
+      cancelled = true;
+    };
+  }, [user.id, users]);
 
   const handleSaveSettings = async () => {
     if (!editName.trim()) return;
@@ -180,7 +184,7 @@ export function Profile() {
     }
 
     if (usernameAvailability === 'taken') {
-      setFormError('Esse @username ja esta em uso.');
+      setFormError('Esse @username já está em uso.');
       return;
     }
 
@@ -248,7 +252,7 @@ export function Profile() {
       const { error } = await supabase.rpc('delete_current_user');
       if (error) {
         console.error('delete_current_user:', error.message);
-        setDangerError('Nao foi possivel excluir sua conta agora.');
+        setDangerError('Não foi possível excluir sua conta agora.');
         return;
       }
 
@@ -261,18 +265,63 @@ export function Profile() {
   const deletePhrase = formatUsername(currentUser.username);
   const deleteConfirmed = deleteConfirmation.trim() === deletePhrase;
 
+  const activeTabContent = (
+    <>
+      {activeTab === 'received' && (
+        receivedCards.length > 0
+          ? receivedCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
+          : <EmptyState message="Nenhuma indicação recebida." />
+      )}
+      {activeTab === 'made' && (
+        madeCards.length > 0
+          ? madeCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
+          : <EmptyState message="Nenhuma indicação feita." />
+      )}
+      {activeTab === 'watchlist' && (
+        watchlistItems.length > 0 ? (
+          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-5 lg:bg-transparent lg:pt-6 xl:grid-cols-5">
+            {watchlistItems.map(item => (
+              <button
+                key={item.id}
+                className="relative aspect-[2/3] cursor-pointer overflow-hidden lg:rounded-2xl"
+                onClick={() => navigate(`/item/${item.id}`)}
+              >
+                <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : <EmptyState message="Watchlist vazia." />
+      )}
+      {activeTab === 'watched' && (
+        watchedItems.length > 0 ? (
+          <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-4 lg:gap-5 lg:bg-transparent lg:pt-6 xl:grid-cols-5">
+            {watchedItems.map(item => (
+              <button
+                key={item.id}
+                className="relative aspect-[2/3] cursor-pointer overflow-hidden lg:rounded-2xl"
+                onClick={() => navigate(`/item/${item.id}`)}
+              >
+                <img src={item.image} alt={item.title} className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        ) : <EmptyState message="Nenhum item assistido." />
+      )}
+    </>
+  );
+
   return (
-    <div className="max-w-md mx-auto bg-zinc-950 min-h-screen pb-20 lg:max-w-none lg:pb-12">
-      <header className="bg-zinc-950/80 backdrop-blur-xl px-4 py-2.5 flex justify-between items-center border-b border-zinc-800/50 lg:bg-transparent lg:backdrop-blur-none lg:border-b-0 lg:px-0 lg:py-0">
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
+      <header className="flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
         <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
           <ArrowLeft size={20} />
         </button>
         <div className="min-w-0 text-center lg:text-left">
-          <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[28px] lg:tracking-tight">{user.name}</h1>
-          <p className="truncate text-[11px] text-zinc-500 lg:mt-1">{formatUsername(user.username)}</p>
+          <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[30px] lg:tracking-tight">{user.name}</h1>
+          <p className="truncate text-[11px] text-zinc-500 lg:mt-1 lg:text-sm">{formatUsername(user.username)}</p>
         </div>
         {isOwnProfile ? (
-          <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 hover:text-zinc-200">
+          <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 transition-colors hover:text-zinc-200">
             <Settings size={20} />
           </button>
         ) : (
@@ -280,92 +329,69 @@ export function Profile() {
         )}
       </header>
 
-      <div className="px-4 py-4 border-b border-zinc-800/50 lg:border-b-0 lg:px-0 lg:py-0 lg:sticky lg:top-8 lg:self-start">
-        <div className="flex items-center gap-5 mb-3 lg:block">
-          <img src={user.avatar} alt={user.name} className="w-20 h-20 rounded-full object-cover ring-2 ring-zinc-800 shrink-0 lg:w-24 lg:h-24" />
-          <div className="flex-1 flex justify-around text-center lg:mt-5 lg:justify-between">
-            <div>
-              <p className="text-base font-semibold text-zinc-100">{receivedCards.length}</p>
-              <p className="text-[11px] text-zinc-500">Indicações</p>
-            </div>
-            <div>
-              <p className="text-base font-semibold text-zinc-100">{followersCount}</p>
-              <p className="text-[11px] text-zinc-500">Seguidores</p>
-            </div>
-            <div>
-              <p className="text-base font-semibold text-zinc-100">{followingCount}</p>
-              <p className="text-[11px] text-zinc-500">Seguindo</p>
+      <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 lg:items-start lg:pt-8">
+        <aside className="border-b border-zinc-800/50 px-4 py-4 lg:sticky lg:top-8 lg:self-start lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-7 lg:py-8">
+          <div className="mb-3 flex items-center gap-5 lg:block">
+            <img
+              src={user.avatar}
+              alt={user.name}
+              className="h-20 w-20 shrink-0 rounded-full object-cover ring-2 ring-zinc-800 lg:h-28 lg:w-28"
+            />
+            <div className="flex flex-1 justify-around text-center lg:mt-6 lg:justify-between">
+              <div>
+                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{receivedCards.length}</p>
+                <p className="text-[11px] text-zinc-500">Indicações</p>
+              </div>
+              <div>
+                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{followersCount}</p>
+                <p className="text-[11px] text-zinc-500">Seguidores</p>
+              </div>
+              <div>
+                <p className="text-base font-semibold text-zinc-100 lg:text-[22px]">{followingCount}</p>
+                <p className="text-[11px] text-zinc-500">Seguindo</p>
+              </div>
             </div>
           </div>
-        </div>
 
-        <p className="text-sm font-medium text-zinc-100 lg:text-lg">{user.name}</p>
-        <p className="mt-0.5 text-xs font-medium text-zinc-500">{formatUsername(user.username)}</p>
-        {user.bio && <p className="text-xs text-zinc-400 mt-0.5 leading-relaxed lg:mt-2 lg:text-sm">{user.bio}</p>}
+          <p className="text-sm font-medium text-zinc-100 lg:text-[28px] lg:leading-tight">{user.name}</p>
+          <p className="mt-1 text-xs font-medium text-zinc-500 lg:text-sm">{formatUsername(user.username)}</p>
+          {user.bio && <p className="mt-2 text-xs leading-relaxed text-zinc-400 lg:mt-4 lg:text-sm lg:leading-7">{user.bio}</p>}
 
-        {!isOwnProfile && (
-          <button
-            onClick={() => void handleToggleFollow()}
-            className={cn(
-              'w-full mt-4 py-2 rounded-lg text-sm font-medium transition-colors lg:w-auto lg:px-5',
-              isFollowing
-                ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                : 'bg-zinc-100 text-zinc-950 hover:bg-white'
-            )}
-          >
-            {isFollowing ? 'Seguindo' : 'Seguir'}
-          </button>
-        )}
-      </div>
+          {!isOwnProfile && (
+            <button
+              onClick={() => void handleToggleFollow()}
+              className={cn(
+                'mt-4 w-full rounded-lg py-2 text-sm font-medium transition-colors lg:mt-6 lg:rounded-2xl lg:py-3',
+                isFollowing
+                  ? 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
+                  : 'bg-zinc-100 text-zinc-950 hover:bg-white'
+              )}
+            >
+              {isFollowing ? 'Seguindo' : 'Seguir'}
+            </button>
+          )}
+        </aside>
 
-      <div className="bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/50 flex overflow-x-auto lg:bg-transparent lg:backdrop-blur-none">
-        <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
-          Recebidas
-        </TabButton>
-        <TabButton active={activeTab === 'made'} onClick={() => setActiveTab('made')}>
-          Feitas
-        </TabButton>
-        <TabButton active={activeTab === 'watchlist'} onClick={() => setActiveTab('watchlist')}>
-          Watchlist
-        </TabButton>
-        <TabButton active={activeTab === 'watched'} onClick={() => setActiveTab('watched')}>
-          Assistidos
-        </TabButton>
-      </div>
+        <section className="min-w-0 lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-8 lg:py-7">
+          <div className="flex overflow-x-auto border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:bg-transparent lg:pb-1 lg:backdrop-blur-none">
+            <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
+              Recebidas
+            </TabButton>
+            <TabButton active={activeTab === 'made'} onClick={() => setActiveTab('made')}>
+              Feitas
+            </TabButton>
+            <TabButton active={activeTab === 'watchlist'} onClick={() => setActiveTab('watchlist')}>
+              Watchlist
+            </TabButton>
+            <TabButton active={activeTab === 'watched'} onClick={() => setActiveTab('watched')}>
+              Assistidos
+            </TabButton>
+          </div>
 
-      <div className="flex flex-col">
-        {activeTab === 'received' && (
-          receivedCards.length > 0
-            ? receivedCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-            : <EmptyState message="Nenhuma indicação recebida." />
-        )}
-        {activeTab === 'made' && (
-          madeCards.length > 0
-            ? madeCards.map(card => <RecommendationCard key={card.recommendation.id} card={card} />)
-            : <EmptyState message="Nenhuma indicação feita." />
-        )}
-        {activeTab === 'watchlist' && (
-          watchlistItems.length > 0 ? (
-            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-5 lg:gap-4 lg:bg-transparent lg:pt-6">
-              {watchlistItems.map(item => (
-                <button key={item.id} className="aspect-[2/3] relative cursor-pointer overflow-hidden lg:rounded-xl" onClick={() => navigate(`/item/${item.id}`)}>
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          ) : <EmptyState message="Watchlist vazia." />
-        )}
-        {activeTab === 'watched' && (
-          watchedItems.length > 0 ? (
-            <div className="grid grid-cols-3 gap-0.5 bg-zinc-900/20 lg:grid-cols-5 lg:gap-4 lg:bg-transparent lg:pt-6">
-              {watchedItems.map(item => (
-                <button key={item.id} className="aspect-[2/3] relative cursor-pointer overflow-hidden lg:rounded-xl" onClick={() => navigate(`/item/${item.id}`)}>
-                  <img src={item.image} alt={item.title} className="w-full h-full object-cover" />
-                </button>
-              ))}
-            </div>
-          ) : <EmptyState message="Nenhum item assistido." />
-        )}
+          <div className="flex flex-col lg:pt-3">
+            {activeTabContent}
+          </div>
+        </section>
       </div>
 
       <input
@@ -388,116 +414,131 @@ export function Profile() {
         <div className="fixed inset-0 z-[60] flex items-end lg:items-center lg:justify-center" onClick={() => setShowSettings(false)}>
           <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
           <div
-            className="relative w-full max-w-md mx-auto bg-zinc-900 rounded-t-2xl border-t border-zinc-800 p-5 lg:max-w-2xl lg:rounded-3xl lg:border lg:border-zinc-800 lg:p-6"
+            className="relative mx-auto w-full max-w-md rounded-t-2xl border-t border-zinc-800 bg-zinc-900 p-5 lg:max-w-4xl lg:rounded-3xl lg:border lg:border-zinc-800 lg:p-7"
             onClick={event => event.stopPropagation()}
           >
-            <div className="flex items-center justify-between mb-5">
-              <h2 className="font-medium text-base text-zinc-100">Editar perfil</h2>
-              <button onClick={() => setShowSettings(false)} className="text-zinc-500 hover:text-zinc-300 p-1">
+            <div className="mb-6 flex items-center justify-between">
+              <h2 className="text-base font-medium text-zinc-100 lg:text-[26px]">Editar perfil</h2>
+              <button onClick={() => setShowSettings(false)} className="p-1 text-zinc-500 transition-colors hover:text-zinc-300">
                 <X size={18} />
               </button>
             </div>
 
-            <div className="flex justify-center mb-5">
-              <button
-                className="relative group"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <div className="w-16 h-16 rounded-full bg-zinc-800 ring-2 ring-zinc-700 flex items-center justify-center">
-                    <Loader2 size={22} className="text-zinc-400 animate-spin" />
-                  </div>
-                ) : (
-                  <>
-                    <img
-                      src={currentUser.avatar}
-                      alt={currentUser.name}
-                      className="w-16 h-16 rounded-full object-cover ring-2 ring-zinc-700"
-                    />
-                    <div className="absolute inset-0 rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                      <Camera size={18} className="text-white" />
-                    </div>
-                    <div className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-zinc-100 flex items-center justify-center shadow-lg">
-                      <Camera size={12} className="text-zinc-900" />
-                    </div>
-                  </>
-                )}
-              </button>
-            </div>
+            <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
+              <div className="mb-6 lg:mb-0">
+                <div className="flex justify-center lg:justify-start">
+                  <button
+                    className="relative group"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? (
+                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 ring-2 ring-zinc-700 lg:h-24 lg:w-24">
+                        <Loader2 size={22} className="animate-spin text-zinc-400" />
+                      </div>
+                    ) : (
+                      <>
+                        <img
+                          src={currentUser.avatar}
+                          alt={currentUser.name}
+                          className="h-16 w-16 rounded-full object-cover ring-2 ring-zinc-700 lg:h-24 lg:w-24"
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                          <Camera size={18} className="text-white" />
+                        </div>
+                        <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 shadow-lg lg:h-8 lg:w-8">
+                          <Camera size={12} className="text-zinc-900" />
+                        </div>
+                      </>
+                    )}
+                  </button>
+                </div>
 
-            <label className="block text-xs text-zinc-500 font-medium mb-1.5 uppercase tracking-wide">Nome</label>
-            <input
-              value={editName}
-              onChange={event => setEditName(event.target.value)}
-              className="w-full bg-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-zinc-600 ring-1 ring-zinc-700 mb-4"
-              placeholder="Seu nome"
-            />
+                <div className="mt-5 rounded-[24px] border border-zinc-800/70 p-5">
+                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">Prévia</p>
+                  <p className="mt-4 text-xl font-medium text-zinc-100">{editName.trim() || 'Seu nome'}</p>
+                  <p className="mt-1 text-sm text-zinc-500">{formatUsername(normalizedUsername || currentUser.username)}</p>
+                  <p className="mt-4 text-sm leading-7 text-zinc-400">
+                    {editBio.trim() || 'Ajuste nome, @username e bio para deixar seu perfil mais claro no desktop e no mobile.'}
+                  </p>
+                </div>
+              </div>
 
-            <label className="block text-xs text-zinc-500 font-medium mb-1.5 uppercase tracking-wide">Username</label>
-            <div className="mb-2 flex items-center gap-2 rounded-lg bg-zinc-800 px-3 py-2.5 ring-1 ring-zinc-700 focus-within:ring-zinc-600">
-              <span className="shrink-0 text-sm font-semibold text-zinc-500">@</span>
-              <input
-                value={editUsername}
-                onChange={event => setEditUsername(sanitizeUsername(event.target.value))}
-                className="w-full bg-transparent text-sm text-zinc-100 outline-none"
-                placeholder="seu_user"
-                autoCapitalize="none"
-                autoCorrect="off"
-                spellCheck={false}
-              />
-            </div>
-            <p className="mb-4 text-xs text-zinc-500">
-              {usernameAvailability === 'checking' && 'Verificando disponibilidade...'}
-              {usernameAvailability === 'available' && usernameChanged && 'Esse @username esta disponivel.'}
-              {usernameAvailability === 'taken' && 'Esse @username ja esta em uso.'}
-              {usernameAvailability === 'invalid' && usernameValidationError}
-              {usernameAvailability === 'idle' && 'Use de 3 a 24 caracteres com letras minusculas, numeros e underscore.'}
-            </p>
+              <div>
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">Nome</label>
+                <input
+                  value={editName}
+                  onChange={event => setEditName(event.target.value)}
+                  className="mb-4 w-full rounded-lg bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-1 ring-zinc-700 focus:ring-zinc-600 lg:rounded-2xl lg:px-4 lg:py-3.5 lg:text-base"
+                  placeholder="Seu nome"
+                />
 
-            <label className="block text-xs text-zinc-500 font-medium mb-1.5 uppercase tracking-wide">Bio</label>
-            <textarea
-              value={editBio}
-              onChange={event => setEditBio(event.target.value)}
-              rows={3}
-              className="w-full bg-zinc-800 rounded-lg px-3 py-2.5 text-sm text-zinc-100 outline-none focus:ring-1 focus:ring-zinc-600 ring-1 ring-zinc-700 resize-none mb-5"
-              placeholder="Fale um pouco sobre você..."
-              maxLength={150}
-            />
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">Username</label>
+                <div className="mb-2 flex items-center gap-2 rounded-lg bg-zinc-800 px-3 py-2.5 ring-1 ring-zinc-700 focus-within:ring-zinc-600 lg:rounded-2xl lg:px-4 lg:py-3.5">
+                  <span className="shrink-0 text-sm font-semibold text-zinc-500">@</span>
+                  <input
+                    value={editUsername}
+                    onChange={event => setEditUsername(sanitizeUsername(event.target.value))}
+                    className="w-full bg-transparent text-sm text-zinc-100 outline-none lg:text-base"
+                    placeholder="seu_user"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    spellCheck={false}
+                  />
+                </div>
+                <p className="mb-4 text-xs text-zinc-500">
+                  {usernameAvailability === 'checking' && 'Verificando disponibilidade...'}
+                  {usernameAvailability === 'available' && usernameChanged && 'Esse @username está disponível.'}
+                  {usernameAvailability === 'taken' && 'Esse @username já está em uso.'}
+                  {usernameAvailability === 'invalid' && usernameValidationError}
+                  {usernameAvailability === 'idle' && 'Use de 3 a 24 caracteres com letras minúsculas, números e underscore.'}
+                </p>
 
-            {formError && <p className="mb-4 text-xs text-rose-400">{formError}</p>}
+                <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">Bio</label>
+                <textarea
+                  value={editBio}
+                  onChange={event => setEditBio(event.target.value)}
+                  rows={4}
+                  className="mb-5 w-full resize-none rounded-lg bg-zinc-800 px-3 py-2.5 text-sm text-zinc-100 outline-none ring-1 ring-zinc-700 focus:ring-zinc-600 lg:rounded-2xl lg:px-4 lg:py-3.5 lg:text-base"
+                  placeholder="Fale um pouco sobre você..."
+                  maxLength={150}
+                />
 
-            <button
-              onClick={() => void handleSaveSettings()}
-              disabled={!editName.trim() || usernameAvailability === 'checking'}
-              className="w-full bg-zinc-100 text-zinc-950 font-medium py-2.5 rounded-xl disabled:opacity-40 hover:bg-white transition-colors lg:w-auto lg:min-w-[180px]"
-            >
-              Salvar
-            </button>
+                {formError && <p className="mb-4 text-xs text-rose-400">{formError}</p>}
 
-            <div className="mt-6 border-t border-zinc-800 pt-4">
-              <button
-                onClick={() => void handleSignOut()}
-                disabled={authActionLoading !== null}
-                className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 disabled:opacity-50"
-              >
-                {authActionLoading === 'signout' ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
-                Sair da conta
-              </button>
+                <button
+                  onClick={() => void handleSaveSettings()}
+                  disabled={!editName.trim() || usernameAvailability === 'checking'}
+                  className="w-full rounded-xl bg-zinc-100 py-2.5 font-medium text-zinc-950 transition-colors hover:bg-white disabled:opacity-40 lg:w-auto lg:min-w-[190px] lg:rounded-2xl lg:px-8 lg:py-3.5"
+                >
+                  Salvar
+                </button>
 
-              <button
-                onClick={() => {
-                  setDangerError(null);
-                  setDeleteConfirmation('');
-                  setShowDeleteConfirm(true);
-                }}
-                disabled={authActionLoading !== null}
-                className="mt-3 w-full rounded-xl border border-rose-500/40 px-4 py-3 text-sm font-semibold text-rose-400 transition-colors hover:bg-rose-500/10 disabled:opacity-50"
-              >
-                Excluir conta
-              </button>
+                <div className="mt-6 border-t border-zinc-800 pt-4 lg:mt-8">
+                  <button
+                    onClick={() => void handleSignOut()}
+                    disabled={authActionLoading !== null}
+                    className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 disabled:opacity-50 lg:rounded-2xl"
+                  >
+                    {authActionLoading === 'signout' ? <Loader2 size={16} className="animate-spin" /> : <LogOut size={16} />}
+                    Sair da conta
+                  </button>
 
-              {dangerError && <p className="mt-3 text-xs text-rose-400">{dangerError}</p>}
+                  <button
+                    onClick={() => {
+                      setDangerError(null);
+                      setDeleteConfirmation('');
+                      setShowDeleteConfirm(true);
+                    }}
+                    disabled={authActionLoading !== null}
+                    className="mt-3 w-full rounded-xl border border-rose-500/40 px-4 py-3 text-sm font-semibold text-rose-400 transition-colors hover:bg-rose-500/10 disabled:opacity-50 lg:rounded-2xl"
+                  >
+                    Excluir conta
+                  </button>
+
+                  {dangerError && <p className="mt-3 text-xs text-rose-400">{dangerError}</p>}
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -517,7 +558,7 @@ export function Profile() {
               <div className="min-w-0">
                 <h2 className="text-base font-bold text-zinc-100">Excluir conta?</h2>
                 <p className="mt-1 text-sm leading-relaxed text-zinc-400">
-                  Essa acao e permanente. Seu perfil, suas recomendacoes, comentarios e conexoes serao removidos.
+                  Essa ação é permanente. Seu perfil, suas recomendações, comentários e conexões serão removidos.
                 </p>
                 <p className="mt-3 text-xs text-zinc-500">
                   Para confirmar, digite <span className="font-semibold text-zinc-300">{deletePhrase}</span>.
@@ -560,12 +601,20 @@ export function Profile() {
   );
 }
 
-function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+function TabButton({
+  active,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       onClick={onClick}
       className={cn(
-        'flex-1 whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-semibold transition-colors lg:flex-none lg:mr-8 lg:px-0 lg:py-3 lg:text-sm lg:font-medium',
+        'flex-1 whitespace-nowrap border-b-2 px-3 py-2.5 text-xs font-semibold transition-colors lg:mr-8 lg:flex-none lg:px-0 lg:py-3 lg:text-base lg:font-medium',
         active ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       )}
     >
@@ -575,7 +624,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 }
 
 function EmptyState({ message }: { message: string }) {
-  return <div className="p-10 text-center text-zinc-600 text-sm">{message}</div>;
+  return <div className="p-10 text-center text-sm text-zinc-600 lg:p-16 lg:text-base">{message}</div>;
 }
 
 function toItem(item: Database['public']['Tables']['items']['Row']): Item {
