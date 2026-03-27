@@ -30,7 +30,7 @@ function ItemCard({ item, label, user }: { item: Item; label: string; user?: Use
         className="h-[68px] w-12 shrink-0 rounded-lg object-cover ring-1 ring-white/10 lg:h-[210px] lg:w-[140px] lg:rounded-2xl"
       />
       <div className="min-w-0 flex flex-col justify-center">
-        <p className="mb-0.5 text-xs text-zinc-500 lg:text-[11px] lg:uppercase lg:tracking-[0.22em]">{label}</p>
+        <p className="mb-1 text-xs text-zinc-500 lg:text-[13px] lg:font-medium">{label}</p>
         {user && (
           <div className="mb-1.5">
             <div className="flex items-center gap-1.5 lg:gap-2">
@@ -65,8 +65,8 @@ function DesktopStepPanel({
   return (
     <aside className="hidden lg:flex lg:flex-col lg:gap-6 lg:pt-2">
       <div>
-        <p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">{stepLabel}</p>
-        <h2 className="mt-3 text-[30px] font-medium leading-tight text-zinc-100">{title}</h2>
+        <p className="text-[13px] font-medium text-zinc-500">{stepLabel}</p>
+        <h2 className="mt-2.5 text-[30px] font-medium leading-tight text-zinc-100">{title}</h2>
         <p className="mt-3 text-sm leading-7 text-zinc-400">{description}</p>
       </div>
       {children}
@@ -77,8 +77,8 @@ function DesktopStepPanel({
 function UserPreviewCard({ user, label }: { user: User; label: string }) {
   return (
     <div className="pt-2">
-      <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">{label}</p>
-      <div className="mt-4 flex items-center gap-3">
+      <p className="text-[13px] font-medium text-zinc-500">{label}</p>
+      <div className="mt-3.5 flex items-center gap-3">
         <img
           src={user.avatar}
           alt={user.name}
@@ -213,8 +213,8 @@ export function CreateRecommendation() {
             <ArrowLeft size={20} />
           </button>
           <div>
-            <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Nova indicação</p>
-            <h1 className="text-sm font-medium text-zinc-100 lg:mt-2 lg:text-[34px] lg:tracking-tight">
+            <p className="hidden text-[13px] font-medium text-zinc-500 lg:block">Nova indicação</p>
+            <h1 className="text-sm font-medium text-zinc-100 lg:mt-1.5 lg:text-[34px] lg:tracking-tight">
               {step === 1 && 'Para quem?'}
               {step === 2 && 'O que indicar?'}
               {step === 3 && 'Mensagem e visibilidade'}

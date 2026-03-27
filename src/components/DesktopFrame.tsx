@@ -76,7 +76,7 @@ export function DesktopPageHeader({
   return (
     <header className={cn('pb-4 lg:pb-5', className)}>
       {eyebrow ? (
-        <p className="hidden text-[11px] uppercase tracking-[0.24em] text-zinc-500 lg:block">{eyebrow}</p>
+        <p className="hidden text-[13px] font-medium text-zinc-500 lg:block">{eyebrow}</p>
       ) : null}
       <div className="lg:mt-2 lg:flex lg:items-end lg:justify-between lg:gap-8">
         <div className="min-w-0">

@@ -26,7 +26,7 @@ function SummaryCard({
         className="h-[68px] w-12 shrink-0 rounded-lg object-cover ring-1 ring-white/10 lg:h-[230px] lg:w-[154px] lg:rounded-2xl"
       />
       <div className="min-w-0 flex flex-col justify-center lg:flex-1">
-        <p className="mb-1 text-xs text-zinc-500 lg:text-[11px] lg:uppercase lg:tracking-[0.22em]">{label}</p>
+        <p className="mb-1 text-xs text-zinc-500 lg:text-[13px] lg:font-medium">{label}</p>
         <div className="mb-1.5">
           <div className="flex items-center gap-1.5 lg:gap-2">
             <img
@@ -79,7 +79,7 @@ export function RecommendationComposerForm({
       <SummaryCard item={item} user={user} label={summaryLabel} />
 
       <div className="lg:pt-2">
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <label className="mb-1.5 block text-xs font-medium text-zinc-500 lg:text-[13px]">
           Mensagem (opcional)
         </label>
         <textarea
@@ -91,7 +91,7 @@ export function RecommendationComposerForm({
         />
         <div className="mb-6 text-right text-xs text-zinc-600">{message.length}/280</div>
 
-        <label className="mb-2 block text-xs font-medium uppercase tracking-wide text-zinc-500">
+        <label className="mb-2 block text-xs font-medium text-zinc-500 lg:text-[13px]">
           Visibilidade
         </label>
         <div className="mb-7 grid grid-cols-3 gap-2 lg:gap-4">
