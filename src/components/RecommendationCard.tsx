@@ -25,16 +25,16 @@ export function RecommendationCard({ card }: Props) {
   return (
     <Link
       to={`/recommendation/${recommendation.id}`}
-      className="flex gap-3 border-b border-zinc-800/50 bg-zinc-950 px-3 py-2.5 transition-colors hover:bg-zinc-900/40 active:bg-zinc-900/60 lg:gap-4 lg:border-zinc-800/40 lg:bg-transparent lg:px-0 lg:py-5 lg:hover:bg-transparent lg:active:bg-transparent"
+      className="flex gap-3 border-b border-zinc-800/50 bg-zinc-950 px-3 py-2.5 transition-colors hover:bg-zinc-900/40 active:bg-zinc-900/60 lg:gap-5 lg:border-zinc-800/40 lg:bg-transparent lg:px-0 lg:py-6 lg:hover:bg-transparent lg:active:bg-transparent"
     >
       <img
         src={item.image}
         alt={item.title}
-        className="mt-0.5 h-16 w-11 shrink-0 rounded object-cover ring-1 ring-white/10 lg:h-24 lg:w-16 lg:rounded-lg"
+        className="mt-0.5 h-16 w-11 shrink-0 rounded object-cover ring-1 ring-white/10 lg:h-28 lg:w-[76px] lg:rounded-xl"
       />
 
       <div className="flex-1 min-w-0 flex flex-col py-0.5">
-        <div className="mb-1 flex items-center gap-1 text-xs text-zinc-500 lg:mb-1.5 lg:text-[13px]">
+        <div className="mb-1 flex items-center gap-1 text-xs text-zinc-500 lg:mb-2 lg:text-[14px]">
           <img src={fromUser.avatar} alt={fromUser.name} className="w-4 h-4 rounded-full object-cover ring-1 ring-zinc-800 shrink-0" />
           <span className="truncate text-zinc-400 lg:max-w-none">{fromUser.name}</span>
           <ArrowRight size={10} className="text-zinc-700 shrink-0" />
@@ -43,15 +43,15 @@ export function RecommendationCard({ card }: Props) {
           <span className="ml-auto shrink-0 text-zinc-600">{getRelativeTime(recommendation.created_at)}</span>
         </div>
 
-        <p className="flex-1 line-clamp-2 text-sm font-semibold leading-snug text-zinc-100 lg:text-[17px] lg:font-medium lg:leading-7">{item.title}</p>
+        <p className="flex-1 line-clamp-2 text-sm font-semibold leading-snug text-zinc-100 lg:text-[20px] lg:font-medium lg:leading-8">{item.title}</p>
 
         {recommendation.message && (
-          <p className="mt-2 hidden line-clamp-2 text-sm leading-relaxed text-zinc-500 lg:block">
+          <p className="mt-2 hidden line-clamp-2 text-[15px] leading-7 text-zinc-500 lg:block">
             "{recommendation.message}"
           </p>
         )}
 
-        <div className="mt-1.5 flex items-center justify-between lg:mt-3">
+        <div className="mt-1.5 flex items-center justify-between lg:mt-4">
           <div className="flex items-center gap-2">
             <VisibilityIcon visibility={recommendation.visibility} />
             <span className="hidden text-[11px] uppercase tracking-[0.18em] text-zinc-600 lg:inline">

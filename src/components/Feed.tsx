@@ -56,20 +56,20 @@ export function Feed() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-10">
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
         <div className="px-4 py-3 lg:px-0 lg:py-0">
           <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Feed</p>
-          <div className="lg:mt-3 lg:flex lg:items-end lg:justify-between">
+          <div className="lg:mt-4 lg:flex lg:items-end lg:justify-between">
             <div>
-              <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[32px] lg:leading-tight">FilmOrion</h1>
-              <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
+              <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[40px] lg:leading-[1.05]">FilmOrion</h1>
+              <p className="hidden max-w-3xl text-[15px] leading-7 text-zinc-500 lg:mt-3 lg:block">
                 Acompanhe o que está circulando no catálogo aberto, no seu círculo e nas indicações feitas para você.
               </p>
             </div>
           </div>
         </div>
-        <div className="flex border-t border-zinc-800/40 lg:mt-6 lg:border-t-0 lg:border-b lg:border-zinc-800/50">
+        <div className="flex border-t border-zinc-800/40 lg:mt-8 lg:border-t-0 lg:border-b lg:border-zinc-800/50">
           <TabButton active={activeTab === 'descobrir'} onClick={() => setActiveTab('descobrir')}>
             Descobrir
           </TabButton>
@@ -82,11 +82,11 @@ export function Feed() {
         </div>
       </header>
 
-      <div className="flex flex-col lg:max-w-[860px] lg:pr-6">
+      <div className="flex flex-col">
         {connections.length === 0 && (
-          <div className="border-b border-zinc-800/50 px-4 py-4 lg:px-0 lg:py-6">
-            <p className="text-sm font-medium text-zinc-100 lg:text-base">Seu feed melhora bastante com contexto.</p>
-            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-500">
+          <div className="border-b border-zinc-800/50 px-4 py-4 lg:px-0 lg:py-8">
+            <p className="text-sm font-medium text-zinc-100 lg:text-lg">Seu feed melhora bastante com contexto.</p>
+            <p className="mt-2 max-w-3xl text-sm leading-relaxed text-zinc-500 lg:text-[15px] lg:leading-7">
               {onboardingPreferences
                 ? 'Seu gosto inicial já está salvo. Agora vale seguir alguns perfis para abrir melhor o seu círculo.'
                 : 'Personalize seus gostos e siga algumas pessoas para receber recomendações mais certeiras.'}
@@ -135,7 +135,7 @@ function TabButton({
     <button
       onClick={onClick}
       className={cn(
-        'flex-1 border-b-2 py-2.5 text-xs font-semibold transition-colors lg:flex-none lg:mr-8 lg:px-0 lg:py-3 lg:text-sm lg:font-medium',
+        'flex-1 border-b-2 py-2.5 text-xs font-semibold transition-colors lg:flex-none lg:mr-10 lg:px-0 lg:py-4 lg:text-[15px] lg:font-medium',
         active ? 'border-zinc-100 text-zinc-100' : 'border-transparent text-zinc-500 hover:text-zinc-300'
       )}
     >

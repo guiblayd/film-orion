@@ -26,9 +26,9 @@ function ScrollToTop() {
 function Layout() {
   return (
     <div className="min-h-screen lg:px-8 lg:py-8 xl:px-10">
-      <div className="mx-auto lg:grid lg:max-w-[1520px] lg:grid-cols-[220px_minmax(0,920px)_280px] lg:items-start lg:justify-center lg:gap-10">
+      <div className="mx-auto lg:grid lg:max-w-[1720px] lg:grid-cols-[200px_minmax(0,1fr)_300px] lg:items-start lg:gap-8">
         <DesktopSidebar />
-        <main className="min-w-0 lg:px-2">
+        <main className="min-w-0 lg:min-h-[calc(100vh-64px)] lg:rounded-[32px] lg:border lg:border-zinc-800/70 lg:bg-zinc-950/82 lg:px-10 lg:py-8">
           <Outlet />
         </main>
         <DesktopAside />

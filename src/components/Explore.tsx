@@ -108,16 +108,16 @@ export function Explore() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-12">
+    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
         <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Explorar</p>
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-3 lg:text-[32px]">Catálogo e descoberta</h1>
-        <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
+        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-4 lg:text-[40px] lg:leading-[1.05]">Catálogo e descoberta</h1>
+        <p className="hidden max-w-3xl text-[15px] leading-7 text-zinc-500 lg:mt-3 lg:block">
           Um desktop pensado para navegar por catálogo, tendências e indicações do seu círculo sem depender de blocos pesados.
         </p>
       </header>
 
-      <div className="space-y-8 py-4 lg:space-y-10 lg:py-8">
+      <div className="space-y-8 py-4 lg:space-y-12 lg:py-8">
         {friendRecs.length > 0 && (
           <Carousel
             label="Indicados por amigos"
@@ -173,18 +173,18 @@ function Carousel({
 
   return (
     <section>
-      <div className="mb-3 flex items-end justify-between px-4 lg:mb-4 lg:px-0">
-        <h2 className="text-sm font-medium text-zinc-100 lg:text-base">{label}</h2>
+      <div className="mb-3 flex items-end justify-between px-4 lg:mb-5 lg:px-0">
+        <h2 className="text-sm font-medium text-zinc-100 lg:text-[22px]">{label}</h2>
       </div>
 
-      <div className="hide-scrollbar flex gap-2.5 overflow-x-auto px-4 pb-1 lg:grid lg:grid-cols-5 lg:gap-x-4 lg:gap-y-7 lg:overflow-visible lg:px-0 xl:grid-cols-6">
+      <div className="hide-scrollbar flex gap-2.5 overflow-x-auto px-4 pb-1 lg:grid lg:grid-cols-3 lg:gap-x-7 lg:gap-y-10 lg:overflow-visible lg:px-0 xl:grid-cols-4 2xl:grid-cols-5">
         {items.map(item => (
           <button
             key={item.id}
             onClick={() => onPress(item)}
             className="group flex w-28 shrink-0 flex-col text-left lg:w-auto"
           >
-            <div className="relative mb-2 aspect-[2/3] w-28 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10 lg:w-full lg:rounded-xl">
+            <div className="relative mb-2 aspect-[2/3] w-28 overflow-hidden rounded-lg bg-zinc-900 ring-1 ring-white/10 lg:w-full lg:rounded-2xl">
               <img
                 src={item.image}
                 alt={item.title}
@@ -192,11 +192,11 @@ function Carousel({
               />
               {renderOverlay?.(item)}
             </div>
-            <p className="line-clamp-2 text-[11px] font-medium leading-snug text-zinc-300 transition-colors group-hover:text-zinc-100 lg:text-sm lg:leading-6">
+            <p className="line-clamp-2 text-[11px] font-medium leading-snug text-zinc-300 transition-colors group-hover:text-zinc-100 lg:text-[16px] lg:leading-7">
               {item.title}
             </p>
             {item.year && (
-              <p className="mt-0.5 text-[10px] text-zinc-600 lg:text-xs">{item.year}</p>
+              <p className="mt-0.5 text-[10px] text-zinc-600 lg:text-[13px]">{item.year}</p>
             )}
           </button>
         ))}
@@ -213,10 +213,10 @@ function SkeletonSections() {
       {labels.map(label => (
         <section key={label}>
           <div className="mb-4 h-5 w-40 rounded bg-zinc-800/70 px-4 lg:px-0" />
-          <div className="flex gap-2.5 px-4 lg:grid lg:grid-cols-5 lg:gap-4 lg:px-0 xl:grid-cols-6">
+          <div className="flex gap-2.5 px-4 lg:grid lg:grid-cols-3 lg:gap-7 lg:px-0 xl:grid-cols-4 2xl:grid-cols-5">
             {Array.from({ length: 6 }).map((_, index) => (
               <div key={index} className="w-28 shrink-0 lg:w-auto">
-                <div className="mb-2 aspect-[2/3] w-28 animate-pulse rounded-lg bg-zinc-800 lg:w-full lg:rounded-xl" />
+                <div className="mb-2 aspect-[2/3] w-28 animate-pulse rounded-lg bg-zinc-800 lg:w-full lg:rounded-2xl" />
                 <div className="mb-1 h-3 w-full animate-pulse rounded bg-zinc-800" />
                 <div className="h-3 w-2/3 animate-pulse rounded bg-zinc-800" />
               </div>
