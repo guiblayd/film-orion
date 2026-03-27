@@ -220,9 +220,11 @@ export function CreateRecommendation() {
 
           <div className="flex flex-1 items-center px-4 py-10 lg:px-0 lg:py-16">
             <div className="max-w-xl">
-              <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 lg:text-[34px]">As indica\u00e7\u00f5es ficam bloqueadas no modo visitante.</h1>
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 lg:text-[34px]">
+                {'As indica\u00e7\u00f5es ficam bloqueadas no modo visitante.'}
+              </h1>
               <p className="mt-3 text-sm leading-7 text-zinc-400 lg:text-base">
-                Voc\u00ea pode navegar por perfis, feed e detalhes, mas sem enviar novas indica\u00e7\u00f5es.
+                {'Voc\u00ea pode navegar por perfis, feed e detalhes, mas sem enviar novas indica\u00e7\u00f5es.'}
               </p>
               <button
                 type="button"

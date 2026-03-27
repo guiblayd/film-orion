@@ -2,17 +2,54 @@ import React, { useState, useEffect } from 'react';
 import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
-import { cn } from '../lib/utils';
 
 type View = 'login' | 'signup' | 'recovery' | 'reset';
 
+const COPY = {
+  brandingSubtitle: 'Compartilhe o que vale a pena assistir',
+  invalidCredentials: 'Email ou senha incorretos.',
+  emailNotConfirmed: 'Confirme seu email antes de entrar.',
+  emailInUse: 'Este email j\u00e1 est\u00e1 em uso.',
+  invalidEmail: 'Formato de email inv\u00e1lido.',
+  tooManyAttempts: 'Muitas tentativas. Aguarde alguns minutos.',
+  fillEmailPassword: 'Preencha email e senha.',
+  fillName: 'Informe seu nome.',
+  fillEmail: 'Informe seu email.',
+  passwordMin: 'A senha deve ter pelo menos 6 caracteres.',
+  signupSuccess: 'Conta criada! Verifique seu email para confirmar.',
+  recoverySuccess: 'Link de recupera\u00e7\u00e3o enviado para seu email.',
+  resetSuccess: 'Senha atualizada com sucesso!',
+  resetTitle: 'Nova senha',
+  resetPlaceholder: 'Nova senha (m\u00edn. 6 caracteres)',
+  savePassword: 'Salvar senha',
+  back: 'Voltar',
+  recoveryTitle: 'Recuperar senha',
+  recoverySubtitle: 'Enviaremos um link para redefinir sua senha.',
+  sendLink: 'Enviar link',
+  email: 'Email',
+  password: 'Senha',
+  login: 'Entrar',
+  continueWithGoogle: 'Continuar com Google',
+  guest: 'Entrar como visitante',
+  guestHint: 'Voc\u00ea pode navegar pelo app, mas sem comentar, seguir ou enviar indica\u00e7\u00f5es.',
+  noAccount: 'N\u00e3o tem conta?',
+  signupCta: 'Cadastrar',
+  forgotPassword: 'Esqueceu a senha?',
+  name: 'Seu nome',
+  signupPasswordPlaceholder: 'Senha (m\u00edn. 6 caracteres)',
+  createAccount: 'Criar conta',
+  haveAccount: 'J\u00e1 tem conta?',
+  enter: 'Entrar',
+  or: 'ou',
+} as const;
+
 const ERROR_MAP: Record<string, string> = {
-  'Invalid login credentials': 'Email ou senha incorretos.',
-  'Email not confirmed': 'Confirme seu email antes de entrar.',
-  'User already registered': 'Este email já está em uso.',
-  'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
-  'Unable to validate email address: invalid format': 'Formato de email inválido.',
-  'Email rate limit exceeded': 'Muitas tentativas. Aguarde alguns minutos.',
+  'Invalid login credentials': COPY.invalidCredentials,
+  'Email not confirmed': COPY.emailNotConfirmed,
+  'User already registered': COPY.emailInUse,
+  'Password should be at least 6 characters': COPY.passwordMin,
+  'Unable to validate email address: invalid format': COPY.invalidEmail,
+  'Email rate limit exceeded': COPY.tooManyAttempts,
 };
 
 function translateError(msg: string): string {
@@ -49,48 +86,79 @@ export function Auth() {
     if (passwordRecovery) setView('reset');
   }, [passwordRecovery]);
 
-  const reset = () => { setError(null); setSuccess(null); };
+  const reset = () => {
+    setError(null);
+    setSuccess(null);
+  };
 
   const handleLogin = async () => {
-    if (!email || !password) { setError('Preencha email e senha.'); return; }
-    setLoading(true); reset();
+    if (!email || !password) {
+      setError(COPY.fillEmailPassword);
+      return;
+    }
+
+    setLoading(true);
+    reset();
     const { error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) setError(translateError(error.message));
     setLoading(false);
   };
 
   const handleSignup = async () => {
-    if (!name.trim()) { setError('Informe seu nome.'); return; }
-    if (!email) { setError('Informe seu email.'); return; }
-    if (password.length < 6) { setError('A senha deve ter pelo menos 6 caracteres.'); return; }
-    setLoading(true); reset();
+    if (!name.trim()) {
+      setError(COPY.fillName);
+      return;
+    }
+
+    if (!email) {
+      setError(COPY.fillEmail);
+      return;
+    }
+
+    if (password.length < 6) {
+      setError(COPY.passwordMin);
+      return;
+    }
+
+    setLoading(true);
+    reset();
     const { error } = await supabase.auth.signUp({
       email,
       password,
       options: { data: { name: name.trim() } },
     });
     if (error) setError(translateError(error.message));
-    else setSuccess('Conta criada! Verifique seu email para confirmar.');
+    else setSuccess(COPY.signupSuccess);
     setLoading(false);
   };
 
   const handleRecovery = async () => {
-    if (!email) { setError('Informe seu email.'); return; }
-    setLoading(true); reset();
+    if (!email) {
+      setError(COPY.fillEmail);
+      return;
+    }
+
+    setLoading(true);
+    reset();
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}`,
     });
     if (error) setError(translateError(error.message));
-    else setSuccess('Link de recuperação enviado para seu email.');
+    else setSuccess(COPY.recoverySuccess);
     setLoading(false);
   };
 
   const handleResetPassword = async () => {
-    if (newPassword.length < 6) { setError('A senha deve ter pelo menos 6 caracteres.'); return; }
-    setLoading(true); reset();
+    if (newPassword.length < 6) {
+      setError(COPY.passwordMin);
+      return;
+    }
+
+    setLoading(true);
+    reset();
     const { error } = await supabase.auth.updateUser({ password: newPassword });
     if (error) setError(translateError(error.message));
-    else setSuccess('Senha atualizada com sucesso!');
+    else setSuccess(COPY.resetSuccess);
     setLoading(false);
   };
 
@@ -102,89 +170,84 @@ export function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center px-6 py-12">
-      {/* Branding */}
+    <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-6 py-12">
       <div className="mb-10 text-center">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100">
           <span className="text-xl font-semibold text-zinc-950">I</span>
         </div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
-        <p className="text-zinc-500 text-sm mt-1">Compartilhe o que vale a pena assistir</p>
+        <p className="mt-1 text-sm text-zinc-500">{COPY.brandingSubtitle}</p>
       </div>
 
       <div className="w-full max-w-sm">
-
-        {/* Reset password */}
         {view === 'reset' && (
           <div className="space-y-3">
-            <h2 className="text-lg font-bold text-zinc-100 mb-5">Nova senha</h2>
+            <h2 className="mb-5 text-lg font-bold text-zinc-100">{COPY.resetTitle}</h2>
             <Field
               icon={<Lock size={15} />}
               type={showPassword ? 'text' : 'password'}
-              placeholder="Nova senha (mín. 6 caracteres)"
+              placeholder={COPY.resetPlaceholder}
               value={newPassword}
               onChange={setNewPassword}
-              right={
+              right={(
                 <button type="button" onClick={() => setShowPassword(v => !v)} className="text-zinc-500">
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
-              }
+              )}
             />
             <Feedback error={error} success={success} />
             <SubmitButton loading={loading} onClick={handleResetPassword}>
-              Salvar senha
+              {COPY.savePassword}
             </SubmitButton>
           </div>
         )}
 
-        {/* Recovery */}
         {view === 'recovery' && (
           <div className="space-y-3">
-            <button onClick={() => { setView('login'); reset(); }} className="flex items-center gap-1.5 text-zinc-500 text-sm mb-4 hover:text-zinc-300 transition-colors">
-              ← Voltar
+            <button onClick={() => { setView('login'); reset(); }} className="mb-4 flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-300">
+              {COPY.back}
             </button>
-            <h2 className="text-lg font-bold text-zinc-100 mb-1">Recuperar senha</h2>
-            <p className="text-zinc-500 text-sm mb-4">Enviaremos um link para redefinir sua senha.</p>
+            <h2 className="mb-1 text-lg font-bold text-zinc-100">{COPY.recoveryTitle}</h2>
+            <p className="mb-4 text-sm text-zinc-500">{COPY.recoverySubtitle}</p>
             <Field
               icon={<Mail size={15} />}
               type="email"
-              placeholder="Email"
+              placeholder={COPY.email}
               value={email}
               onChange={setEmail}
             />
             <Feedback error={error} success={success} />
             <SubmitButton loading={loading} onClick={handleRecovery}>
-              Enviar link
+              {COPY.sendLink}
             </SubmitButton>
           </div>
         )}
 
-        {/* Login */}
         {view === 'login' && (
           <div className="space-y-3">
             <Field
               icon={<Mail size={15} />}
               type="email"
-              placeholder="Email"
+              placeholder={COPY.email}
               value={email}
               onChange={setEmail}
             />
             <Field
               icon={<Lock size={15} />}
               type={showPassword ? 'text' : 'password'}
-              placeholder="Senha"
+              placeholder={COPY.password}
               value={password}
               onChange={setPassword}
               onEnter={handleLogin}
-              right={
-                <button type="button" onClick={() => setShowPassword(v => !v)} className="text-zinc-500 hover:text-zinc-300 transition-colors">
+              right={(
+                <button type="button" onClick={() => setShowPassword(v => !v)} className="text-zinc-500 transition-colors hover:text-zinc-300">
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
-              }
+              )}
             />
             <Feedback error={error} success={success} />
             <SubmitButton loading={loading} onClick={handleLogin}>
-              Entrar
+              {COPY.login}
             </SubmitButton>
             <Divider />
             <GoogleButton onClick={handleGoogle} />
@@ -193,70 +256,67 @@ export function Auth() {
               onClick={enterGuestMode}
               className="w-full rounded-xl border border-zinc-800 bg-transparent py-3 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-900/70"
             >
-              Entrar como visitante
+              {COPY.guest}
             </button>
-            <p className="px-1 text-center text-xs leading-relaxed text-zinc-600">
-              Voc\u00ea pode navegar pelo app, mas sem comentar, seguir ou enviar indica\u00e7\u00f5es.
-            </p>
+            <p className="px-1 text-center text-xs leading-relaxed text-zinc-600">{COPY.guestHint}</p>
             <div className="flex flex-col items-center gap-2 pt-2">
               <button
                 onClick={() => { setView('signup'); reset(); }}
-                className="text-sm text-zinc-500 hover:text-zinc-200 transition-colors"
+                className="text-sm text-zinc-500 transition-colors hover:text-zinc-200"
               >
-                Não tem conta? <span className="text-zinc-200 font-medium">Cadastrar</span>
+                {COPY.noAccount} <span className="font-medium text-zinc-200">{COPY.signupCta}</span>
               </button>
               <button
                 onClick={() => { setView('recovery'); reset(); }}
-                className="text-xs text-zinc-600 hover:text-zinc-400 transition-colors"
+                className="text-xs text-zinc-600 transition-colors hover:text-zinc-400"
               >
-                Esqueceu a senha?
+                {COPY.forgotPassword}
               </button>
             </div>
           </div>
         )}
 
-        {/* Signup */}
         {view === 'signup' && (
           <div className="space-y-3">
             <Field
               icon={<User size={15} />}
               type="text"
-              placeholder="Seu nome"
+              placeholder={COPY.name}
               value={name}
               onChange={setName}
             />
             <Field
               icon={<Mail size={15} />}
               type="email"
-              placeholder="Email"
+              placeholder={COPY.email}
               value={email}
               onChange={setEmail}
             />
             <Field
               icon={<Lock size={15} />}
               type={showPassword ? 'text' : 'password'}
-              placeholder="Senha (mín. 6 caracteres)"
+              placeholder={COPY.signupPasswordPlaceholder}
               value={password}
               onChange={setPassword}
               onEnter={handleSignup}
-              right={
-                <button type="button" onClick={() => setShowPassword(v => !v)} className="text-zinc-500 hover:text-zinc-300 transition-colors">
+              right={(
+                <button type="button" onClick={() => setShowPassword(v => !v)} className="text-zinc-500 transition-colors hover:text-zinc-300">
                   {showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
                 </button>
-              }
+              )}
             />
             <Feedback error={error} success={success} />
             <SubmitButton loading={loading} onClick={handleSignup}>
-              Criar conta
+              {COPY.createAccount}
             </SubmitButton>
             <Divider />
             <GoogleButton onClick={handleGoogle} />
             <div className="flex justify-center pt-2">
               <button
                 onClick={() => { setView('login'); reset(); }}
-                className="text-sm text-zinc-500 hover:text-zinc-200 transition-colors"
+                className="text-sm text-zinc-500 transition-colors hover:text-zinc-200"
               >
-                Já tem conta? <span className="text-zinc-200 font-medium">Entrar</span>
+                {COPY.haveAccount} <span className="font-medium text-zinc-200">{COPY.enter}</span>
               </button>
             </div>
           </div>
@@ -266,10 +326,14 @@ export function Auth() {
   );
 }
 
-// ── Subcomponents ──────────────────────────────────────────
-
 function Field({
-  icon, type, placeholder, value, onChange, right, onEnter,
+  icon,
+  type,
+  placeholder,
+  value,
+  onChange,
+  right,
+  onEnter,
 }: {
   icon: React.ReactNode;
   type: string;
@@ -280,15 +344,15 @@ function Field({
   onEnter?: () => void;
 }) {
   return (
-    <div className="flex items-center gap-2.5 bg-zinc-900 border border-zinc-800 rounded-xl px-3.5 py-3 focus-within:border-zinc-600 transition-colors">
-      <span className="text-zinc-600 shrink-0">{icon}</span>
+    <div className="flex items-center gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900 px-3.5 py-3 transition-colors focus-within:border-zinc-600">
+      <span className="shrink-0 text-zinc-600">{icon}</span>
       <input
         type={type}
         placeholder={placeholder}
         value={value}
-        onChange={e => onChange(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && onEnter?.()}
-        className="flex-1 bg-transparent text-sm text-zinc-100 placeholder:text-zinc-600 outline-none"
+        onChange={event => onChange(event.target.value)}
+        onKeyDown={event => event.key === 'Enter' && onEnter?.()}
+        className="flex-1 bg-transparent text-sm text-zinc-100 outline-none placeholder:text-zinc-600"
         autoComplete={type === 'password' ? 'current-password' : type === 'email' ? 'email' : 'name'}
       />
       {right}
@@ -296,14 +360,22 @@ function Field({
   );
 }
 
-function SubmitButton({ loading, onClick, children }: { loading: boolean; onClick: () => void; children: React.ReactNode }) {
+function SubmitButton({
+  loading,
+  onClick,
+  children,
+}: {
+  loading: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <button
       onClick={onClick}
       disabled={loading}
       className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
     >
-      {loading && <div className="w-4 h-4 border-2 border-zinc-400 border-t-zinc-950 rounded-full animate-spin" />}
+      {loading ? <div className="h-4 w-4 animate-spin rounded-full border-2 border-zinc-400 border-t-zinc-950" /> : null}
       {children}
     </button>
   );
@@ -313,10 +385,10 @@ function GoogleButton({ onClick }: { onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className="w-full flex items-center justify-center gap-2.5 bg-zinc-900 border border-zinc-800 text-zinc-200 font-medium py-3 rounded-xl text-sm hover:bg-zinc-800 hover:border-zinc-700 transition-colors active:scale-[0.98]"
+      className="flex w-full items-center justify-center gap-2.5 rounded-xl border border-zinc-800 bg-zinc-900 py-3 text-sm font-medium text-zinc-200 transition-colors hover:border-zinc-700 hover:bg-zinc-800 active:scale-[0.98]"
     >
       <GoogleIcon />
-      Continuar com Google
+      {COPY.continueWithGoogle}
     </button>
   );
 }
@@ -324,15 +396,15 @@ function GoogleButton({ onClick }: { onClick: () => void }) {
 function Divider() {
   return (
     <div className="flex items-center gap-3 py-1">
-      <div className="flex-1 h-px bg-zinc-800" />
-      <span className="text-xs text-zinc-600">ou</span>
-      <div className="flex-1 h-px bg-zinc-800" />
+      <div className="h-px flex-1 bg-zinc-800" />
+      <span className="text-xs text-zinc-600">{COPY.or}</span>
+      <div className="h-px flex-1 bg-zinc-800" />
     </div>
   );
 }
 
 function Feedback({ error, success }: { error: string | null; success: string | null }) {
-  if (error) return <p className="text-xs text-rose-400 px-1">{error}</p>;
-  if (success) return <p className="text-xs text-emerald-400 px-1">{success}</p>;
+  if (error) return <p className="px-1 text-xs text-rose-400">{error}</p>;
+  if (success) return <p className="px-1 text-xs text-emerald-400">{success}</p>;
   return null;
 }

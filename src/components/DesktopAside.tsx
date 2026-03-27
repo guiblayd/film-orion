@@ -91,7 +91,7 @@ export function DesktopAside() {
             </div>
           ))}
           {suggestedUsers.length === 0 && (
-            <p className="text-sm leading-relaxed text-zinc-500">Voc\u00ea j\u00e1 est\u00e1 seguindo os perfis em destaque por aqui.</p>
+            <p className="text-sm leading-relaxed text-zinc-500">{'Voc\u00ea j\u00e1 est\u00e1 seguindo os perfis em destaque por aqui.'}</p>
           )}
         </div>
       </section>
@@ -100,13 +100,13 @@ export function DesktopAside() {
         <h2 className="text-sm font-medium text-zinc-200">Atalhos</h2>
         <div className="mt-4 space-y-3 text-sm">
           <Link to="/create" className="block text-zinc-400 transition-colors hover:text-zinc-100">
-            Fazer uma nova indica\u00e7\u00e3o
+            {'Fazer uma nova indica\u00e7\u00e3o'}
           </Link>
           <Link to="/notifications" className="block text-zinc-400 transition-colors hover:text-zinc-100">
             Revisar alertas recentes
           </Link>
           <Link to={`/profile/${currentUser.id}`} className="block text-zinc-400 transition-colors hover:text-zinc-100">
-            Atualizar perfil e prefer\u00eancias
+            {'Atualizar perfil e prefer\u00eancias'}
           </Link>
         </div>
       </section>
