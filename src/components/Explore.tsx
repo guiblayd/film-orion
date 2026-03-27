@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Item, User } from '../types';
 import { useStore } from '../store';
+import { DesktopPage, DesktopPageHeader } from './DesktopFrame';
 import { getNetflixNewReleases, getPopularMovies, getPopularTV, getTopRatedMovies, getTrending } from '../services/tmdb';
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
@@ -108,16 +109,20 @@ export function Explore() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
+    <DesktopPage width="wide" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
-        <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Explorar</p>
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-4 lg:text-[40px] lg:leading-[1.05]">Catálogo e descoberta</h1>
-        <p className="hidden max-w-3xl text-[15px] leading-7 text-zinc-500 lg:mt-3 lg:block">
-          Um desktop pensado para navegar por catálogo, tendências e indicações do seu círculo sem depender de blocos pesados.
-        </p>
+        <div className="lg:hidden">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Catálogo e descoberta</h1>
+        </div>
+        <DesktopPageHeader
+          eyebrow="Explorar"
+          title="Catálogo e descoberta"
+          description="Um desktop pensado para navegar por catálogo, tendências e indicações do seu círculo sem depender de blocos pesados."
+          className="hidden lg:block lg:pb-0"
+        />
       </header>
 
-      <div className="space-y-8 py-4 lg:space-y-12 lg:py-8">
+      <div className="space-y-8 py-4 lg:space-y-12 lg:py-4">
         {friendRecs.length > 0 && (
           <Carousel
             label="Indicados por amigos"
@@ -154,7 +159,7 @@ export function Explore() {
           ))
         )}
       </div>
-    </div>
+    </DesktopPage>
   );
 }
 

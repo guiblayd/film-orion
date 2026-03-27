@@ -19,7 +19,7 @@ function SummaryCard({
   label: string;
 }) {
   return (
-    <div className="mb-4 flex gap-3 rounded-xl bg-zinc-900/50 p-3 ring-1 ring-zinc-800/50 lg:sticky lg:top-8 lg:mb-0 lg:flex-col lg:gap-5 lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:bg-transparent lg:p-6 lg:ring-0">
+    <div className="mb-4 flex gap-3 rounded-xl bg-zinc-900/50 p-3 ring-1 ring-zinc-800/50 lg:sticky lg:top-8 lg:mb-0 lg:flex-col lg:gap-5 lg:rounded-none lg:bg-transparent lg:p-0 lg:ring-0">
       <img
         src={item.image}
         alt={item.title}
@@ -78,7 +78,7 @@ export function RecommendationComposerForm({
     <div className="flex flex-col lg:grid lg:max-w-none lg:grid-cols-[290px_minmax(0,1fr)] lg:items-start lg:gap-10">
       <SummaryCard item={item} user={user} label={summaryLabel} />
 
-      <div className="lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-8 lg:py-8">
+      <div className="lg:pt-2">
         <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500">
           Mensagem (opcional)
         </label>

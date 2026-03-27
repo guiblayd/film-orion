@@ -5,6 +5,7 @@ import { useStore } from '../store';
 import { formatUsername } from '../lib/username';
 import { getPopularMovies, getTrending, searchTMDB } from '../services/tmdb';
 import { Item, User } from '../types';
+import { DesktopFrame, DesktopPage } from './DesktopFrame';
 import { RecommendationComposerForm } from './RecommendationComposerForm';
 
 function dedupe(items: Item[]): Item[] {
@@ -22,7 +23,7 @@ function validImage(url: string) {
 
 function ItemCard({ item, label, user }: { item: Item; label: string; user?: User | null }) {
   return (
-    <div className="mb-4 flex gap-3 rounded-xl bg-zinc-900/50 p-3 ring-1 ring-zinc-800/50 lg:mb-0 lg:flex-col lg:gap-4 lg:rounded-[24px] lg:border lg:border-zinc-800/70 lg:bg-transparent lg:p-5 lg:ring-0">
+    <div className="mb-4 flex gap-3 rounded-xl bg-zinc-900/50 p-3 ring-1 ring-zinc-800/50 lg:mb-0 lg:flex-col lg:gap-4 lg:rounded-none lg:bg-transparent lg:p-0 lg:ring-0">
       <img
         src={item.image}
         alt={item.title}
@@ -62,7 +63,7 @@ function DesktopStepPanel({
   children?: React.ReactNode;
 }) {
   return (
-    <aside className="hidden lg:flex lg:flex-col lg:gap-6 lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:p-6">
+    <aside className="hidden lg:flex lg:flex-col lg:gap-6 lg:pt-2">
       <div>
         <p className="text-[11px] uppercase tracking-[0.24em] text-zinc-500">{stepLabel}</p>
         <h2 className="mt-3 text-[30px] font-medium leading-tight text-zinc-100">{title}</h2>
@@ -75,7 +76,7 @@ function DesktopStepPanel({
 
 function UserPreviewCard({ user, label }: { user: User; label: string }) {
   return (
-    <div className="rounded-[24px] border border-zinc-800/70 p-5">
+    <div className="pt-2">
       <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">{label}</p>
       <div className="mt-4 flex items-center gap-3">
         <img
@@ -205,8 +206,8 @@ export function CreateRecommendation() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 pb-20 lg:max-w-[1320px] lg:bg-transparent lg:px-8 lg:py-8 lg:pb-0">
-      <div className="flex min-h-screen flex-col lg:min-h-[calc(100vh-64px)] lg:rounded-[32px] lg:border lg:border-zinc-800/70 lg:bg-zinc-950/82 lg:px-10 lg:py-8">
+    <DesktopFrame>
+      <DesktopPage width="wide" className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 pb-20 lg:bg-transparent lg:pb-0">
         <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/90 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
           <button onClick={goBack} className="p-1 text-zinc-100">
             <ArrowLeft size={20} />
@@ -229,7 +230,7 @@ export function CreateRecommendation() {
           </div>
         </header>
 
-        <div className="flex-1 overflow-x-hidden overflow-y-auto lg:pt-10">
+        <div className="flex-1 overflow-x-hidden overflow-y-auto lg:pt-6">
           {step === 1 && (
             <div key="step-1" style={animStyle} className="p-4 lg:px-0">
               <div className="lg:grid lg:grid-cols-[290px_minmax(0,1fr)] lg:gap-10">
@@ -241,7 +242,7 @@ export function CreateRecommendation() {
                   {navItem ? <ItemCard item={navItem} label="Indicando" /> : null}
                 </DesktopStepPanel>
 
-                <div className="lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:p-6 xl:p-8">
+                <div className="lg:pt-2">
                   <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 lg:left-4" size={16} />
                     <input
@@ -261,7 +262,7 @@ export function CreateRecommendation() {
                           setSelectedUser(user);
                           setStep(navItem ? 3 : 2);
                         }}
-                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-zinc-900/60 lg:min-h-[96px] lg:rounded-2xl lg:border lg:border-zinc-800/60 lg:px-5 lg:py-5"
+                        className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left transition-colors hover:bg-zinc-900/60 lg:min-h-[96px] lg:rounded-[22px] lg:px-5 lg:py-5"
                       >
                         <img
                           src={user.avatar}
@@ -294,7 +295,7 @@ export function CreateRecommendation() {
                   {selectedUser ? <UserPreviewCard user={selectedUser} label="Recebe" /> : null}
                 </DesktopStepPanel>
 
-                <div className="lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:p-6 xl:p-8">
+                <div className="lg:pt-2">
                   <div className="relative mb-4">
                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 lg:left-4" size={16} />
                     <input
@@ -361,7 +362,7 @@ export function CreateRecommendation() {
             </div>
           )}
         </div>
-      </div>
-    </div>
+      </DesktopPage>
+    </DesktopFrame>
   );
 }

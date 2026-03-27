@@ -4,6 +4,7 @@ import { ArrowLeft, Settings, X, Camera, Loader2, LogOut, TriangleAlert } from '
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
 import { AvatarCropper } from './AvatarCropper';
+import { DesktopPage } from './DesktopFrame';
 import { supabase } from '../lib/supabase';
 import { cn } from '../lib/utils';
 import { Item } from '../types';
@@ -311,9 +312,9 @@ export function Profile() {
   );
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
+    <DesktopPage width="wide" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="flex items-center justify-between border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
-        <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
+        <button onClick={() => navigate(-1)} className="p-1 text-zinc-100 lg:hidden">
           <ArrowLeft size={20} />
         </button>
         <div className="min-w-0 text-center lg:text-left">
@@ -329,8 +330,8 @@ export function Profile() {
         )}
       </header>
 
-      <div className="lg:grid lg:grid-cols-[320px_minmax(0,1fr)] lg:gap-10 lg:items-start lg:pt-8">
-        <aside className="border-b border-zinc-800/50 px-4 py-4 lg:sticky lg:top-8 lg:self-start lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-7 lg:py-8">
+      <div className="lg:grid lg:grid-cols-[280px_minmax(0,1fr)] lg:gap-12 lg:items-start lg:pt-6">
+        <aside className="border-b border-zinc-800/50 px-4 py-4 lg:sticky lg:top-8 lg:self-start lg:border-b-0 lg:px-0 lg:py-2">
           <div className="mb-3 flex items-center gap-5 lg:block">
             <img
               src={user.avatar}
@@ -372,8 +373,8 @@ export function Profile() {
           )}
         </aside>
 
-        <section className="min-w-0 lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-8 lg:py-7">
-          <div className="flex overflow-x-auto border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:bg-transparent lg:pb-1 lg:backdrop-blur-none">
+        <section className="min-w-0">
+          <div className="flex overflow-x-auto border-b border-zinc-800/50 bg-zinc-950/90 backdrop-blur-md lg:bg-transparent lg:backdrop-blur-none">
             <TabButton active={activeTab === 'received'} onClick={() => setActiveTab('received')}>
               Recebidas
             </TabButton>
@@ -388,7 +389,7 @@ export function Profile() {
             </TabButton>
           </div>
 
-          <div className="flex flex-col lg:pt-3">
+          <div className="flex flex-col lg:pt-5">
             {activeTabContent}
           </div>
         </section>
@@ -597,7 +598,7 @@ export function Profile() {
           </div>
         </div>
       )}
-    </div>
+    </DesktopPage>
   );
 }
 

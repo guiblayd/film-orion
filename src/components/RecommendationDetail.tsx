@@ -18,6 +18,7 @@ import { useStore } from '../store';
 import { cn, getRelativeTime } from '../lib/utils';
 import { getTMDBDetails, TMDBDetails } from '../services/tmdb';
 import { fetchRecommendationCardById, RecommendationCardData } from '../services/recommendations';
+import { DesktopFrame, DesktopPage } from './DesktopFrame';
 import { LoadingScreen } from './LoadingScreen';
 import { RecommendationComposerForm } from './RecommendationComposerForm';
 import { Recommendation } from '../types';
@@ -268,18 +269,18 @@ export function RecommendationDetail() {
   };
 
   return (
-    <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:max-w-[1320px] lg:bg-transparent lg:px-8 lg:py-8">
-      <div className="flex min-h-screen flex-col lg:min-h-[calc(100vh-64px)] lg:rounded-[32px] lg:border lg:border-zinc-800/70 lg:bg-zinc-950/82 lg:px-10 lg:py-8">
+    <DesktopFrame>
+      <DesktopPage width="detail" className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:bg-transparent">
         <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/90 px-3 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
           <button onClick={() => navigate(-1)} className="shrink-0 p-1 text-zinc-100">
             <ArrowLeft size={20} />
           </button>
         </header>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_340px] lg:gap-10 lg:items-start lg:pt-8">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 lg:items-start lg:pt-6">
           <div className="min-w-0">
             <div className="px-4 pt-3 pb-2 lg:px-0 lg:pt-0 lg:pb-0">
-              <article className="lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-8 lg:py-7">
+              <article className="lg:py-4">
                 <div className="flex items-center gap-2 text-sm">
                   <Link to={`/profile/${fromUser.id}`} className="flex items-center gap-1.5 transition-opacity hover:opacity-80">
                     <img src={fromUser.avatar} alt={fromUser.name} className="h-6 w-6 rounded-full object-cover ring-1 ring-zinc-800" />
@@ -371,7 +372,7 @@ export function RecommendationDetail() {
             </div>
 
             <div className="flex-1 px-3 py-3 pb-24 lg:px-0 lg:py-6">
-              <section className="lg:rounded-[28px] lg:border lg:border-zinc-800/70 lg:px-8 lg:py-7">
+              <section className="border-t border-zinc-800/50 pt-6 lg:pt-7">
                 {!recommendation.discussion_enabled ? (
                   <p className="py-8 text-center text-xs text-zinc-600 lg:py-16 lg:text-base">Discussão desativada para esta indicação.</p>
                 ) : (
@@ -424,8 +425,8 @@ export function RecommendationDetail() {
             </div>
           </div>
 
-          <aside className="hidden lg:block lg:sticky lg:top-8">
-            <div className="rounded-[28px] border border-zinc-800/70 p-6">
+          <aside className="hidden lg:block lg:sticky lg:top-8 lg:pt-4">
+            <div>
               <img src={item.image} alt={item.title} className="h-[320px] w-[214px] rounded-[24px] object-cover ring-1 ring-white/10" />
               <p className="mt-5 text-[11px] uppercase tracking-[0.22em] text-zinc-500">Ficha</p>
               <h3 className="mt-3 text-[28px] font-medium leading-tight text-zinc-100">{item.title}</h3>
@@ -582,8 +583,8 @@ export function RecommendationDetail() {
             </div>
           </div>
         )}
-      </div>
-    </div>
+      </DesktopPage>
+    </DesktopFrame>
   );
 }
 

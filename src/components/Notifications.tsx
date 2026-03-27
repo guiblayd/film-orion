@@ -4,6 +4,7 @@ import { Bell, Check, MessageSquare, UserPlus } from 'lucide-react';
 import { useStore } from '../store';
 import { supabase } from '../lib/supabase';
 import { AppNotification, Item, User } from '../types';
+import { DesktopPage, DesktopPageHeader } from './DesktopFrame';
 import { formatUsername } from '../lib/username';
 import { Database } from '../types/database';
 
@@ -90,16 +91,20 @@ export function Notifications() {
   }, [users, refreshUnreadNotificationsCount]);
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:pb-12">
+    <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:pb-12">
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 px-4 py-3 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
-        <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Alertas</p>
-        <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:mt-3 lg:text-[32px]">Notificações</h1>
-        <p className="hidden max-w-2xl text-sm leading-relaxed text-zinc-500 lg:mt-2 lg:block">
-          Uma leitura contínua das interações recentes, sem caixas fechadas nem excesso de destaque visual.
-        </p>
+        <div className="lg:hidden">
+          <h1 className="text-xl font-semibold tracking-tight text-zinc-100">Notificações</h1>
+        </div>
+        <DesktopPageHeader
+          eyebrow="Alertas"
+          title="Notificações"
+          description="Uma leitura contínua das interações recentes, sem caixas fechadas nem excesso de destaque visual."
+          className="hidden lg:block lg:pb-0"
+        />
       </header>
 
-      <div className="lg:max-w-[860px] lg:pt-8">
+      <div className="lg:pt-4">
         {loading && (
           <div className="p-10 text-center text-sm text-zinc-600 lg:px-0 lg:py-16">
             Carregando notificações...
@@ -116,7 +121,7 @@ export function Notifications() {
           </div>
         )}
       </div>
-    </div>
+    </DesktopPage>
   );
 }
 

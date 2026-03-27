@@ -5,8 +5,7 @@ import { StoreProvider, useStore } from './store';
 import { Auth } from './components/Auth';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Navigation } from './components/Navigation';
-import { DesktopSidebar } from './components/DesktopSidebar';
-import { DesktopAside } from './components/DesktopAside';
+import { DesktopFrame } from './components/DesktopFrame';
 import { OnboardingModal } from './components/OnboardingModal';
 
 const Feed = lazy(() => import('./components/Feed').then(module => ({ default: module.Feed })));
@@ -25,17 +24,13 @@ function ScrollToTop() {
 
 function Layout() {
   return (
-    <div className="min-h-screen lg:px-8 lg:py-8 xl:px-10">
-      <div className="mx-auto lg:grid lg:max-w-[1720px] lg:grid-cols-[200px_minmax(0,1fr)_300px] lg:items-start lg:gap-8">
-        <DesktopSidebar />
-        <main className="min-w-0 lg:min-h-[calc(100vh-64px)] lg:rounded-[32px] lg:border lg:border-zinc-800/70 lg:bg-zinc-950/82 lg:px-10 lg:py-8">
-          <Outlet />
-        </main>
-        <DesktopAside />
-      </div>
+    <>
+      <DesktopFrame useDefaultAside>
+        <Outlet />
+      </DesktopFrame>
       <Navigation />
       <OnboardingModal />
-    </div>
+    </>
   );
 }
 

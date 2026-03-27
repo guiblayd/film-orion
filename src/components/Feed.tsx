@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
+import { DesktopPage, DesktopPageHeader } from './DesktopFrame';
 import { cn } from '../lib/utils';
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
@@ -56,20 +57,20 @@ export function Feed() {
   };
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:max-w-none lg:min-h-0 lg:bg-transparent lg:pb-0">
+    <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
         <div className="px-4 py-3 lg:px-0 lg:py-0">
-          <p className="hidden text-[11px] uppercase tracking-[0.22em] text-zinc-500 lg:block">Feed</p>
-          <div className="lg:mt-4 lg:flex lg:items-end lg:justify-between">
-            <div>
-              <h1 className="text-xl font-semibold tracking-tight text-zinc-100 lg:text-[40px] lg:leading-[1.05]">FilmOrion</h1>
-              <p className="hidden max-w-3xl text-[15px] leading-7 text-zinc-500 lg:mt-3 lg:block">
-                Acompanhe o que está circulando no catálogo aberto, no seu círculo e nas indicações feitas para você.
-              </p>
-            </div>
+          <div className="lg:hidden">
+            <h1 className="text-xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
           </div>
+          <DesktopPageHeader
+            eyebrow="Feed"
+            title="FilmOrion"
+            description="Acompanhe o que está circulando no catálogo aberto, no seu círculo e nas indicações feitas para você."
+            className="hidden lg:block lg:pb-0"
+          />
         </div>
-        <div className="flex border-t border-zinc-800/40 lg:mt-8 lg:border-t-0 lg:border-b lg:border-zinc-800/50">
+        <div className="flex border-t border-zinc-800/40 lg:border-b lg:border-zinc-800/50">
           <TabButton active={activeTab === 'descobrir'} onClick={() => setActiveTab('descobrir')}>
             Descobrir
           </TabButton>
@@ -118,7 +119,7 @@ export function Feed() {
           </div>
         )}
       </div>
-    </div>
+    </DesktopPage>
   );
 }
 

@@ -4,6 +4,7 @@ import { ArrowLeft, Send } from 'lucide-react';
 import { useStore } from '../store';
 import { getTMDBDetails, LOGO_IMG, TMDBDetails } from '../services/tmdb';
 import { Item } from '../types';
+import { DesktopFrame, DesktopPage } from './DesktopFrame';
 import { fetchItemById, fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -120,124 +121,126 @@ export function ItemDetail() {
   const backdropSrc = tmdb?.backdrop ?? posterUrl(item.image);
 
   return (
-    <div className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-8 lg:max-w-none lg:pb-12">
-      <div className="relative h-56 w-full overflow-hidden lg:hidden">
-        <img src={backdropSrc} alt="" className="h-full w-full object-cover" style={{ filter: 'brightness(0.55) saturate(1.2)' }} />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950" />
-        <button
-          onClick={() => navigate(-1)}
-          className="absolute left-4 top-4 rounded-full bg-zinc-950/50 p-2 text-zinc-100 backdrop-blur-md"
-        >
-          <ArrowLeft size={20} />
-        </button>
-      </div>
+    <DesktopFrame>
+      <DesktopPage width="detail" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-8 lg:pb-12">
+        <div className="relative h-56 w-full overflow-hidden lg:hidden">
+          <img src={backdropSrc} alt="" className="h-full w-full object-cover" style={{ filter: 'brightness(0.55) saturate(1.2)' }} />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-zinc-950" />
+          <button
+            onClick={() => navigate(-1)}
+            className="absolute left-4 top-4 rounded-full bg-zinc-950/50 p-2 text-zinc-100 backdrop-blur-md"
+          >
+            <ArrowLeft size={20} />
+          </button>
+        </div>
 
-      <div className="flex justify-center -mt-24 relative z-10 mb-4 lg:hidden">
-        <img
-          src={posterUrl(item.image)}
-          alt={item.title}
-          className="w-32 rounded-xl object-cover ring-1 ring-white/10 shadow-2xl"
-          style={{ aspectRatio: '2/3' }}
-        />
-      </div>
-
-      <div className="hidden items-start justify-between lg:flex">
-        <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100">
-          <ArrowLeft size={18} />
-          Voltar
-        </button>
-      </div>
-
-      <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 lg:pt-8">
-        <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
+        <div className="relative z-10 mb-4 -mt-24 flex justify-center lg:hidden">
           <img
             src={posterUrl(item.image)}
             alt={item.title}
-            className="w-full rounded-2xl object-cover ring-1 ring-white/10"
+            className="w-32 rounded-xl object-cover ring-1 ring-white/10 shadow-2xl"
             style={{ aspectRatio: '2/3' }}
           />
         </div>
 
-        <div className="min-w-0">
-          <div className="px-4 text-center mb-4 lg:px-0 lg:text-left">
-            {fromUser && (
-              <div className="mx-auto mb-3 flex w-fit items-center gap-1.5 rounded-full border border-zinc-800 px-2.5 py-1 lg:mx-0">
-                <img src={fromUser.avatar} alt={fromUser.name} className="h-4 w-4 shrink-0 rounded-full object-cover" />
-                <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
+        <div className="hidden items-start justify-between lg:flex">
+          <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100">
+            <ArrowLeft size={18} />
+            Voltar
+          </button>
+        </div>
+
+        <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10 lg:pt-8">
+          <div className="hidden lg:block lg:sticky lg:top-8 lg:self-start">
+            <img
+              src={posterUrl(item.image)}
+              alt={item.title}
+              className="w-full rounded-2xl object-cover ring-1 ring-white/10"
+              style={{ aspectRatio: '2/3' }}
+            />
+          </div>
+
+          <div className="min-w-0">
+            <div className="mb-4 px-4 text-center lg:px-0 lg:text-left">
+              {fromUser && (
+                <div className="mx-auto mb-3 flex w-fit items-center gap-1.5 rounded-full border border-zinc-800 px-2.5 py-1 lg:mx-0">
+                  <img src={fromUser.avatar} alt={fromUser.name} className="h-4 w-4 shrink-0 rounded-full object-cover" />
+                  <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
+                </div>
+              )}
+              <h1 className="text-xl font-semibold leading-snug text-zinc-100 lg:text-[34px] lg:leading-tight">{item.title}</h1>
+              <p className="mt-1 text-sm text-zinc-400 lg:text-base">
+                {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
+              </p>
+            </div>
+
+            {tmdb?.backdrop && (
+              <div className="hidden overflow-hidden rounded-3xl lg:mb-8 lg:block">
+                <img src={backdropSrc} alt="" className="h-64 w-full object-cover opacity-80" />
               </div>
             )}
-            <h1 className="text-xl font-semibold leading-snug text-zinc-100 lg:text-[34px] lg:leading-tight">{item.title}</h1>
-            <p className="mt-1 text-sm text-zinc-400 lg:text-base">
-              {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
-            </p>
-          </div>
 
-          {tmdb?.backdrop && (
-            <div className="hidden overflow-hidden rounded-3xl lg:mb-8 lg:block">
-              <img src={backdropSrc} alt="" className="h-64 w-full object-cover opacity-80" />
-            </div>
-          )}
-
-          <div className="px-4 pb-5 lg:px-0 lg:pb-8">
-            <button
-              onClick={() => navigate('/create', { state: { item } })}
-              className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] lg:w-auto lg:px-6"
-            >
-              <Send size={15} /> Indicar para alguém
-            </button>
-          </div>
-
-          {tmdb?.overview && (
             <div className="px-4 pb-5 lg:px-0 lg:pb-8">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Sinopse</p>
-              <p className={`text-sm leading-relaxed text-zinc-400 lg:text-[15px] lg:leading-8 ${overviewExpanded ? '' : 'line-clamp-3 lg:line-clamp-4'}`}>
-                {tmdb.overview}
-              </p>
               <button
-                onClick={() => setOverviewExpanded(value => !value)}
-                className="mt-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                onClick={() => navigate('/create', { state: { item } })}
+                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] lg:w-auto lg:px-6"
               >
-                {overviewExpanded ? 'Resumir' : 'Ver mais'}
+                <Send size={15} /> Indicar para alguém
               </button>
             </div>
-          )}
 
-          {techRows.length > 0 && (
-            <div className="px-4 pb-6 lg:px-0 lg:pb-8">
-              <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Ficha técnica</p>
-              <div>{techRows.map(row => <TechRow key={row.label} label={row.label} value={row.value} />)}</div>
-            </div>
-          )}
-
-          {relevantRec?.message && (
-            <div className="px-4 pb-4 lg:px-0 lg:pb-8">
-              <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Mensagem</p>
-              <p className="text-sm italic text-zinc-400 lg:text-[15px]">"{relevantRec.message}"</p>
-            </div>
-          )}
-
-          {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
-            <div className="px-4 pb-8 pt-2 lg:px-0">
-              <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Disponível em</p>
-              <div className="flex flex-wrap gap-2.5">
-                {tmdb.provider_logos.map(provider => (
-                  <div key={provider.name} className="relative">
-                    <button onClick={() => setActiveProvider(previous => previous === provider.name ? null : provider.name)} className="block">
-                      <img src={`${LOGO_IMG}${provider.logo_path}`} alt={provider.name} className="h-11 w-11 rounded-xl object-cover" />
-                    </button>
-                    {activeProvider === provider.name && (
-                      <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1 shadow-lg">
-                        <span className="text-xs font-medium text-zinc-200">{provider.name}</span>
-                        <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-700" />
-                      </div>
-                    )}
-                  </div>
-                ))}
+            {tmdb?.overview && (
+              <div className="px-4 pb-5 lg:px-0 lg:pb-8">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Sinopse</p>
+                <p className={`text-sm leading-relaxed text-zinc-400 lg:text-[15px] lg:leading-8 ${overviewExpanded ? '' : 'line-clamp-3 lg:line-clamp-4'}`}>
+                  {tmdb.overview}
+                </p>
+                <button
+                  onClick={() => setOverviewExpanded(value => !value)}
+                  className="mt-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
+                >
+                  {overviewExpanded ? 'Resumir' : 'Ver mais'}
+                </button>
               </div>
-            </div>
-          )}
+            )}
+
+            {techRows.length > 0 && (
+              <div className="px-4 pb-6 lg:px-0 lg:pb-8">
+                <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Ficha técnica</p>
+                <div>{techRows.map(row => <TechRow key={row.label} label={row.label} value={row.value} />)}</div>
+              </div>
+            )}
+
+            {relevantRec?.message && (
+              <div className="px-4 pb-4 lg:px-0 lg:pb-8">
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Mensagem</p>
+                <p className="text-sm italic text-zinc-400 lg:text-[15px]">"{relevantRec.message}"</p>
+              </div>
+            )}
+
+            {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
+              <div className="px-4 pb-8 pt-2 lg:px-0">
+                <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Disponível em</p>
+                <div className="flex flex-wrap gap-2.5">
+                  {tmdb.provider_logos.map(provider => (
+                    <div key={provider.name} className="relative">
+                      <button onClick={() => setActiveProvider(previous => previous === provider.name ? null : provider.name)} className="block">
+                        <img src={`${LOGO_IMG}${provider.logo_path}`} alt={provider.name} className="h-11 w-11 rounded-xl object-cover" />
+                      </button>
+                      {activeProvider === provider.name && (
+                        <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1 shadow-lg">
+                          <span className="text-xs font-medium text-zinc-200">{provider.name}</span>
+                          <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-700" />
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
-    </div>
+      </DesktopPage>
+    </DesktopFrame>
   );
 }
