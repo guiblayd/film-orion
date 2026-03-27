@@ -151,10 +151,6 @@ http://localhost:3000
 - `scripts`: rotinas de seed e apoio ao desenvolvimento
 - `supabase`: migrations e arquivos relacionados ao banco
 
-## Deploy
-
-O projeto está preparado para deploy na Vercel com fallback de SPA configurado em `vercel.json`.
-
 Antes de publicar:
 
 1. configure as mesmas variáveis de ambiente do ambiente local
@@ -163,7 +159,6 @@ Antes de publicar:
 
 ## Notas
 
-- `SUPABASE_SERVICE_ROLE_KEY` não deve ser usada no frontend. Ela existe apenas para seed e rotinas locais de manutenção.
 - Alterações de interface devem ser verificadas em mobile e desktop.
 - O produto mistura descoberta de catálogo, recomendações entre pessoas e navegação por perfis, então mudanças de fluxo costumam impactar mais de uma tela.
 
