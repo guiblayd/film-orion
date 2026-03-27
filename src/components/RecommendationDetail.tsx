@@ -36,6 +36,7 @@ export function RecommendationDetail() {
     dataLoading,
     users,
     currentUser,
+    isReadOnly,
     addComment,
     userItemStatuses,
     updateUserItemStatus,
@@ -147,7 +148,7 @@ export function RecommendationDetail() {
   const status = userItemStatuses.find(itemStatus => itemStatus.item_id === item.id && itemStatus.user_id === currentUser.id)?.status;
   const isToUser = currentUser.id === recommendation.to_user_id;
   const isFromUser = currentUser.id === recommendation.from_user_id;
-  const showMenu = isToUser || isFromUser;
+  const showMenu = !isReadOnly && (isToUser || isFromUser);
   const visibilityConfig = VISIBILITY_CONFIG[recommendation.visibility as keyof typeof VISIBILITY_CONFIG];
   const VisibilityIcon = visibilityConfig?.icon;
 
@@ -404,21 +405,33 @@ export function RecommendationDetail() {
                       )}
                     </div>
 
-                    <form onSubmit={handleSendComment} className="mt-8 hidden items-center gap-3 lg:flex">
-                      <img src={currentUser.avatar} alt={currentUser.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-zinc-800" />
-                      <div className="relative flex-1">
-                        <input
-                          type="text"
-                          value={newComment}
-                          onChange={event => setNewComment(event.target.value)}
-                          placeholder="Comentar..."
-                          className="w-full rounded-full bg-zinc-900 px-5 py-4 pr-12 text-base text-zinc-100 outline-none ring-1 ring-zinc-800 placeholder:text-zinc-600 focus:ring-zinc-700"
-                        />
-                        <button type="submit" disabled={!newComment.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-zinc-100 transition-colors disabled:text-zinc-700">
-                          <Send size={18} />
-                        </button>
-                      </div>
-                    </form>
+                    {isReadOnly && (
+                      <p className="mt-6 text-xs leading-relaxed text-zinc-500 lg:text-sm">
+                        Modo visitante: voce pode ler a conversa, mas sem comentar ou atualizar status.
+                      </p>
+                    )}
+
+                    {!isReadOnly ? (
+                      <form onSubmit={handleSendComment} className="mt-8 hidden items-center gap-3 lg:flex">
+                        <img src={currentUser.avatar} alt={currentUser.name} className="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-zinc-800" />
+                        <div className="relative flex-1">
+                          <input
+                            type="text"
+                            value={newComment}
+                            onChange={event => setNewComment(event.target.value)}
+                            placeholder="Comentar..."
+                            className="w-full rounded-full bg-zinc-900 px-5 py-4 pr-12 text-base text-zinc-100 outline-none ring-1 ring-zinc-800 placeholder:text-zinc-600 focus:ring-zinc-700"
+                          />
+                          <button type="submit" disabled={!newComment.trim()} className="absolute right-2 top-1/2 -translate-y-1/2 p-2 text-zinc-100 transition-colors disabled:text-zinc-700">
+                            <Send size={18} />
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <p className="mt-8 hidden text-sm leading-relaxed text-zinc-500 lg:block">
+                        Modo visitante: leitura liberada, interacoes bloqueadas.
+                      </p>
+                    )}
                   </>
                 )}
               </section>
@@ -445,7 +458,7 @@ export function RecommendationDetail() {
           </aside>
         </div>
 
-        {recommendation.discussion_enabled && (
+        {recommendation.discussion_enabled && !isReadOnly && (
           <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-zinc-800/50 bg-zinc-950/90 px-3 py-2 backdrop-blur-xl lg:hidden">
             <div className="mx-auto max-w-md">
               <form onSubmit={handleSendComment} className="relative flex items-center gap-2">

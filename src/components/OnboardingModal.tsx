@@ -6,12 +6,13 @@ import { Item } from '../types';
 import { cn } from '../lib/utils';
 
 export function OnboardingModal() {
-  const { currentUser, connections, onboardingPreferences, onboardingDismissed, saveOnboarding, skipOnboarding } = useStore();
+  const { currentUser, connections, onboardingPreferences, onboardingDismissed, saveOnboarding, skipOnboarding, isReadOnly } = useStore();
   const [favoriteTypes, setFavoriteTypes] = useState<Item['type'][]>(onboardingPreferences?.favoriteTypes ?? ['movie', 'series']);
   const [favoriteGenres, setFavoriteGenres] = useState<string[]>(onboardingPreferences?.favoriteGenres ?? []);
   const [favoriteProviders, setFavoriteProviders] = useState<string[]>(onboardingPreferences?.favoriteProviders ?? []);
 
   const shouldShow = Boolean(
+    !isReadOnly &&
     currentUser.id &&
     !onboardingPreferences &&
     !onboardingDismissed &&

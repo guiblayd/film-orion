@@ -37,7 +37,7 @@ function getContextCopy(pathname: string) {
 
 export function DesktopAside() {
   const location = useLocation();
-  const { currentUser, users, connections, toggleFollow, onboardingPreferences } = useStore();
+  const { currentUser, users, connections, toggleFollow } = useStore();
 
   const connectionIds = useMemo(() => new Set(
     connections.map(connection => connection.requester_id === currentUser.id ? connection.receiver_id : connection.requester_id)
@@ -58,9 +58,7 @@ export function DesktopAside() {
           {copy.description}
         </p>
         <p className="mt-4 text-sm leading-7 text-zinc-600">
-          {onboardingPreferences
-            ? `Baseado em ${onboardingPreferences.favoriteGenres.slice(0, 2).join(' e ') || 'seu gosto atual'}.`
-            : 'Complete seus gostos iniciais para destravar sugest\u00f5es mais alinhadas ao seu repert\u00f3rio.'}
+          As sugestoes aparecem conforme a atividade e as conexoes do seu circulo.
         </p>
       </section>
 

@@ -27,7 +27,7 @@ export function ItemDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
-  const { users, currentUser, addItem } = useStore();
+  const { users, currentUser, addItem, isReadOnly } = useStore();
 
   const [item, setItem] = useState<Item | null>(((location.state as { item?: Item } | null)?.item) ?? null);
   const [tmdb, setTmdb] = useState<TMDBDetails | null>(null);
@@ -97,24 +97,24 @@ export function ItemDetail() {
     return () => { cancelled = true; };
   }, [item, users, currentUser.id]);
 
-  if (!item) return <div className="p-8 text-center text-zinc-500">Item não encontrado</div>;
+  if (!item) return <div className="p-8 text-center text-zinc-500">Item nao encontrado</div>;
 
   const displayYear = item.year ?? tmdb?.year;
   const relevantCard = recommendationCards[0] ?? null;
   const relevantRec = relevantCard?.recommendation ?? null;
   const fromUser = relevantCard?.fromUser ?? null;
 
-  const typeLabel: Record<string, string> = { movie: 'Filme', series: 'Série', anime: 'Anime' };
+  const typeLabel: Record<string, string> = { movie: 'Filme', series: 'Serie', anime: 'Anime' };
 
   const techRows: { label: string; value: string }[] = [];
-  if (tmdb?.director) techRows.push({ label: 'Direção', value: tmdb.director });
-  if (tmdb?.creators?.length) techRows.push({ label: 'Criação', value: tmdb.creators.join(', ') });
+  if (tmdb?.director) techRows.push({ label: 'Direcao', value: tmdb.director });
+  if (tmdb?.creators?.length) techRows.push({ label: 'Criacao', value: tmdb.creators.join(', ') });
   if (tmdb?.cast?.length) techRows.push({ label: 'Elenco', value: tmdb.cast.join(', ') });
-  if (tmdb?.genres?.length) techRows.push({ label: 'Gêneros', value: tmdb.genres.join(', ') });
+  if (tmdb?.genres?.length) techRows.push({ label: 'Generos', value: tmdb.genres.join(', ') });
   if (item.type) techRows.push({ label: 'Tipo', value: typeLabel[item.type] ?? item.type });
   if (displayYear) techRows.push({ label: 'Ano', value: String(displayYear) });
-  if (tmdb?.country) techRows.push({ label: 'País', value: tmdb.country });
-  if (tmdb?.runtime) techRows.push({ label: 'Duração', value: `${tmdb.runtime} min` });
+  if (tmdb?.country) techRows.push({ label: 'Pais', value: tmdb.country });
+  if (tmdb?.runtime) techRows.push({ label: 'Duracao', value: `${tmdb.runtime} min` });
   if (tmdb?.seasons) techRows.push({ label: 'Temporadas', value: String(tmdb.seasons) });
   if (tmdb?.vote_average) techRows.push({ label: 'Nota TMDB', value: `${tmdb.vote_average} / 10` });
 
@@ -162,34 +162,40 @@ export function ItemDetail() {
 
           <div className="min-w-0">
             <div className="mb-4 px-4 text-center lg:px-0 lg:text-left">
-              {fromUser && (
+              {fromUser ? (
                 <div className="mx-auto mb-3 flex w-fit items-center gap-1.5 rounded-full border border-zinc-800 px-2.5 py-1 lg:mx-0">
                   <img src={fromUser.avatar} alt={fromUser.name} className="h-4 w-4 shrink-0 rounded-full object-cover" />
                   <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
                 </div>
-              )}
+              ) : null}
               <h1 className="text-xl font-semibold leading-snug text-zinc-100 lg:text-[34px] lg:leading-tight">{item.title}</h1>
               <p className="mt-1 text-sm text-zinc-400 lg:text-base">
                 {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
               </p>
             </div>
 
-            {tmdb?.backdrop && (
+            {tmdb?.backdrop ? (
               <div className="hidden overflow-hidden rounded-3xl lg:mb-8 lg:block">
                 <img src={backdropSrc} alt="" className="h-64 w-full object-cover opacity-80" />
               </div>
-            )}
+            ) : null}
 
             <div className="px-4 pb-5 lg:px-0 lg:pb-8">
-              <button
-                onClick={() => navigate('/create', { state: { item } })}
-                className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] lg:w-auto lg:px-6"
-              >
-                <Send size={15} /> Indicar para alguém
-              </button>
+              {isReadOnly ? (
+                <p className="text-sm leading-relaxed text-zinc-500">
+                  No modo visitante, esta tela fica apenas para consulta.
+                </p>
+              ) : (
+                <button
+                  onClick={() => navigate('/create', { state: { item } })}
+                  className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] lg:w-auto lg:px-6"
+                >
+                  <Send size={15} /> Indicar para alguem
+                </button>
+              )}
             </div>
 
-            {tmdb?.overview && (
+            {tmdb?.overview ? (
               <div className="px-4 pb-5 lg:px-0 lg:pb-8">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Sinopse</p>
                 <p className={`text-sm leading-relaxed text-zinc-400 lg:text-[15px] lg:leading-8 ${overviewExpanded ? '' : 'line-clamp-3 lg:line-clamp-4'}`}>
@@ -202,42 +208,42 @@ export function ItemDetail() {
                   {overviewExpanded ? 'Resumir' : 'Ver mais'}
                 </button>
               </div>
-            )}
+            ) : null}
 
-            {techRows.length > 0 && (
+            {techRows.length > 0 ? (
               <div className="px-4 pb-6 lg:px-0 lg:pb-8">
-                <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Ficha técnica</p>
+                <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Ficha tecnica</p>
                 <div>{techRows.map(row => <TechRow key={row.label} label={row.label} value={row.value} />)}</div>
               </div>
-            )}
+            ) : null}
 
-            {relevantRec?.message && (
+            {relevantRec?.message ? (
               <div className="px-4 pb-4 lg:px-0 lg:pb-8">
                 <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Mensagem</p>
                 <p className="text-sm italic text-zinc-400 lg:text-[15px]">"{relevantRec.message}"</p>
               </div>
-            )}
+            ) : null}
 
-            {tmdb?.provider_logos && tmdb.provider_logos.length > 0 && (
+            {tmdb?.provider_logos && tmdb.provider_logos.length > 0 ? (
               <div className="px-4 pb-8 pt-2 lg:px-0">
-                <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Disponível em</p>
+                <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Disponivel em</p>
                 <div className="flex flex-wrap gap-2.5">
                   {tmdb.provider_logos.map(provider => (
                     <div key={provider.name} className="relative">
                       <button onClick={() => setActiveProvider(previous => previous === provider.name ? null : provider.name)} className="block">
                         <img src={`${LOGO_IMG}${provider.logo_path}`} alt={provider.name} className="h-11 w-11 rounded-xl object-cover" />
                       </button>
-                      {activeProvider === provider.name && (
+                      {activeProvider === provider.name ? (
                         <div className="absolute bottom-full left-1/2 z-10 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-zinc-700 bg-zinc-800 px-2.5 py-1 shadow-lg">
                           <span className="text-xs font-medium text-zinc-200">{provider.name}</span>
                           <div className="absolute left-1/2 top-full h-0 w-0 -translate-x-1/2 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-zinc-700" />
                         </div>
-                      )}
+                      ) : null}
                     </div>
                   ))}
                 </div>
               </div>
-            )}
+            ) : null}
           </div>
         </div>
       </DesktopPage>

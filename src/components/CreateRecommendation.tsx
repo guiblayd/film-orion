@@ -96,7 +96,7 @@ function UserPreviewCard({ user, label }: { user: User; label: string }) {
 export function CreateRecommendation() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { users, connections, currentUser, addRecommendation, addItem } = useStore();
+  const { users, connections, currentUser, addRecommendation, addItem, isReadOnly } = useStore();
 
   const navItem = (location.state as { item?: Item } | null)?.item;
 
@@ -204,6 +204,39 @@ export function CreateRecommendation() {
     else if (step === 3 && navItem) setStep(1);
     else setStep((step - 1) as 1 | 2 | 3);
   };
+
+  if (isReadOnly) {
+    return (
+      <DesktopFrame>
+        <DesktopPage width="stream" className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 pb-20 lg:bg-transparent lg:pb-0">
+          <header className="flex items-center gap-3 border-b border-zinc-800/50 bg-zinc-950/90 px-4 py-2.5 backdrop-blur-xl lg:border-b-0 lg:bg-transparent lg:px-0 lg:py-0 lg:backdrop-blur-none">
+            <button onClick={() => navigate(-1)} className="p-1 text-zinc-100">
+              <ArrowLeft size={20} />
+            </button>
+            <div>
+              <p className="text-sm font-medium text-zinc-100 lg:text-[34px] lg:tracking-tight">Modo visitante</p>
+            </div>
+          </header>
+
+          <div className="flex flex-1 items-center px-4 py-10 lg:px-0 lg:py-16">
+            <div className="max-w-xl">
+              <h1 className="text-2xl font-semibold tracking-tight text-zinc-100 lg:text-[34px]">As indica\u00e7\u00f5es ficam bloqueadas no modo visitante.</h1>
+              <p className="mt-3 text-sm leading-7 text-zinc-400 lg:text-base">
+                Voc\u00ea pode navegar por perfis, feed e detalhes, mas sem enviar novas indica\u00e7\u00f5es.
+              </p>
+              <button
+                type="button"
+                onClick={() => navigate(-1)}
+                className="mt-6 rounded-full bg-zinc-100 px-5 py-2.5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
+              >
+                Voltar para navegar
+              </button>
+            </div>
+          </div>
+        </DesktopPage>
+      </DesktopFrame>
+    );
+  }
 
   return (
     <DesktopFrame>

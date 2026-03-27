@@ -12,12 +12,13 @@ const NAV_ITEMS = [
 ] as const;
 
 export function Navigation() {
-  const { currentUser, unreadNotificationsCount } = useStore();
+  const { currentUser, unreadNotificationsCount, isReadOnly } = useStore();
+  const navItems = isReadOnly ? NAV_ITEMS.filter(item => item.to !== '/create') : NAV_ITEMS;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-zinc-950/90 backdrop-blur-xl border-t border-zinc-800/50 z-50 lg:hidden">
       <div className="max-w-md mx-auto h-16 px-1 flex items-stretch lg:max-w-3xl">
-        {NAV_ITEMS.map(item => (
+        {navItems.map(item => (
           <NavigationLink
             key={item.to}
             to={item.to}

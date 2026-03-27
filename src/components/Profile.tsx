@@ -18,8 +18,8 @@ type Tab = 'received' | 'made' | 'watchlist' | 'watched';
 export function Profile() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { signOut } = useAuth();
-  const { users, currentUser, connections, toggleFollow, updateCurrentUser } = useStore();
+  const { signOut, isGuest } = useAuth();
+  const { users, currentUser, connections, toggleFollow, updateCurrentUser, isReadOnly } = useStore();
 
   const [activeTab, setActiveTab] = useState<Tab>('received');
   const [showSettings, setShowSettings] = useState(false);
@@ -49,6 +49,7 @@ export function Profile() {
   const isFollowing = connections.some(
     connection => connection.requester_id === currentUser.id && connection.receiver_id === user.id
   );
+  const showGuestEntryAction = isGuest && isOwnProfile;
 
   useEffect(() => {
     setEditName(currentUser.name);
@@ -321,7 +322,7 @@ export function Profile() {
           <h1 className="truncate text-sm font-medium text-zinc-100">{user.name}</h1>
           <p className="truncate text-[11px] text-zinc-500">{formatUsername(user.username)}</p>
         </div>
-        {isOwnProfile ? (
+        {isOwnProfile && !isGuest ? (
           <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 transition-colors hover:text-zinc-200">
             <Settings size={20} />
           </button>
@@ -337,7 +338,7 @@ export function Profile() {
             {isOwnProfile ? `${receivedCards.length} indica\u00e7\u00f5es` : formatUsername(user.username)}
           </p>
         </div>
-        {isOwnProfile ? (
+        {isOwnProfile && !isGuest ? (
           <button onClick={() => setShowSettings(true)} className="p-1 text-zinc-400 transition-colors hover:text-zinc-200">
             <Settings size={20} />
           </button>
@@ -373,7 +374,16 @@ export function Profile() {
         <p className="mt-1 text-xs font-medium text-zinc-500">{formatUsername(user.username)}</p>
         {user.bio ? <p className="mt-2 text-xs leading-relaxed text-zinc-400">{user.bio}</p> : null}
 
-        {!isOwnProfile && (
+        {showGuestEntryAction ? (
+          <button
+            onClick={() => void signOut()}
+            className="mt-4 w-full rounded-lg bg-zinc-100 py-2 text-sm font-medium text-zinc-950 transition-colors hover:bg-white"
+          >
+            Entrar com conta
+          </button>
+        ) : null}
+
+        {!isOwnProfile && !isReadOnly && (
           <button
             onClick={() => void handleToggleFollow()}
             className={cn(
@@ -415,14 +425,21 @@ export function Profile() {
           </div>
 
           <div className="hidden lg:block">
-            {isOwnProfile ? (
+            {showGuestEntryAction ? (
+              <button
+                onClick={() => void signOut()}
+                className="rounded-full border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900/60"
+              >
+                Entrar com conta
+              </button>
+            ) : isOwnProfile ? (
               <button
                 onClick={() => setShowSettings(true)}
                 className="rounded-full border border-zinc-800 px-4 py-2 text-sm font-medium text-zinc-200 transition-colors hover:bg-zinc-900/60"
               >
                 Editar perfil
               </button>
-            ) : (
+            ) : !isReadOnly ? (
               <button
                 onClick={() => void handleToggleFollow()}
                 className={cn(
@@ -434,11 +451,11 @@ export function Profile() {
               >
                 {isFollowing ? 'Seguindo' : 'Seguir'}
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 
-        {!isOwnProfile && (
+        {!isOwnProfile && !isReadOnly && (
           <button
             onClick={() => void handleToggleFollow()}
             className={cn(
@@ -490,7 +507,7 @@ export function Profile() {
         />
       )}
 
-      {showSettings && (
+      {showSettings && !isGuest && (
         <div className="fixed inset-0 z-[60] flex items-end lg:items-center lg:justify-center" onClick={() => setShowSettings(false)}>
           <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
           <div

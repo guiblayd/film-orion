@@ -4,9 +4,12 @@ import { supabase } from './lib/supabase';
 import { useAuth } from './contexts/AuthContext';
 import { Database } from './types/database';
 import { dismissOnboarding, isOnboardingDismissed, loadOnboardingPreferences, saveOnboardingPreferences } from './lib/onboarding';
+import { GUEST_USER } from './lib/guest';
 
 type StoreContextType = {
   dataLoading: boolean;
+  isGuest: boolean;
+  isReadOnly: boolean;
   currentUser: User;
   users: User[];
   connections: Connection[];
@@ -36,7 +39,7 @@ const StoreContext = createContext<StoreContextType | undefined>(undefined);
 const EMPTY_USER: User = { id: '', name: '', username: '', avatar: '' };
 
 export function StoreProvider({ children }: { children: ReactNode }) {
-  const { session } = useAuth();
+  const { session, isGuest } = useAuth();
   const [dataLoading, setDataLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState<User>(EMPTY_USER);
   const [users, setUsers] = useState<User[]>([]);
@@ -45,6 +48,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [unreadNotificationsCount, setUnreadNotificationsCount] = useState(0);
   const [onboardingPreferences, setOnboardingPreferences] = useState<OnboardingPreferences | null>(null);
   const [onboardingDismissed, setOnboardingDismissed] = useState(false);
+  const isReadOnly = isGuest;
 
   const refreshUnreadNotificationsCount = useCallback(async () => {
     const uid = session?.user?.id;
@@ -63,7 +67,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (!session?.user) {
+    if (!session?.user && !isGuest) {
       setCurrentUser(EMPTY_USER);
       setUsers([]);
       setConnections([]);
@@ -78,7 +82,21 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     const loadInitial = async () => {
       setDataLoading(true);
       try {
-        const uid = session.user.id;
+        if (isGuest) {
+          const { data: profiles } = await supabase.from('profiles').select('*');
+
+          setCurrentUser(GUEST_USER);
+          setUsers([GUEST_USER, ...(profiles ?? []).map(toUser)]);
+          setConnections([]);
+          setUserItemStatuses([]);
+          setUnreadNotificationsCount(0);
+          setOnboardingPreferences(null);
+          setOnboardingDismissed(true);
+          return;
+        }
+
+        const uid = session?.user?.id;
+        if (!uid) return;
         const [
           { data: profile },
           { data: profiles },
@@ -108,9 +126,11 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     loadInitial();
-  }, [session?.user?.id, refreshUnreadNotificationsCount]);
+  }, [session?.user?.id, isGuest, refreshUnreadNotificationsCount]);
 
   const addRecommendation = async (rec: Omit<Recommendation, 'id' | 'created_at'>) => {
+    if (isReadOnly) return null;
+
     const { data, error } = await supabase
       .from('recommendations')
       .insert({
@@ -133,6 +153,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const saveOnboarding = (preferences: Omit<OnboardingPreferences, 'completed_at'>) => {
+    if (isReadOnly) return;
     if (!currentUser.id) return;
     const saved = saveOnboardingPreferences(currentUser.id, preferences);
     if (saved) {
@@ -142,12 +163,14 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const skipOnboarding = () => {
+    if (isReadOnly) return;
     if (!currentUser.id) return;
     dismissOnboarding(currentUser.id);
     setOnboardingDismissed(true);
   };
 
   const deleteRecommendation = async (id: string) => {
+    if (isReadOnly) return;
     const { error } = await supabase.from('recommendations').delete().eq('id', id);
     if (error) console.error('deleteRecommendation:', error.message);
   };
@@ -156,6 +179,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     id: string,
     updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
   ) => {
+    if (isReadOnly) return null;
+
     const { data, error } = await supabase
       .from('recommendations')
       .update({
@@ -176,6 +201,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleInteraction = async (recommendationId: string, type: 'support' | 'oppose') => {
+    if (isReadOnly) return null;
+
     const { data: existing } = await supabase
       .from('recommendation_interactions')
       .select('*')
@@ -224,6 +251,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const addComment = async (recommendationId: string, content: string) => {
+    if (isReadOnly) return null;
+
     const { data, error } = await supabase
       .from('comments')
       .insert({
@@ -243,6 +272,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const updateUserItemStatus = async (itemId: string, status: 'saved' | 'watched' | 'ignored') => {
+    if (isReadOnly) return null;
+
     const previousStatuses = userItemStatuses;
     const existing = userItemStatuses.find(itemStatus => itemStatus.item_id === itemId && itemStatus.user_id === currentUser.id);
 
@@ -313,6 +344,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const toggleFollow = async (userId: string) => {
+    if (isReadOnly) return;
+
     const previousConnections = connections;
     const existing = connections.find(connection => connection.requester_id === currentUser.id && connection.receiver_id === userId);
 
@@ -359,6 +392,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const addItem = async (item: Item) => {
+    if (isReadOnly) return;
+
     const { error } = await supabase.from('items').upsert({
       id: item.id,
       title: item.title,
@@ -371,6 +406,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   };
 
   const updateCurrentUser = async (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar' | 'username'>>) => {
+    if (isReadOnly) return 'Entre com uma conta para editar o perfil.';
+
     const previousCurrentUser = currentUser;
     const previousUsers = users;
     const updated = { ...currentUser, ...updates };
@@ -401,6 +438,8 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   return (
     <StoreContext.Provider value={{
       dataLoading,
+      isGuest,
+      isReadOnly,
       currentUser,
       users,
       connections,

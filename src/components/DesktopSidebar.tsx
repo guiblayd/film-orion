@@ -13,7 +13,8 @@ const NAV_ITEMS = [
 ] as const;
 
 export function DesktopSidebar() {
-  const { currentUser, unreadNotificationsCount } = useStore();
+  const { currentUser, unreadNotificationsCount, isGuest, isReadOnly } = useStore();
+  const navItems = isReadOnly ? NAV_ITEMS.filter(item => item.to !== '/create') : NAV_ITEMS;
 
   return (
     <aside className="hidden lg:sticky lg:top-6 lg:flex lg:h-[calc(100vh-48px)] lg:flex-col lg:justify-between lg:self-start">
@@ -23,7 +24,7 @@ export function DesktopSidebar() {
         </Link>
 
         <nav className="space-y-1">
-          {NAV_ITEMS.map(item => (
+          {navItems.map(item => (
             <DesktopNavLink
               key={item.to}
               to={item.to}
@@ -35,12 +36,14 @@ export function DesktopSidebar() {
           ))}
         </nav>
 
-        <Link
-          to="/create"
-          className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
-        >
-          Indicar
-        </Link>
+        {!isReadOnly ? (
+          <Link
+            to="/create"
+            className="mt-6 inline-flex h-11 items-center justify-center rounded-full bg-zinc-100 px-5 text-sm font-semibold text-zinc-950 transition-colors hover:bg-white"
+          >
+            Indicar
+          </Link>
+        ) : null}
       </div>
 
       <div className="pt-5">
@@ -52,7 +55,7 @@ export function DesktopSidebar() {
           <div className="min-w-0">
             <p className="truncate text-sm font-medium text-zinc-100">{currentUser.name}</p>
             <p className="truncate text-xs text-zinc-500 transition-colors group-hover:text-zinc-400">
-              {formatUsername(currentUser.username)}
+              {isGuest ? 'Somente leitura' : formatUsername(currentUser.username)}
             </p>
           </div>
           <UserIcon size={16} className="ml-auto text-zinc-700 transition-colors group-hover:text-zinc-500" />

@@ -22,12 +22,12 @@ function formatNotificationDateTime(dateStr: string) {
 }
 
 export function Notifications() {
-  const { users, refreshUnreadNotificationsCount } = useStore();
+  const { users, currentUser, refreshUnreadNotificationsCount } = useStore();
   const [notifications, setNotifications] = useState<NotificationRow[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (users.length === 0) return;
+    if (users.length === 0 || !currentUser.id) return;
 
     let cancelled = false;
 
@@ -36,6 +36,7 @@ export function Notifications() {
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
+        .eq('recipient_id', currentUser.id)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -88,7 +89,7 @@ export function Notifications() {
 
     void load();
     return () => { cancelled = true; };
-  }, [users, refreshUnreadNotificationsCount]);
+  }, [users, currentUser.id, refreshUnreadNotificationsCount]);
 
   return (
     <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:pb-12">

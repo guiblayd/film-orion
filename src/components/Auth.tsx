@@ -34,7 +34,7 @@ function GoogleIcon() {
 }
 
 export function Auth() {
-  const { passwordRecovery } = useAuth();
+  const { passwordRecovery, enterGuestMode } = useAuth();
   const [view, setView] = useState<View>('login');
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -188,6 +188,16 @@ export function Auth() {
             </SubmitButton>
             <Divider />
             <GoogleButton onClick={handleGoogle} />
+            <button
+              type="button"
+              onClick={enterGuestMode}
+              className="w-full rounded-xl border border-zinc-800 bg-transparent py-3 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-700 hover:bg-zinc-900/70"
+            >
+              Entrar como visitante
+            </button>
+            <p className="px-1 text-center text-xs leading-relaxed text-zinc-600">
+              Voc\u00ea pode navegar pelo app, mas sem comentar, seguir ou enviar indica\u00e7\u00f5es.
+            </p>
             <div className="flex flex-col items-center gap-2 pt-2">
               <button
                 onClick={() => { setView('signup'); reset(); }}

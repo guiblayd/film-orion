@@ -6,7 +6,6 @@ import { Auth } from './components/Auth';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Navigation } from './components/Navigation';
 import { DesktopFrame } from './components/DesktopFrame';
-import { OnboardingModal } from './components/OnboardingModal';
 
 const Feed = lazy(() => import('./components/Feed').then(module => ({ default: module.Feed })));
 const Explore = lazy(() => import('./components/Explore').then(module => ({ default: module.Explore })));
@@ -29,7 +28,6 @@ function Layout() {
         <Outlet />
       </DesktopFrame>
       <Navigation />
-      <OnboardingModal />
     </>
   );
 }
@@ -55,9 +53,9 @@ function AppRoutes() {
 }
 
 function AuthGate({ children }: { children: ReactNode }) {
-  const { session, loading } = useAuth();
+  const { session, loading, isGuest } = useAuth();
   if (loading) return <LoadingScreen />;
-  if (!session) return <Auth />;
+  if (!session && !isGuest) return <Auth />;
   return <>{children}</>;
 }
 
