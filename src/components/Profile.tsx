@@ -356,7 +356,7 @@ export function Profile() {
           <div className="flex flex-1 justify-around text-center">
             <div>
               <p className="text-base font-semibold text-zinc-100">{receivedCards.length}</p>
-              <p className="text-[11px] text-zinc-500">Indica\u00e7\u00f5es</p>
+              <p className="text-[11px] text-zinc-500">{'Indica\u00e7\u00f5es'}</p>
             </div>
             <div>
               <p className="text-base font-semibold text-zinc-100">{followersCount}</p>
