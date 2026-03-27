@@ -10,6 +10,26 @@ import { fetchItemById, fetchRecommendationCards, RecommendationCardData } from 
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
 const W300 = 'https://image.tmdb.org/t/p/w300';
 
+const COPY = {
+  notFound: 'Item n\u00e3o encontrado',
+  series: 'S\u00e9rie',
+  direction: 'Dire\u00e7\u00e3o',
+  creation: 'Cria\u00e7\u00e3o',
+  genres: 'G\u00eaneros',
+  country: 'Pa\u00eds',
+  duration: 'Dura\u00e7\u00e3o',
+  recommendedBy: 'Indicado por',
+  visitorReadOnly: 'No modo visitante, esta tela fica apenas para consulta.',
+  recommendToSomeone: 'Indicar para algu\u00e9m',
+  synopsis: 'Sinopse',
+  technicalSheet: 'Ficha t\u00e9cnica',
+  message: 'Mensagem',
+  availableOn: 'Dispon\u00edvel em',
+  resume: 'Resumir',
+  expand: 'Ver mais',
+  back: 'Voltar',
+} as const;
+
 function posterUrl(src: string) {
   return src.startsWith(W300) ? src.replace(W300, POSTER_BASE) : src;
 }
@@ -97,24 +117,28 @@ export function ItemDetail() {
     return () => { cancelled = true; };
   }, [item, users, currentUser.id]);
 
-  if (!item) return <div className="p-8 text-center text-zinc-500">Item nao encontrado</div>;
+  if (!item) return <div className="p-8 text-center text-zinc-500">{COPY.notFound}</div>;
 
   const displayYear = item.year ?? tmdb?.year;
   const relevantCard = recommendationCards[0] ?? null;
   const relevantRec = relevantCard?.recommendation ?? null;
   const fromUser = relevantCard?.fromUser ?? null;
 
-  const typeLabel: Record<string, string> = { movie: 'Filme', series: 'Serie', anime: 'Anime' };
+  const typeLabel: Record<string, string> = {
+    movie: 'Filme',
+    series: COPY.series,
+    anime: 'Anime',
+  };
 
   const techRows: { label: string; value: string }[] = [];
-  if (tmdb?.director) techRows.push({ label: 'Direcao', value: tmdb.director });
-  if (tmdb?.creators?.length) techRows.push({ label: 'Criacao', value: tmdb.creators.join(', ') });
+  if (tmdb?.director) techRows.push({ label: COPY.direction, value: tmdb.director });
+  if (tmdb?.creators?.length) techRows.push({ label: COPY.creation, value: tmdb.creators.join(', ') });
   if (tmdb?.cast?.length) techRows.push({ label: 'Elenco', value: tmdb.cast.join(', ') });
-  if (tmdb?.genres?.length) techRows.push({ label: 'Generos', value: tmdb.genres.join(', ') });
+  if (tmdb?.genres?.length) techRows.push({ label: COPY.genres, value: tmdb.genres.join(', ') });
   if (item.type) techRows.push({ label: 'Tipo', value: typeLabel[item.type] ?? item.type });
   if (displayYear) techRows.push({ label: 'Ano', value: String(displayYear) });
-  if (tmdb?.country) techRows.push({ label: 'Pais', value: tmdb.country });
-  if (tmdb?.runtime) techRows.push({ label: 'Duracao', value: `${tmdb.runtime} min` });
+  if (tmdb?.country) techRows.push({ label: COPY.country, value: tmdb.country });
+  if (tmdb?.runtime) techRows.push({ label: COPY.duration, value: `${tmdb.runtime} min` });
   if (tmdb?.seasons) techRows.push({ label: 'Temporadas', value: String(tmdb.seasons) });
   if (tmdb?.vote_average) techRows.push({ label: 'Nota TMDB', value: `${tmdb.vote_average} / 10` });
 
@@ -146,7 +170,7 @@ export function ItemDetail() {
         <div className="hidden items-start justify-between lg:flex">
           <button onClick={() => navigate(-1)} className="flex items-center gap-2 text-sm text-zinc-400 transition-colors hover:text-zinc-100">
             <ArrowLeft size={18} />
-            Voltar
+            {COPY.back}
           </button>
         </div>
 
@@ -165,12 +189,14 @@ export function ItemDetail() {
               {fromUser ? (
                 <div className="mx-auto mb-3 flex w-fit items-center gap-1.5 rounded-full border border-zinc-800 px-2.5 py-1 lg:mx-0">
                   <img src={fromUser.avatar} alt={fromUser.name} className="h-4 w-4 shrink-0 rounded-full object-cover" />
-                  <span className="text-[11px] font-medium text-zinc-200">Indicado por {fromUser.name}</span>
+                  <span className="text-[11px] font-medium text-zinc-200">
+                    {COPY.recommendedBy} {fromUser.name}
+                  </span>
                 </div>
               ) : null}
               <h1 className="text-xl font-semibold leading-snug text-zinc-100 lg:text-[34px] lg:leading-tight">{item.title}</h1>
               <p className="mt-1 text-sm text-zinc-400 lg:text-base">
-                {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
+                {[displayYear, tmdb?.country].filter(Boolean).join(' \u00b7 ')}
               </p>
             </div>
 
@@ -182,22 +208,20 @@ export function ItemDetail() {
 
             <div className="px-4 pb-5 lg:px-0 lg:pb-8">
               {isReadOnly ? (
-                <p className="text-sm leading-relaxed text-zinc-500">
-                  No modo visitante, esta tela fica apenas para consulta.
-                </p>
+                <p className="text-sm leading-relaxed text-zinc-500">{COPY.visitorReadOnly}</p>
               ) : (
                 <button
                   onClick={() => navigate('/create', { state: { item } })}
                   className="flex w-full items-center justify-center gap-2 rounded-xl bg-zinc-100 py-3 text-sm font-medium text-zinc-950 transition-colors hover:bg-white active:scale-[0.98] lg:w-auto lg:px-6"
                 >
-                  <Send size={15} /> Indicar para alguem
+                  <Send size={15} /> {COPY.recommendToSomeone}
                 </button>
               )}
             </div>
 
             {tmdb?.overview ? (
               <div className="px-4 pb-5 lg:px-0 lg:pb-8">
-                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Sinopse</p>
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">{COPY.synopsis}</p>
                 <p className={`text-sm leading-relaxed text-zinc-400 lg:text-[15px] lg:leading-8 ${overviewExpanded ? '' : 'line-clamp-3 lg:line-clamp-4'}`}>
                   {tmdb.overview}
                 </p>
@@ -205,28 +229,28 @@ export function ItemDetail() {
                   onClick={() => setOverviewExpanded(value => !value)}
                   className="mt-1.5 text-xs text-zinc-500 transition-colors hover:text-zinc-300"
                 >
-                  {overviewExpanded ? 'Resumir' : 'Ver mais'}
+                  {overviewExpanded ? COPY.resume : COPY.expand}
                 </button>
               </div>
             ) : null}
 
             {techRows.length > 0 ? (
               <div className="px-4 pb-6 lg:px-0 lg:pb-8">
-                <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Ficha tecnica</p>
+                <p className="mb-1 text-[11px] font-medium uppercase tracking-wider text-zinc-600">{COPY.technicalSheet}</p>
                 <div>{techRows.map(row => <TechRow key={row.label} label={row.label} value={row.value} />)}</div>
               </div>
             ) : null}
 
             {relevantRec?.message ? (
               <div className="px-4 pb-4 lg:px-0 lg:pb-8">
-                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Mensagem</p>
+                <p className="mb-2 text-[11px] font-medium uppercase tracking-wider text-zinc-600">{COPY.message}</p>
                 <p className="text-sm italic text-zinc-400 lg:text-[15px]">"{relevantRec.message}"</p>
               </div>
             ) : null}
 
             {tmdb?.provider_logos && tmdb.provider_logos.length > 0 ? (
               <div className="px-4 pb-8 pt-2 lg:px-0">
-                <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">Disponivel em</p>
+                <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600">{COPY.availableOn}</p>
                 <div className="flex flex-wrap gap-2.5">
                   {tmdb.provider_logos.map(provider => (
                     <div key={provider.name} className="relative">

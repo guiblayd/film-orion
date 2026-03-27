@@ -23,10 +23,30 @@ import { LoadingScreen } from './LoadingScreen';
 import { RecommendationComposerForm } from './RecommendationComposerForm';
 import { Recommendation } from '../types';
 
+const COPY = {
+  notFound: 'Indica\u00e7\u00e3o n\u00e3o encontrada',
+  circle: 'C\u00edrculo',
+  public: 'P\u00fablico',
+  editRecommendation: 'Editar indica\u00e7\u00e3o',
+  deleteRecommendation: 'Excluir indica\u00e7\u00e3o',
+  messageLabel: 'Mensagem',
+  noMessage: 'Sem mensagem adicionada nesta indica\u00e7\u00e3o.',
+  discussionDisabled: 'Discuss\u00e3o desativada para esta indica\u00e7\u00e3o.',
+  comments: 'Coment\u00e1rios',
+  commentSingular: 'coment\u00e1rio',
+  visitorDiscussionHint: 'Modo visitante: voc\u00ea pode ler a conversa, mas sem comentar ou atualizar status.',
+  visitorReadOnlyHint: 'Modo visitante: leitura liberada, intera\u00e7\u00f5es bloqueadas.',
+  discussionLabel: 'Discuss\u00e3o',
+  watched: 'J\u00e1 vi',
+  deleteTitle: 'Excluir indica\u00e7\u00e3o?',
+  deleteDescription: 'Esta a\u00e7\u00e3o n\u00e3o pode ser desfeita. A indica\u00e7\u00e3o e todos os coment\u00e1rios ser\u00e3o removidos.',
+  saveChanges: 'Salvar altera\u00e7\u00f5es',
+} as const;
+
 const VISIBILITY_CONFIG = {
   private: { icon: Lock, label: 'Privado' },
-  connections: { icon: Users, label: 'Círculo' },
-  public: { icon: Globe, label: 'Público' },
+  connections: { icon: Users, label: COPY.circle },
+  public: { icon: Globe, label: COPY.public },
 } as const;
 
 export function RecommendationDetail() {
@@ -141,7 +161,7 @@ export function RecommendationDetail() {
   }, []);
 
   if (dataLoading || cardLoading) return <LoadingScreen />;
-  if (cardNotFound || !card) return <div className="p-8 text-center">Indicação não encontrada</div>;
+  if (cardNotFound || !card) return <div className="p-8 text-center">{COPY.notFound}</div>;
 
   const { recommendation, item, fromUser, toUser, comments } = card;
   const displayYear = item.year ?? tmdb?.year;
@@ -278,7 +298,7 @@ export function RecommendationDetail() {
           </button>
         </header>
 
-        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:gap-10 lg:items-start lg:pt-6">
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start lg:gap-10 lg:pt-6">
           <div className="min-w-0">
             <div className="px-4 pt-3 pb-2 lg:px-0 lg:pt-0 lg:pb-0">
               <article className="lg:py-4">
@@ -294,7 +314,7 @@ export function RecommendationDetail() {
                   </Link>
                   <span className="ml-auto shrink-0 text-xs text-zinc-600">{getRelativeTime(recommendation.created_at)}</span>
 
-                  {showMenu && (
+                  {showMenu ? (
                     <div className="relative" ref={menuRef}>
                       <button
                         onClick={() => {
@@ -309,25 +329,25 @@ export function RecommendationDetail() {
                       >
                         <MoreVertical size={16} />
                       </button>
-                      {menuOpen && !isToUser && (
+                      {menuOpen && !isToUser ? (
                         <div className="absolute right-0 top-full z-30 mt-1 w-44 overflow-hidden rounded-xl border border-zinc-800 bg-zinc-900 shadow-xl">
-                          {isFromUser && (
+                          {isFromUser ? (
                             <>
                               <button onClick={handleOpenEdit} className="flex w-full items-center gap-2.5 px-4 py-3 text-sm text-zinc-300 transition-colors hover:bg-zinc-800">
-                                <Pencil size={15} /> Editar indicação
+                                <Pencil size={15} /> {COPY.editRecommendation}
                               </button>
                               <button onClick={handleOpenDelete} className="flex w-full items-center gap-2.5 border-t border-zinc-800/60 px-4 py-3 text-sm text-rose-400 transition-colors hover:bg-zinc-800">
-                                <Trash2 size={15} /> Excluir indicação
+                                <Trash2 size={15} /> {COPY.deleteRecommendation}
                               </button>
                             </>
-                          )}
+                          ) : null}
                         </div>
-                      )}
+                      ) : null}
                     </div>
-                  )}
+                  ) : null}
                 </div>
 
-                <div className="mt-5 flex gap-2.5 items-stretch lg:hidden">
+                <div className="mt-5 flex items-stretch gap-2.5 lg:hidden">
                   <Link to={`/item/${item.id}`} className="shrink-0">
                     <img src={item.image} alt={item.title} className="h-20 w-14 rounded-lg object-cover ring-1 ring-white/10" />
                   </Link>
@@ -335,12 +355,12 @@ export function RecommendationDetail() {
                     <Link to={`/item/${item.id}`}>
                       <h2 className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-100 hover:underline">{item.title}</h2>
                     </Link>
-                    {(displayYear || tmdb?.country) && (
+                    {(displayYear || tmdb?.country) ? (
                       <p className="text-[11px] text-zinc-500">
-                        {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
+                        {[displayYear, tmdb?.country].filter(Boolean).join(' \u00b7 ')}
                       </p>
-                    )}
-                    {VisibilityIcon && <VisibilityIcon size={12} className="mt-1 text-zinc-600" />}
+                    ) : null}
+                    {VisibilityIcon ? <VisibilityIcon size={12} className="mt-1 text-zinc-600" /> : null}
                   </div>
                 </div>
 
@@ -350,23 +370,23 @@ export function RecommendationDetail() {
                       {item.title}
                     </h2>
                   </Link>
-                  {(displayYear || tmdb?.country) && (
+                  {(displayYear || tmdb?.country) ? (
                     <p className="mt-3 text-base text-zinc-500">
-                      {[displayYear, tmdb?.country].filter(Boolean).join(' · ')}
+                      {[displayYear, tmdb?.country].filter(Boolean).join(' \u00b7 ')}
                     </p>
-                  )}
+                  ) : null}
                 </div>
 
                 {recommendation.message ? (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
-                    <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">Mensagem</p>
+                    <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">{COPY.messageLabel}</p>
                     <p className="mt-3 text-sm italic leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
                       "{recommendation.message}"
                     </p>
                   </div>
                 ) : (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
-                    <p className="text-sm text-zinc-500 lg:text-base">Sem mensagem adicionada nesta indicação.</p>
+                    <p className="text-sm text-zinc-500 lg:text-base">{COPY.noMessage}</p>
                   </div>
                 )}
               </article>
@@ -375,12 +395,13 @@ export function RecommendationDetail() {
             <div className="flex-1 px-3 py-3 pb-24 lg:px-0 lg:py-6">
               <section className="border-t border-zinc-800/50 pt-6 lg:pt-7">
                 {!recommendation.discussion_enabled ? (
-                  <p className="py-8 text-center text-xs text-zinc-600 lg:py-16 lg:text-base">Discussão desativada para esta indicação.</p>
+                  <p className="py-8 text-center text-xs text-zinc-600 lg:py-16 lg:text-base">{COPY.discussionDisabled}</p>
                 ) : (
                   <>
                     <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600 lg:mb-5">
-                      {comments.length > 0 ? `${comments.length} comentário${comments.length > 1 ? 's' : ''}` : 'Comentários'}
+                      {comments.length > 0 ? `${comments.length} ${COPY.commentSingular}${comments.length > 1 ? 's' : ''}` : COPY.comments}
                     </p>
+
                     <div className="space-y-3 lg:space-y-5">
                       {comments.map(comment => {
                         if (!comment.user) return null;
@@ -400,16 +421,15 @@ export function RecommendationDetail() {
                           </div>
                         );
                       })}
-                      {comments.length === 0 && (
+
+                      {comments.length === 0 ? (
                         <p className="py-6 text-center text-xs text-zinc-600 lg:py-16 lg:text-base">Seja o primeiro a comentar.</p>
-                      )}
+                      ) : null}
                     </div>
 
-                    {isReadOnly && (
-                      <p className="mt-6 text-xs leading-relaxed text-zinc-500 lg:text-sm">
-                        Modo visitante: voce pode ler a conversa, mas sem comentar ou atualizar status.
-                      </p>
-                    )}
+                    {isReadOnly ? (
+                      <p className="mt-6 text-xs leading-relaxed text-zinc-500 lg:text-sm">{COPY.visitorDiscussionHint}</p>
+                    ) : null}
 
                     {!isReadOnly ? (
                       <form onSubmit={handleSendComment} className="mt-8 hidden items-center gap-3 lg:flex">
@@ -428,9 +448,7 @@ export function RecommendationDetail() {
                         </div>
                       </form>
                     ) : (
-                      <p className="mt-8 hidden text-sm leading-relaxed text-zinc-500 lg:block">
-                        Modo visitante: leitura liberada, interacoes bloqueadas.
-                      </p>
+                      <p className="mt-8 hidden text-sm leading-relaxed text-zinc-500 lg:block">{COPY.visitorReadOnlyHint}</p>
                     )}
                   </>
                 )}
@@ -443,22 +461,22 @@ export function RecommendationDetail() {
               <img src={item.image} alt={item.title} className="h-[320px] w-[214px] rounded-[24px] object-cover ring-1 ring-white/10" />
               <p className="mt-5 text-[11px] uppercase tracking-[0.22em] text-zinc-500">Ficha</p>
               <h3 className="mt-3 text-[28px] font-medium leading-tight text-zinc-100">{item.title}</h3>
-              {(displayYear || tmdb?.country) && (
-                <p className="mt-2 text-sm text-zinc-500">{[displayYear, tmdb?.country].filter(Boolean).join(' · ')}</p>
-              )}
+              {(displayYear || tmdb?.country) ? (
+                <p className="mt-2 text-sm text-zinc-500">{[displayYear, tmdb?.country].filter(Boolean).join(' \u00b7 ')}</p>
+              ) : null}
 
               <div className="mt-6 space-y-4 border-t border-zinc-800/60 pt-6">
                 <MetaRow label="De" userName={fromUser.name} userId={fromUser.id} />
                 <MetaRow label="Para" userName={toUser.name} userId={toUser.id} />
                 <MetaValue label="Visibilidade" value={visibilityConfig?.label ?? 'Indefinida'} icon={VisibilityIcon ? <VisibilityIcon size={16} /> : undefined} />
-                <MetaValue label="Discussão" value={recommendation.discussion_enabled ? 'Permitida' : 'Desativada'} />
+                <MetaValue label={COPY.discussionLabel} value={recommendation.discussion_enabled ? 'Permitida' : 'Desativada'} />
                 <MetaValue label="Enviada" value={getRelativeTime(recommendation.created_at)} />
               </div>
             </div>
           </aside>
         </div>
 
-        {recommendation.discussion_enabled && !isReadOnly && (
+        {recommendation.discussion_enabled && !isReadOnly ? (
           <div className="fixed bottom-0 left-0 right-0 z-20 border-t border-zinc-800/50 bg-zinc-950/90 px-3 py-2 backdrop-blur-xl lg:hidden">
             <div className="mx-auto max-w-md">
               <form onSubmit={handleSendComment} className="relative flex items-center gap-2">
@@ -468,7 +486,7 @@ export function RecommendationDetail() {
                   value={newComment}
                   onChange={event => setNewComment(event.target.value)}
                   placeholder="Comentar..."
-                  className="flex-1 rounded-full bg-zinc-900 py-2 pl-4 pr-10 text-xs text-zinc-100 placeholder:text-zinc-600 outline-none ring-1 ring-zinc-800 focus:ring-zinc-700"
+                  className="flex-1 rounded-full bg-zinc-900 py-2 pl-4 pr-10 text-xs text-zinc-100 outline-none ring-1 ring-zinc-800 placeholder:text-zinc-600 focus:ring-zinc-700"
                 />
                 <button type="submit" disabled={!newComment.trim()} className="absolute right-1 p-1.5 text-zinc-100 transition-colors disabled:text-zinc-700">
                   <Send size={16} />
@@ -476,9 +494,9 @@ export function RecommendationDetail() {
               </form>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {showStatusSheet && (
+        {showStatusSheet ? (
           <div className="fixed inset-0 z-50 flex items-end lg:items-center lg:justify-center" onClick={closeStatusSheet}>
             <div
               className={cn(
@@ -512,12 +530,12 @@ export function RecommendationDetail() {
                 onPointerCancel={handleStatusSheetPointerEnd}
               >
                 <h2 className="text-2xl font-medium tracking-tight text-zinc-100">{item.title}</h2>
-                {displayYear && <p className="mt-1 text-lg text-zinc-400">{displayYear}</p>}
+                {displayYear ? <p className="mt-1 text-lg text-zinc-400">{displayYear}</p> : null}
               </div>
 
               <div className="grid grid-cols-3 divide-x divide-zinc-700/70">
                 <StatusAction
-                  label="Já vi"
+                  label={COPY.watched}
                   active={status === 'watched'}
                   tone="watched"
                   icon={<Eye size={34} strokeWidth={1.75} />}
@@ -540,14 +558,14 @@ export function RecommendationDetail() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {showDeleteConfirm && (
+        {showDeleteConfirm ? (
           <div className="fixed inset-0 z-50 flex items-center justify-center px-6">
             <div className="absolute inset-0 bg-zinc-950/80 backdrop-blur-sm" onClick={() => setShowDeleteConfirm(false)} />
             <div className="relative w-full max-w-sm rounded-2xl border border-zinc-800 bg-zinc-900 p-5 shadow-xl">
-              <h2 className="mb-1 text-base font-bold text-zinc-100">Excluir indicação?</h2>
-              <p className="mb-6 text-sm text-zinc-400">Esta ação não pode ser desfeita. A indicação e todos os comentários serão removidos.</p>
+              <h2 className="mb-1 text-base font-bold text-zinc-100">{COPY.deleteTitle}</h2>
+              <p className="mb-6 text-sm text-zinc-400">{COPY.deleteDescription}</p>
               <div className="flex gap-3">
                 <button
                   onClick={() => setShowDeleteConfirm(false)}
@@ -564,9 +582,9 @@ export function RecommendationDetail() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
 
-        {showEdit && (
+        {showEdit ? (
           <div className="fixed inset-0 z-50 bg-zinc-950">
             <div className="mx-auto flex min-h-screen max-w-md flex-col bg-zinc-950 lg:max-w-[1320px] lg:bg-transparent lg:px-8 lg:py-8">
               <div className="flex min-h-screen flex-col lg:min-h-[calc(100vh-64px)] lg:rounded-[32px] lg:border lg:border-zinc-800/70 lg:bg-zinc-950/92 lg:px-10 lg:py-8">
@@ -574,7 +592,7 @@ export function RecommendationDetail() {
                   <button onClick={() => setShowEdit(false)} className="p-1 text-zinc-100">
                     <ArrowLeft size={20} />
                   </button>
-                  <h2 className="text-sm font-medium text-zinc-100 lg:text-[32px] lg:tracking-tight">Editar indicação</h2>
+                  <h2 className="text-sm font-medium text-zinc-100 lg:text-[32px] lg:tracking-tight">{COPY.editRecommendation}</h2>
                 </header>
 
                 <div className="flex-1 overflow-y-auto p-4 lg:px-0 lg:pt-10">
@@ -584,7 +602,7 @@ export function RecommendationDetail() {
                     message={editMessage}
                     visibility={editVisibility}
                     discussionEnabled={editDiscussionEnabled}
-                    submitLabel={isSavingEdit ? 'Salvando...' : 'Salvar alterações'}
+                    submitLabel={isSavingEdit ? 'Salvando...' : COPY.saveChanges}
                     onMessageChange={setEditMessage}
                     onVisibilityChange={setEditVisibility}
                     onDiscussionEnabledChange={setEditDiscussionEnabled}
@@ -595,7 +613,7 @@ export function RecommendationDetail() {
               </div>
             </div>
           </div>
-        )}
+        ) : null}
       </DesktopPage>
     </DesktopFrame>
   );

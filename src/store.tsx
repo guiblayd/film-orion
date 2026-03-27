@@ -426,10 +426,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setCurrentUser(previousCurrentUser);
       setUsers(previousUsers);
 
-      if (error.code === '23505') return 'Esse @username ja esta em uso.';
-      if (error.message.includes('profiles_username_format_check')) return 'Use apenas letras minusculas, numeros e underscore.';
-      if (error.message.includes('profiles_username_reserved_check')) return 'Esse @username nao esta disponivel.';
-      return 'Nao foi possivel atualizar seu perfil agora.';
+      if (error.code === '23505') return 'Esse @username j\u00e1 est\u00e1 em uso.';
+      if (error.message.includes('profiles_username_format_check')) return 'Use apenas letras min\u00fasculas, n\u00fameros e underscore.';
+      if (error.message.includes('profiles_username_reserved_check')) return 'Esse @username n\u00e3o est\u00e1 dispon\u00edvel.';
+      return 'N\u00e3o foi poss\u00edvel atualizar seu perfil agora.';
     }
 
     return null;

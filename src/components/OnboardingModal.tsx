@@ -37,7 +37,7 @@ export function OnboardingModal() {
             <span className="text-xs font-semibold uppercase tracking-[0.22em] text-zinc-400">Primeiros passos</span>
             <h2 className="mt-3 text-2xl font-semibold tracking-tight text-zinc-100">Vamos montar seu gosto inicial.</h2>
             <p className="mt-2 max-w-xl text-sm leading-relaxed text-zinc-400">
-              Escolha alguns formatos, generos e streamings favoritos para o app te recomendar melhor mesmo antes de voce seguir pessoas.
+              Escolha alguns formatos, gêneros e streamings favoritos para o app te recomendar melhor mesmo antes de você seguir pessoas.
             </p>
           </div>
           <button onClick={skipOnboarding} className="rounded-full border border-zinc-800 p-2 text-zinc-500 hover:text-zinc-200">
@@ -49,7 +49,7 @@ export function OnboardingModal() {
           <PreferenceGroup title="Formatos">
             {[
               { value: 'movie', label: 'Filmes' },
-              { value: 'series', label: 'Series' },
+              { value: 'series', label: 'Séries' },
               { value: 'anime', label: 'Animes' },
             ].map(option => (
               <PreferenceChip
@@ -62,7 +62,7 @@ export function OnboardingModal() {
             ))}
           </PreferenceGroup>
 
-          <PreferenceGroup title="Generos">
+          <PreferenceGroup title="Gêneros">
             {ONBOARDING_GENRES.map(genre => (
               <PreferenceChip
                 key={genre}
@@ -92,7 +92,7 @@ export function OnboardingModal() {
             onClick={submit}
             className="flex-1 rounded-2xl bg-zinc-100 px-4 py-3 text-sm font-medium text-zinc-950 hover:bg-white"
           >
-            Salvar preferencias
+            Salvar preferências
           </button>
           <button
             onClick={skipOnboarding}

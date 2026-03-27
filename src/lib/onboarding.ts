@@ -2,11 +2,11 @@ import { OnboardingPreferences } from '../types';
 
 export const ONBOARDING_GENRES = [
   'Drama',
-  'Ficcao cientifica',
+  'Ficção científica',
   'Suspense',
-  'Comedia',
+  'Comédia',
   'Romance',
-  'Animacao',
+  'Animação',
 ] as const;
 
 export const ONBOARDING_PROVIDERS = [

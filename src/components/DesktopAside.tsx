@@ -58,7 +58,7 @@ export function DesktopAside() {
           {copy.description}
         </p>
         <p className="mt-4 text-sm leading-7 text-zinc-600">
-          As sugestoes aparecem conforme a atividade e as conexoes do seu circulo.
+          {'As sugest\u00f5es aparecem conforme a atividade e as conex\u00f5es do seu c\u00edrculo.'}
         </p>
       </section>
 
