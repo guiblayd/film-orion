@@ -7,7 +7,6 @@ FilmOrion é um aplicativo de recomendações de filmes, séries e animes. A pro
 
 
 
-O foco do produto não é ser uma rede social genérica. O centro da experiência é a indicação em si.
 
 ## Visão geral
 
