@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Settings, X, Camera, Loader2, LogOut, TriangleAlert } from 'lucide-react';
+import { ArrowLeft, Settings, X, Camera, Loader2, LogOut, TriangleAlert, Bell, BellOff } from 'lucide-react';
 import { useStore } from '../store';
 import { RecommendationCard } from './RecommendationCard';
 import { AvatarCropper } from './AvatarCropper';
@@ -12,6 +12,7 @@ import { formatUsername, sanitizeUsername, validateUsername } from '../lib/usern
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 import { Database } from '../types/database';
 import { useAuth } from '../contexts/AuthContext';
+import { subscribeToPush } from '../lib/push';
 
 type Tab = 'received' | 'made' | 'watchlist' | 'watched';
 
@@ -33,6 +34,9 @@ export function Profile() {
   const [uploading, setUploading] = useState(false);
   const [authActionLoading, setAuthActionLoading] = useState<'signout' | 'delete' | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission | null>(
+    typeof Notification !== 'undefined' ? Notification.permission : null,
+  );
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [receivedCards, setReceivedCards] = useState<RecommendationCardData[]>([]);
   const [madeCards, setMadeCards] = useState<RecommendationCardData[]>([]);
@@ -610,6 +614,31 @@ export function Profile() {
                 >
                   Salvar
                 </button>
+
+                {pushPermission !== null && (
+                  <div className="mt-6 border-t border-zinc-800 pt-4">
+                    <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">Notificações</p>
+                    {pushPermission === 'granted' ? (
+                      <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400 lg:rounded-2xl">
+                        <Bell size={15} /> Notificações ativadas
+                      </div>
+                    ) : pushPermission === 'denied' ? (
+                      <div className="flex items-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm text-zinc-500 lg:rounded-2xl">
+                        <BellOff size={15} /> Bloqueadas — ative nas configurações do browser
+                      </div>
+                    ) : (
+                      <button
+                        onClick={async () => {
+                          await subscribeToPush(currentUser.id);
+                          setPushPermission(Notification.permission);
+                        }}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
+                      >
+                        <Bell size={15} /> Ativar notificações
+                      </button>
+                    )}
+                  </div>
+                )}
 
                 <div className="mt-6 border-t border-zinc-800 pt-4 lg:mt-8">
                   <button
