@@ -511,7 +511,7 @@ export function Profile() {
         <div className="fixed inset-0 z-[60] flex items-end lg:items-center lg:justify-center" onClick={() => setShowSettings(false)}>
           <div className="absolute inset-0 bg-zinc-950/70 backdrop-blur-sm" />
           <div
-            className="relative mx-auto w-full max-w-md rounded-t-2xl border-t border-zinc-800 bg-zinc-900 p-5 lg:max-w-4xl lg:rounded-3xl lg:border lg:border-zinc-800 lg:p-7"
+            className="relative mx-auto w-full max-w-md overflow-y-auto rounded-t-2xl border-t border-zinc-800 bg-zinc-900 p-5 max-h-[90dvh] lg:max-h-[85vh] lg:max-w-4xl lg:rounded-3xl lg:border lg:border-zinc-800 lg:p-7"
             onClick={event => event.stopPropagation()}
           >
             <div className="mb-6 flex items-center justify-between">
