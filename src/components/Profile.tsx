@@ -12,7 +12,7 @@ import { formatUsername, sanitizeUsername, validateUsername } from '../lib/usern
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 import { Database } from '../types/database';
 import { useAuth } from '../contexts/AuthContext';
-import { subscribeToPush } from '../lib/push';
+import { subscribeToPush, unsubscribeFromPush, getPushSubscribed } from '../lib/push';
 
 type Tab = 'received' | 'made' | 'watchlist' | 'watched';
 
@@ -37,6 +37,11 @@ export function Profile() {
   const [pushPermission, setPushPermission] = useState<NotificationPermission | null>(
     typeof Notification !== 'undefined' ? Notification.permission : null,
   );
+  const [pushSubscribed, setPushSubscribed] = useState(false);
+
+  useEffect(() => {
+    if (showSettings) void getPushSubscribed().then(setPushSubscribed);
+  }, [showSettings]);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [receivedCards, setReceivedCards] = useState<RecommendationCardData[]>([]);
   const [madeCards, setMadeCards] = useState<RecommendationCardData[]>([]);
@@ -607,14 +612,20 @@ export function Profile() {
                 {pushPermission !== null && (
                   <div className="mt-6 border-t border-zinc-800 pt-4">
                     <p className="mb-2 text-xs font-medium uppercase tracking-wide text-zinc-500">Notificações</p>
-                    {pushPermission === 'granted' ? (
-                      <div className="flex items-center gap-2 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-400 lg:rounded-2xl">
-                        <Bell size={15} /> Notificações ativadas
-                      </div>
-                    ) : pushPermission === 'denied' ? (
+                    {pushPermission === 'denied' ? (
                       <div className="flex items-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm text-zinc-500 lg:rounded-2xl">
                         <BellOff size={15} /> Bloqueadas — ative nas configurações do browser
                       </div>
+                    ) : pushSubscribed ? (
+                      <button
+                        onClick={async () => {
+                          await unsubscribeFromPush(currentUser.id);
+                          setPushSubscribed(false);
+                        }}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
+                      >
+                        <BellOff size={15} /> Desativar notificações
+                      </button>
                     ) : (
                       <button
                         onClick={async () => {
@@ -622,6 +633,7 @@ export function Profile() {
                           setPushPermission(permission);
                           if (permission === 'granted') {
                             await subscribeToPush(currentUser.id);
+                            setPushSubscribed(true);
                           }
                         }}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
