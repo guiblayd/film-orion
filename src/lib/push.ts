@@ -9,11 +9,13 @@ function urlB64ToUint8Array(base64String: string): Uint8Array {
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
 }
 
-export async function getPushSubscribed(): Promise<boolean> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
-  const registration = await navigator.serviceWorker.ready;
-  const sub = await registration.pushManager.getSubscription();
-  return sub !== null;
+export async function getPushSubscribed(userId: string): Promise<boolean> {
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return false;
+  const { count } = await supabase
+    .from('push_subscriptions')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId);
+  return (count ?? 0) > 0;
 }
 
 export async function subscribeToPush(userId: string): Promise<void> {

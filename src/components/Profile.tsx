@@ -40,12 +40,12 @@ export function Profile() {
   const [pushSubscribed, setPushSubscribed] = useState(false);
 
   useEffect(() => {
-    void getPushSubscribed().then(setPushSubscribed);
-  }, []);
+    if (currentUser.id) void getPushSubscribed(currentUser.id).then(setPushSubscribed);
+  }, [currentUser.id]);
 
   useEffect(() => {
-    if (showSettings) void getPushSubscribed().then(setPushSubscribed);
-  }, [showSettings]);
+    if (showSettings && currentUser.id) void getPushSubscribed(currentUser.id).then(setPushSubscribed);
+  }, [showSettings, currentUser.id]);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [receivedCards, setReceivedCards] = useState<RecommendationCardData[]>([]);
   const [madeCards, setMadeCards] = useState<RecommendationCardData[]>([]);
