@@ -380,7 +380,7 @@ export function RecommendationDetail() {
                 {recommendation.message ? (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
                     <p className="text-xs text-zinc-500">{COPY.messageLabel}</p>
-                    <p className="mt-3 text-sm italic leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
+                    <p className="mt-3 text-sm leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
                       "{recommendation.message}"
                     </p>
                   </div>
