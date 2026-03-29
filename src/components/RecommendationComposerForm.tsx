@@ -1,6 +1,5 @@
 import React from 'react';
 import { Globe, Lock, Users } from 'lucide-react';
-import { formatUsername } from '../lib/username';
 import { Item, Recommendation, User } from '../types';
 
 const VISIBILITY_OPTIONS = [
@@ -36,7 +35,6 @@ function SummaryCard({
             />
             <span className="truncate text-xs font-medium text-zinc-100 lg:text-base">{user.name}</span>
           </div>
-          <span className="ml-5 block text-[11px] text-zinc-500 lg:ml-10 lg:text-sm">{formatUsername(user.username)}</span>
         </div>
         <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-100 lg:text-[28px] lg:font-medium lg:leading-tight">{item.title}</p>
         {item.year && <p className="mt-1 text-xs text-zinc-600 lg:text-base">{item.year}</p>}
