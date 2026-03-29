@@ -126,6 +126,20 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     };
 
     loadInitial();
+
+    const uid = isGuest ? null : session?.user?.id;
+    if (!uid) return;
+
+    const channel = supabase
+      .channel(`notifications:${uid}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'notifications', filter: `recipient_id=eq.${uid}` },
+        () => { setUnreadNotificationsCount(prev => prev + 1); }
+      )
+      .subscribe();
+
+    return () => { void supabase.removeChannel(channel); };
   }, [session?.user?.id, isGuest, refreshUnreadNotificationsCount]);
 
   const addRecommendation = async (rec: Omit<Recommendation, 'id' | 'created_at'>) => {

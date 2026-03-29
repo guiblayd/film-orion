@@ -6,6 +6,7 @@ import { Auth } from './components/Auth';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Navigation } from './components/Navigation';
 import { DesktopFrame } from './components/DesktopFrame';
+import { subscribeToPush } from './lib/push';
 
 const Feed = lazy(() => import('./components/Feed').then(module => ({ default: module.Feed })));
 const Explore = lazy(() => import('./components/Explore').then(module => ({ default: module.Explore })));
@@ -33,7 +34,14 @@ function Layout() {
 }
 
 function AppRoutes() {
-  const { dataLoading } = useStore();
+  const { dataLoading, currentUser, isGuest } = useStore();
+
+  useEffect(() => {
+    if (!dataLoading && !isGuest && currentUser.id) {
+      void subscribeToPush(currentUser.id);
+    }
+  }, [dataLoading, isGuest, currentUser.id]);
+
   if (dataLoading) return <LoadingScreen />;
   return (
     <Suspense fallback={<LoadingScreen />}>
