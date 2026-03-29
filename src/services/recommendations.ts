@@ -179,6 +179,7 @@ function toRecommendation(recommendation: Database['public']['Tables']['recommen
     to_user_id: recommendation.to_user_id,
     item_id: recommendation.item_id,
     message: recommendation.message ?? undefined,
+    has_spoiler: recommendation.has_spoiler ?? false,
     discussion_enabled: recommendation.discussion_enabled,
     visibility: (recommendation.visibility ?? 'connections') as Recommendation['visibility'],
     created_at: recommendation.created_at,

@@ -300,6 +300,7 @@ export type Database = {
           created_at: string
           discussion_enabled: boolean
           from_user_id: string
+          has_spoiler: boolean
           id: string
           item_id: string
           message: string | null
@@ -310,6 +311,7 @@ export type Database = {
           created_at?: string
           discussion_enabled?: boolean
           from_user_id: string
+          has_spoiler?: boolean
           id?: string
           item_id: string
           message?: string | null
@@ -320,6 +322,7 @@ export type Database = {
           created_at?: string
           discussion_enabled?: boolean
           from_user_id?: string
+          has_spoiler?: boolean
           id?: string
           item_id?: string
           message?: string | null

@@ -73,9 +73,11 @@ export function RecommendationDetail() {
   const [statusSheetOffset, setStatusSheetOffset] = useState(0);
   const [showEdit, setShowEdit] = useState(false);
   const [editMessage, setEditMessage] = useState('');
+  const [editHasSpoiler, setEditHasSpoiler] = useState(false);
   const [editVisibility, setEditVisibility] = useState<Recommendation['visibility']>('connections');
   const [editDiscussionEnabled, setEditDiscussionEnabled] = useState(true);
   const [isSavingEdit, setIsSavingEdit] = useState(false);
+  const [spoilerRevealed, setSpoilerRevealed] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [card, setCard] = useState<RecommendationCardData | null>(null);
   const [cardLoading, setCardLoading] = useState(true);
@@ -249,6 +251,7 @@ export function RecommendationDetail() {
 
   const handleOpenEdit = () => {
     setEditMessage(recommendation.message ?? '');
+    setEditHasSpoiler(recommendation.has_spoiler);
     setEditVisibility(recommendation.visibility);
     setEditDiscussionEnabled(recommendation.discussion_enabled);
     setMenuOpen(false);
@@ -260,6 +263,7 @@ export function RecommendationDetail() {
     try {
       const updatedRecommendation = await editRecommendation(recommendation.id, {
         message: editMessage.trim() || undefined,
+        has_spoiler: editHasSpoiler,
         visibility: editVisibility,
         discussion_enabled: editDiscussionEnabled,
       });
@@ -379,10 +383,26 @@ export function RecommendationDetail() {
 
                 {recommendation.message ? (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
-                    <p className="text-xs text-zinc-500">{COPY.messageLabel}</p>
-                    <p className="mt-3 text-sm leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
-                      {recommendation.message}
-                    </p>
+                    <div className="mb-3 flex items-center gap-2">
+                      <p className="text-xs text-zinc-500">{COPY.messageLabel}</p>
+                      {recommendation.has_spoiler && (
+                        <span className="rounded-full bg-amber-500/15 px-2 py-0.5 text-[10px] font-medium text-amber-400">spoiler</span>
+                      )}
+                    </div>
+                    {recommendation.has_spoiler && !spoilerRevealed ? (
+                      <button
+                        type="button"
+                        onClick={() => setSpoilerRevealed(true)}
+                        className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-900/60 py-4 text-xs font-medium text-zinc-500 transition-colors hover:bg-zinc-900 hover:text-zinc-300 lg:rounded-2xl lg:py-5 lg:text-sm"
+                      >
+                        <Eye size={14} />
+                        Revelar mensagem
+                      </button>
+                    ) : (
+                      <p className="text-sm leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
+                        {recommendation.message}
+                      </p>
+                    )}
                   </div>
                 ) : (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
@@ -600,10 +620,12 @@ export function RecommendationDetail() {
                     item={item}
                     user={toUser}
                     message={editMessage}
+                    hasSpoiler={editHasSpoiler}
                     visibility={editVisibility}
                     discussionEnabled={editDiscussionEnabled}
                     submitLabel={isSavingEdit ? 'Salvando...' : COPY.saveChanges}
                     onMessageChange={setEditMessage}
+                    onHasSpoilerChange={setEditHasSpoiler}
                     onVisibilityChange={setEditVisibility}
                     onDiscussionEnabledChange={setEditDiscussionEnabled}
                     onSubmit={handleSaveEdit}

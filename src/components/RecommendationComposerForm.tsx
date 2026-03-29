@@ -49,12 +49,14 @@ type RecommendationComposerFormProps = {
   item: Item;
   user: User;
   message: string;
+  hasSpoiler: boolean;
   visibility: Recommendation['visibility'];
   discussionEnabled: boolean;
   submitLabel: string;
   summaryLabel?: string;
   submitting?: boolean;
   onMessageChange: (value: string) => void;
+  onHasSpoilerChange: (value: boolean) => void;
   onVisibilityChange: (value: Recommendation['visibility']) => void;
   onDiscussionEnabledChange: (value: boolean) => void;
   onSubmit: () => void | Promise<void>;
@@ -64,12 +66,14 @@ export function RecommendationComposerForm({
   item,
   user,
   message,
+  hasSpoiler,
   visibility,
   discussionEnabled,
   submitLabel,
   summaryLabel = 'Indicando para',
   submitting = false,
   onMessageChange,
+  onHasSpoilerChange,
   onVisibilityChange,
   onDiscussionEnabledChange,
   onSubmit,
@@ -79,9 +83,24 @@ export function RecommendationComposerForm({
       <SummaryCard item={item} user={user} label={summaryLabel} />
 
       <div className="lg:pt-2">
-        <label className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-zinc-500 lg:text-[13px] lg:normal-case lg:tracking-normal">
-          Mensagem (opcional)
-        </label>
+        <div className="mb-1.5 flex items-center justify-between">
+          <label className="text-xs font-medium uppercase tracking-wide text-zinc-500 lg:text-[13px] lg:normal-case lg:tracking-normal">
+            Mensagem (opcional)
+          </label>
+          <label className="flex cursor-pointer items-center gap-2">
+            <span className="text-xs text-zinc-500">Contém spoiler</span>
+            <span className="relative inline-flex items-center">
+              <input
+                type="checkbox"
+                className="peer sr-only"
+                checked={hasSpoiler}
+                onChange={event => onHasSpoilerChange(event.target.checked)}
+              />
+              <span className="block h-5 w-10 rounded-full bg-zinc-800 transition-colors peer-checked:bg-amber-500/80 lg:h-6 lg:w-12" />
+              <span className="absolute left-[2px] top-[2px] h-4 w-4 rounded-full bg-zinc-400 transition-all peer-checked:translate-x-5 peer-checked:bg-zinc-950 lg:h-5 lg:w-5 lg:peer-checked:translate-x-6" />
+            </span>
+          </label>
+        </div>
         <textarea
           value={message}
           onChange={event => onMessageChange(event.target.value)}

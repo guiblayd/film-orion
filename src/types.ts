@@ -29,6 +29,7 @@ export type Recommendation = {
   to_user_id: string;
   item_id: string;
   message?: string;
+  has_spoiler: boolean;
   discussion_enabled: boolean;
   visibility: 'private' | 'connections' | 'public';
   created_at: string;

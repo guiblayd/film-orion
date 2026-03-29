@@ -24,7 +24,7 @@ type StoreContextType = {
   deleteRecommendation: (id: string) => Promise<void>;
   editRecommendation: (
     id: string,
-    updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
+    updates: Pick<Recommendation, 'message' | 'has_spoiler' | 'discussion_enabled' | 'visibility'>
   ) => Promise<Recommendation | null>;
   toggleInteraction: (recommendationId: string, type: 'support' | 'oppose') => Promise<RecommendationInteraction | null>;
   addComment: (recommendationId: string, content: string) => Promise<Comment | null>;
@@ -152,6 +152,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
         to_user_id: rec.to_user_id,
         item_id: rec.item_id,
         message: rec.message ?? null,
+        has_spoiler: rec.has_spoiler ?? false,
         discussion_enabled: rec.discussion_enabled,
         visibility: rec.visibility,
       })
@@ -191,7 +192,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
 
   const editRecommendation = useCallback(async (
     id: string,
-    updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
+    updates: Pick<Recommendation, 'message' | 'has_spoiler' | 'discussion_enabled' | 'visibility'>
   ) => {
     if (isReadOnly) return null;
 
@@ -199,6 +200,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       .from('recommendations')
       .update({
         message: updates.message ?? null,
+        has_spoiler: updates.has_spoiler ?? false,
         discussion_enabled: updates.discussion_enabled,
         visibility: updates.visibility,
       })
@@ -519,6 +521,7 @@ function toRecommendation(recommendation: Database['public']['Tables']['recommen
     to_user_id: recommendation.to_user_id,
     item_id: recommendation.item_id,
     message: recommendation.message ?? undefined,
+    has_spoiler: recommendation.has_spoiler ?? false,
     discussion_enabled: recommendation.discussion_enabled,
     visibility: (recommendation.visibility ?? 'connections') as Recommendation['visibility'],
     created_at: recommendation.created_at,

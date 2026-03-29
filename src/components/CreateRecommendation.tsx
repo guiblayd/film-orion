@@ -101,6 +101,7 @@ export function CreateRecommendation() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [selectedItem, setSelectedItem] = useState<Item | null>(navItem ?? null);
   const [message, setMessage] = useState('');
+  const [hasSpoiler, setHasSpoiler] = useState(false);
   const [discussionEnabled, setDiscussionEnabled] = useState(true);
   const [visibility, setVisibility] = useState<'private' | 'connections' | 'public'>('connections');
   const [userSearch, setUserSearch] = useState('');
@@ -189,6 +190,7 @@ export function CreateRecommendation() {
       to_user_id: selectedUser.id,
       item_id: selectedItem.id,
       message: message.trim() || undefined,
+      has_spoiler: hasSpoiler,
       discussion_enabled: discussionEnabled,
       visibility,
     });
@@ -382,10 +384,12 @@ export function CreateRecommendation() {
                 item={selectedItem}
                 user={selectedUser}
                 message={message}
+                hasSpoiler={hasSpoiler}
                 visibility={visibility}
                 discussionEnabled={discussionEnabled}
                 submitLabel="Enviar indicação"
                 onMessageChange={setMessage}
+                onHasSpoilerChange={setHasSpoiler}
                 onVisibilityChange={setVisibility}
                 onDiscussionEnabledChange={setDiscussionEnabled}
                 onSubmit={handleCreate}
