@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Item, User } from '../types';
 import { useStore } from '../store';
 import { DesktopPage, DesktopPageHeader } from './DesktopFrame';
-import { getPopularMovies, getPopularTV, getTopRatedMovies, getTrending } from '../services/tmdb';
+import { getPopularMovies, getTopRatedMovies, getTrending, getTrendingTV } from '../services/tmdb';
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 
 function useItemNav() {
@@ -46,10 +46,10 @@ export function Explore() {
     let cancelled = false;
 
     const loadSections = async () => {
-      const [trending, popularMovies, popularTV, topRated] = await Promise.all([
+      const [trending, popularMovies, trendingTV, topRated] = await Promise.all([
         getTrending(),
         getPopularMovies(),
-        getPopularTV(),
+        getTrendingTV(),
         getTopRatedMovies(),
       ]);
 
@@ -58,7 +58,7 @@ export function Explore() {
       setSections([
         { label: 'Em alta esta semana', items: trending },
         { label: 'Filmes populares', items: popularMovies },
-        { label: 'Séries populares', items: popularTV },
+        { label: 'Séries em alta', items: trendingTV },
         { label: 'Melhores avaliados', items: topRated },
       ]);
       setLoading(false);
@@ -207,7 +207,7 @@ function Carousel({
 }
 
 function SkeletonSections() {
-  const labels = ['Em alta esta semana', 'Filmes populares', 'Séries populares', 'Melhores avaliados'];
+  const labels = ['Em alta esta semana', 'Filmes populares', 'Séries em alta', 'Melhores avaliados'];
 
   return (
     <>

@@ -249,6 +249,10 @@ export function getPopularTV(): Promise<Item[]> {
   return fetchList(withKey('/tv/popular', 'language=pt-BR'), mapTV);
 }
 
+export function getTrendingTV(): Promise<Item[]> {
+  return fetchList(withKey('/trending/tv/week', 'language=pt-BR'), mapTV);
+}
+
 export function getTopRatedMovies(): Promise<Item[]> {
   return fetchList(withKey('/movie/top_rated', 'language=pt-BR&region=BR'), mapMovie);
 }
