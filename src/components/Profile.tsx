@@ -525,44 +525,33 @@ export function Profile() {
               </button>
             </div>
 
-            <div className="lg:grid lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-8">
-              <div className="mb-6 lg:mb-0">
-                <div className="flex justify-center lg:justify-start">
-                  <button
-                    className="relative group"
-                    onClick={() => fileInputRef.current?.click()}
-                    disabled={uploading}
-                  >
-                    {uploading ? (
-                      <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 ring-2 ring-zinc-700 lg:h-24 lg:w-24">
-                        <Loader2 size={22} className="animate-spin text-zinc-400" />
+            <div>
+              <div className="mb-5 flex justify-center">
+                <button
+                  className="relative group"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? (
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full bg-zinc-800 ring-2 ring-zinc-700">
+                      <Loader2 size={22} className="animate-spin text-zinc-400" />
+                    </div>
+                  ) : (
+                    <>
+                      <img
+                        src={currentUser.avatar}
+                        alt={currentUser.name}
+                        className="h-16 w-16 rounded-full object-cover ring-2 ring-zinc-700"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                        <Camera size={18} className="text-white" />
                       </div>
-                    ) : (
-                      <>
-                        <img
-                          src={currentUser.avatar}
-                          alt={currentUser.name}
-                          className="h-16 w-16 rounded-full object-cover ring-2 ring-zinc-700 lg:h-24 lg:w-24"
-                        />
-                        <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                          <Camera size={18} className="text-white" />
-                        </div>
-                        <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 shadow-lg lg:h-8 lg:w-8">
-                          <Camera size={12} className="text-zinc-900" />
-                        </div>
-                      </>
-                    )}
-                  </button>
-                </div>
-
-                <div className="mt-5 rounded-[24px] border border-zinc-800/70 p-5">
-                  <p className="text-[11px] uppercase tracking-[0.22em] text-zinc-500">{'Pr\u00e9via'}</p>
-                  <p className="mt-4 text-xl font-medium text-zinc-100">{editName.trim() || 'Seu nome'}</p>
-                  <p className="mt-1 text-sm text-zinc-500">{formatUsername(normalizedUsername || currentUser.username)}</p>
-                  <p className="mt-4 text-sm leading-7 text-zinc-400">
-                    {editBio.trim() || 'Ajuste nome, @username e bio para deixar seu perfil mais claro no desktop e no mobile.'}
-                  </p>
-                </div>
+                      <div className="absolute -bottom-0.5 -right-0.5 flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 shadow-lg">
+                        <Camera size={12} className="text-zinc-900" />
+                      </div>
+                    </>
+                  )}
+                </button>
               </div>
 
               <div>
@@ -629,8 +618,11 @@ export function Profile() {
                     ) : (
                       <button
                         onClick={async () => {
-                          await subscribeToPush(currentUser.id);
-                          setPushPermission(Notification.permission);
+                          const permission = await Notification.requestPermission();
+                          setPushPermission(permission);
+                          if (permission === 'granted') {
+                            await subscribeToPush(currentUser.id);
+                          }
                         }}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
                       >
