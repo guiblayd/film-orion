@@ -7,11 +7,11 @@ import { LoadingScreen } from './components/LoadingScreen';
 import { Navigation } from './components/Navigation';
 import { DesktopFrame } from './components/DesktopFrame';
 import { subscribeToPush } from './lib/push';
+import { Feed } from './components/Feed';
+import { Explore } from './components/Explore';
+import { Notifications } from './components/Notifications';
+import { Profile } from './components/Profile';
 
-const Feed = lazy(() => import('./components/Feed').then(module => ({ default: module.Feed })));
-const Explore = lazy(() => import('./components/Explore').then(module => ({ default: module.Explore })));
-const Notifications = lazy(() => import('./components/Notifications').then(module => ({ default: module.Notifications })));
-const Profile = lazy(() => import('./components/Profile').then(module => ({ default: module.Profile })));
 const CreateRecommendation = lazy(() => import('./components/CreateRecommendation').then(module => ({ default: module.CreateRecommendation })));
 const ItemDetail = lazy(() => import('./components/ItemDetail').then(module => ({ default: module.ItemDetail })));
 const RecommendationDetail = lazy(() => import('./components/RecommendationDetail').then(module => ({ default: module.RecommendationDetail })));
@@ -44,7 +44,7 @@ function AppRoutes() {
 
   if (dataLoading) return <LoadingScreen />;
   return (
-    <Suspense fallback={<LoadingScreen />}>
+    <Suspense fallback={null}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Feed />} />
