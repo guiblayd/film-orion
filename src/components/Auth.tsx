@@ -172,9 +172,6 @@ export function Auth() {
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-zinc-950 px-6 py-12">
       <div className="mb-10 text-center">
-        <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-zinc-100">
-          <span className="text-xl font-semibold text-zinc-950">I</span>
-        </div>
         <h1 className="text-2xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
         <p className="mt-1 text-sm text-zinc-500">{COPY.brandingSubtitle}</p>
       </div>
