@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Loader2, Search } from 'lucide-react';
 import { useStore } from '../store';
-import { formatUsername } from '../lib/username';
 import { getPopularMovies, getTrending, searchTMDB } from '../services/tmdb';
 import { Item, User } from '../types';
 import { DesktopFrame, DesktopPage } from './DesktopFrame';
@@ -41,7 +40,6 @@ function ItemCard({ item, label, user }: { item: Item; label: string; user?: Use
               />
               <span className="truncate text-xs font-medium text-zinc-100 lg:text-base">{user.name}</span>
             </div>
-            <span className="ml-5 block text-[11px] text-zinc-500 lg:ml-10 lg:text-sm">{formatUsername(user.username)}</span>
           </div>
         )}
         <p className="line-clamp-2 text-sm font-semibold leading-snug text-zinc-100 lg:text-[28px] lg:font-medium lg:leading-tight">{item.title}</p>
@@ -86,7 +84,6 @@ function UserPreviewCard({ user, label }: { user: User; label: string }) {
         />
         <div className="min-w-0">
           <p className="truncate text-base font-medium text-zinc-100">{user.name}</p>
-          <p className="truncate text-sm text-zinc-500">{formatUsername(user.username)}</p>
         </div>
       </div>
     </div>
@@ -306,7 +303,6 @@ export function CreateRecommendation() {
                         />
                         <div className="min-w-0">
                           <span className="block truncate text-sm font-medium text-zinc-100 lg:text-base">{user.name}</span>
-                          <span className="block truncate text-xs text-zinc-500 lg:text-sm">{formatUsername(user.username)}</span>
                         </div>
                       </button>
                     ))}
