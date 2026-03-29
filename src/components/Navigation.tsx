@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Compass, PlusSquare, Bell, User as UserIcon } from 'lucide-react';
+import { Home, Compass, PlusSquare, Bell, Shield, User as UserIcon } from 'lucide-react';
 import { useStore } from '../store';
 import { cn } from '../lib/utils';
 
@@ -33,6 +33,14 @@ export function Navigation() {
           label="Perfil"
           icon={UserIcon}
         />
+        {currentUser.is_admin && (
+          <NavigationLink
+            to="/admin"
+            label="Admin"
+            icon={Shield}
+            adminStyle
+          />
+        )}
       </div>
     </nav>
   );
@@ -44,12 +52,14 @@ function NavigationLink({
   icon: Icon,
   badge = 0,
   end = false,
+  adminStyle = false,
 }: {
   to: string;
   label: string;
   icon: React.ComponentType<{ size?: number; className?: string }>;
   badge?: number;
   end?: boolean;
+  adminStyle?: boolean;
 }) {
   return (
     <NavLink
@@ -57,13 +67,13 @@ function NavigationLink({
       end={end}
       className={({ isActive }) => cn(
         'flex-1 flex items-center justify-center',
-        isActive ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
+        adminStyle ? 'text-amber-400' : isActive ? 'text-zinc-100' : 'text-zinc-500 hover:text-zinc-300'
       )}
     >
       {({ isActive }) => (
         <div className={cn(
           'min-w-[56px] px-2 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors',
-          isActive ? 'bg-zinc-900 text-zinc-100' : 'text-inherit'
+          adminStyle ? 'text-amber-400' : isActive ? 'bg-zinc-900 text-zinc-100' : 'text-inherit'
         )}>
           <div className="relative">
             <Icon size={20} />

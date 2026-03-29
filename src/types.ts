@@ -4,6 +4,7 @@ export type User = {
   username: string;
   avatar: string;
   bio?: string;
+  is_admin?: boolean;
 };
 
 export type Connection = {
@@ -61,7 +62,8 @@ export type NotificationType =
   | 'recommendation_received'
   | 'comment_added'
   | 'connection_created'
-  | 'recommendation_status_changed';
+  | 'recommendation_status_changed'
+  | 'admin_message';
 
 export type AppNotification = {
   id: string;

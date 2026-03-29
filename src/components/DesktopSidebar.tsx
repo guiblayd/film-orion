@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, NavLink } from 'react-router-dom';
-import { Bell, Compass, Home, PlusSquare, User as UserIcon } from 'lucide-react';
+import { Bell, Compass, Home, PlusSquare, Shield, User as UserIcon } from 'lucide-react';
 import { useStore } from '../store';
 import { formatUsername } from '../lib/username';
 import { cn } from '../lib/utils';
@@ -47,6 +47,15 @@ export function DesktopSidebar() {
       </div>
 
       <div className="pt-5">
+        {currentUser.is_admin && (
+          <Link
+            to="/admin"
+            className="mb-1 flex items-center gap-2 rounded-full px-2 py-2 text-xs font-medium text-amber-400 transition-colors hover:bg-zinc-900/40"
+          >
+            <Shield size={14} />
+            Painel Admin
+          </Link>
+        )}
         <Link
           to={`/profile/${currentUser.id}`}
           className="group flex items-center gap-3 rounded-full px-2 py-2 transition-colors hover:bg-zinc-900/40"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, Check, MessageSquare, UserPlus } from 'lucide-react';
+import { Bell, Check, Megaphone, MessageSquare, UserPlus } from 'lucide-react';
 import { useStore } from '../store';
 import { supabase } from '../lib/supabase';
 import { AppNotification, Item, User } from '../types';
@@ -219,6 +219,13 @@ function getNotificationConfig(notification: NotificationRow) {
         message: notification.item ? `${action} ${notification.item.title}.` : 'atualizou o status de uma indicação sua.',
       };
     }
+    case 'admin_message':
+      return {
+        href: '/notifications',
+        icon: Megaphone,
+        iconClassName: 'text-amber-400',
+        message: `enviou um aviso: ${String(notification.metadata?.message ?? '')}`,
+      };
     default:
       return {
         href: '/notifications',

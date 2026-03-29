@@ -15,6 +15,7 @@ import { Profile } from './components/Profile';
 const CreateRecommendation = lazy(() => import('./components/CreateRecommendation').then(module => ({ default: module.CreateRecommendation })));
 const ItemDetail = lazy(() => import('./components/ItemDetail').then(module => ({ default: module.ItemDetail })));
 const RecommendationDetail = lazy(() => import('./components/RecommendationDetail').then(module => ({ default: module.RecommendationDetail })));
+const Admin = lazy(() => import('./components/Admin').then(module => ({ default: module.Admin })));
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -55,6 +56,7 @@ function AppRoutes() {
         <Route path="/create" element={<CreateRecommendation />} />
         <Route path="/item/:id" element={<ItemDetail />} />
         <Route path="/recommendation/:id" element={<RecommendationDetail />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </Suspense>
   );

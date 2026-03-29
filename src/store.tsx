@@ -502,6 +502,7 @@ function toUser(profile: Database['public']['Tables']['profiles']['Row']): User 
     username: profile.username,
     avatar: profile.avatar ?? '',
     bio: profile.bio ?? undefined,
+    is_admin: profile.is_admin ?? false,
   };
 }
 
