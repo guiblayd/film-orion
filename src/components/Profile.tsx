@@ -40,6 +40,10 @@ export function Profile() {
   const [pushSubscribed, setPushSubscribed] = useState(false);
 
   useEffect(() => {
+    void getPushSubscribed().then(setPushSubscribed);
+  }, []);
+
+  useEffect(() => {
     if (showSettings) void getPushSubscribed().then(setPushSubscribed);
   }, [showSettings]);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
