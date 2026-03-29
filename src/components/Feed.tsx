@@ -40,7 +40,7 @@ export function Feed() {
       .map(connection => connection.requester_id === currentUser.id ? connection.receiver_id : connection.requester_id)
   ), [connections, currentUser.id]);
 
-  const filtered = cards.filter(card => {
+  const filtered = useMemo(() => cards.filter(card => {
     const { recommendation } = card;
     const isOwn = recommendation.from_user_id === currentUser.id || recommendation.to_user_id === currentUser.id;
     const isConnection =
@@ -50,7 +50,7 @@ export function Feed() {
     if (activeTab === 'para-mim') return recommendation.to_user_id === currentUser.id;
     if (activeTab === 'circulo') return isOwn || (isConnection && recommendation.visibility !== 'private');
     return recommendation.visibility === 'public';
-  });
+  }), [cards, activeTab, currentUser.id, myConnectionIds]);
 
   const emptyMessages: Record<Tab, string> = {
     descobrir: 'Ainda n\u00e3o apareceu nenhuma indica\u00e7\u00e3o p\u00fablica por aqui.',

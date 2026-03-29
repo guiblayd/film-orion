@@ -26,10 +26,13 @@ function VisibilityIcon({
   return <Icon size={size} className="shrink-0 text-zinc-600 opacity-60" />;
 }
 
-export function RecommendationCard({ card }: Props) {
+export const RecommendationCard = React.memo(function RecommendationCard({ card }: Props) {
   const { currentUser } = useStore();
   const { recommendation, item, fromUser, toUser, participants, participantCount } = card;
-  const supportCount = card.interactions.filter(interaction => interaction.type === 'support').length;
+  const supportCount = React.useMemo(
+    () => card.interactions.filter(interaction => interaction.type === 'support').length,
+    [card.interactions],
+  );
   const commentCount = card.comments.length;
   const recipientLabel = toUser.id === currentUser.id ? 'voc\u00ea' : toUser.name;
   const relativeTime = getRelativeTime(recommendation.created_at);
@@ -42,12 +45,14 @@ export function RecommendationCard({ card }: Props) {
       <img
         src={item.image}
         alt={item.title}
+        loading="lazy"
         className="mt-0.5 h-16 w-11 shrink-0 rounded object-cover ring-1 ring-white/10 lg:hidden"
       />
 
       <img
         src={fromUser.avatar}
         alt={fromUser.name}
+        loading="lazy"
         className="mt-0.5 hidden h-11 w-11 shrink-0 rounded-full object-cover ring-1 ring-zinc-800 lg:block"
       />
 
@@ -128,6 +133,7 @@ export function RecommendationCard({ card }: Props) {
             <img
               src={item.image}
               alt={item.title}
+              loading="lazy"
               className="h-[118px] w-20 shrink-0 rounded-xl object-cover ring-1 ring-white/10"
             />
 
@@ -174,7 +180,7 @@ export function RecommendationCard({ card }: Props) {
       </div>
     </Link>
   );
-}
+});
 
 function getItemTypeLabel(type: string) {
   if (type === 'movie') return 'Filme';

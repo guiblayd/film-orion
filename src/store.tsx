@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, ReactNode, useCallback, useMemo } from 'react';
 import { User, Item, Recommendation, RecommendationInteraction, Comment, UserItemStatus, Connection, OnboardingPreferences } from './types';
 import { supabase } from './lib/supabase';
 import { useAuth } from './contexts/AuthContext';
@@ -142,7 +142,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return () => { void supabase.removeChannel(channel); };
   }, [session?.user?.id, isGuest, refreshUnreadNotificationsCount]);
 
-  const addRecommendation = async (rec: Omit<Recommendation, 'id' | 'created_at'>) => {
+  const addRecommendation = useCallback(async (rec: Omit<Recommendation, 'id' | 'created_at'>) => {
     if (isReadOnly) return null;
 
     const { data, error } = await supabase
@@ -164,9 +164,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return data ? toRecommendation(data) : null;
-  };
+  }, [isReadOnly]);
 
-  const saveOnboarding = (preferences: Omit<OnboardingPreferences, 'completed_at'>) => {
+  const saveOnboarding = useCallback((preferences: Omit<OnboardingPreferences, 'completed_at'>) => {
     if (isReadOnly) return;
     if (!currentUser.id) return;
     const saved = saveOnboardingPreferences(currentUser.id, preferences);
@@ -174,22 +174,22 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       setOnboardingPreferences(saved);
       setOnboardingDismissed(false);
     }
-  };
+  }, [isReadOnly, currentUser.id]);
 
-  const skipOnboarding = () => {
+  const skipOnboarding = useCallback(() => {
     if (isReadOnly) return;
     if (!currentUser.id) return;
     dismissOnboarding(currentUser.id);
     setOnboardingDismissed(true);
-  };
+  }, [isReadOnly, currentUser.id]);
 
-  const deleteRecommendation = async (id: string) => {
+  const deleteRecommendation = useCallback(async (id: string) => {
     if (isReadOnly) return;
     const { error } = await supabase.from('recommendations').delete().eq('id', id);
     if (error) console.error('deleteRecommendation:', error.message);
-  };
+  }, [isReadOnly]);
 
-  const editRecommendation = async (
+  const editRecommendation = useCallback(async (
     id: string,
     updates: Pick<Recommendation, 'message' | 'discussion_enabled' | 'visibility'>
   ) => {
@@ -212,9 +212,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return data ? toRecommendation(data) : null;
-  };
+  }, [isReadOnly]);
 
-  const toggleInteraction = async (recommendationId: string, type: 'support' | 'oppose') => {
+  const toggleInteraction = useCallback(async (recommendationId: string, type: 'support' | 'oppose') => {
     if (isReadOnly) return null;
 
     const { data: existing } = await supabase
@@ -262,9 +262,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return data ? toInteraction(data) : null;
-  };
+  }, [isReadOnly, currentUser.id]);
 
-  const addComment = async (recommendationId: string, content: string) => {
+  const addComment = useCallback(async (recommendationId: string, content: string) => {
     if (isReadOnly) return null;
 
     const { data, error } = await supabase
@@ -283,9 +283,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return data ? toComment(data) : null;
-  };
+  }, [isReadOnly, currentUser.id]);
 
-  const updateUserItemStatus = async (itemId: string, status: 'saved' | 'watched' | 'ignored') => {
+  const updateUserItemStatus = useCallback(async (itemId: string, status: 'saved' | 'watched' | 'ignored') => {
     if (isReadOnly) return null;
 
     const previousStatuses = userItemStatuses;
@@ -355,9 +355,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return optimistic;
-  };
+  }, [isReadOnly, currentUser.id, userItemStatuses]);
 
-  const toggleFollow = async (userId: string) => {
+  const toggleFollow = useCallback(async (userId: string) => {
     if (isReadOnly) return;
 
     const previousConnections = connections;
@@ -403,9 +403,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       const nextConnection = toConnection(data);
       setConnections(prev => prev.map(connection => connection.id === tempId ? nextConnection : connection));
     }
-  };
+  }, [isReadOnly, currentUser.id, connections]);
 
-  const addItem = async (item: Item) => {
+  const addItem = useCallback(async (item: Item) => {
     if (isReadOnly) return;
 
     const { error } = await supabase.from('items').upsert({
@@ -417,9 +417,9 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     });
 
     if (error) console.error('addItem:', error.message);
-  };
+  }, [isReadOnly]);
 
-  const updateCurrentUser = async (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar' | 'username'>>) => {
+  const updateCurrentUser = useCallback(async (updates: Partial<Pick<User, 'name' | 'bio' | 'avatar' | 'username'>>) => {
     if (isReadOnly) return 'Entre com uma conta para editar o perfil.';
 
     const previousCurrentUser = currentUser;
@@ -447,33 +447,41 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     }
 
     return null;
-  };
+  }, [isReadOnly, currentUser, users]);
+
+  const contextValue = useMemo(() => ({
+    dataLoading,
+    isGuest,
+    isReadOnly,
+    currentUser,
+    users,
+    connections,
+    userItemStatuses,
+    unreadNotificationsCount,
+    onboardingPreferences,
+    onboardingDismissed,
+    refreshUnreadNotificationsCount,
+    saveOnboarding,
+    skipOnboarding,
+    addRecommendation,
+    deleteRecommendation,
+    editRecommendation,
+    toggleInteraction,
+    addComment,
+    updateUserItemStatus,
+    toggleFollow,
+    addItem,
+    updateCurrentUser,
+  }), [
+    dataLoading, isGuest, isReadOnly, currentUser, users, connections,
+    userItemStatuses, unreadNotificationsCount, onboardingPreferences, onboardingDismissed,
+    refreshUnreadNotificationsCount, saveOnboarding, skipOnboarding,
+    addRecommendation, deleteRecommendation, editRecommendation,
+    toggleInteraction, addComment, updateUserItemStatus, toggleFollow, addItem, updateCurrentUser,
+  ]);
 
   return (
-    <StoreContext.Provider value={{
-      dataLoading,
-      isGuest,
-      isReadOnly,
-      currentUser,
-      users,
-      connections,
-      userItemStatuses,
-      unreadNotificationsCount,
-      onboardingPreferences,
-      onboardingDismissed,
-      refreshUnreadNotificationsCount,
-      saveOnboarding,
-      skipOnboarding,
-      addRecommendation,
-      deleteRecommendation,
-      editRecommendation,
-      toggleInteraction,
-      addComment,
-      updateUserItemStatus,
-      toggleFollow,
-      addItem,
-      updateCurrentUser,
-    }}>
+    <StoreContext.Provider value={contextValue}>
       {children}
     </StoreContext.Provider>
   );

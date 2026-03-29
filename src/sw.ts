@@ -1,7 +1,7 @@
 /// <reference lib="webworker" />
 import { cleanupOutdatedCaches, precacheAndRoute } from 'workbox-precaching';
 import { NavigationRoute, registerRoute } from 'workbox-routing';
-import { CacheFirst, NetworkFirst } from 'workbox-strategies';
+import { CacheFirst, NetworkFirst, StaleWhileRevalidate } from 'workbox-strategies';
 import { ExpirationPlugin } from 'workbox-expiration';
 
 declare const self: ServiceWorkerGlobalScope;
@@ -22,6 +22,14 @@ registerRoute(
   new CacheFirst({
     cacheName: 'avatars',
     plugins: [new ExpirationPlugin({ maxEntries: 100, maxAgeSeconds: 60 * 60 * 24 * 7 })],
+  }),
+);
+
+registerRoute(
+  ({ url }) => url.hostname === 'rtkyfoiwnnzvcohlnfvw.supabase.co' && url.pathname.startsWith('/storage/'),
+  new StaleWhileRevalidate({
+    cacheName: 'supabase-storage',
+    plugins: [new ExpirationPlugin({ maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 7 })],
   }),
 );
 

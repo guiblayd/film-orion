@@ -93,18 +93,18 @@ export function Explore() {
       .map(entry => entry.item);
   }, [friendCards]);
 
-  const recommenders = (itemId: string) => {
-    const ids = [...new Set(
-      friendCards
-        .filter(card => card.item.id === itemId)
-        .map(card => card.fromUser.id)
-    )];
+  const recommendersByItemId = useMemo(() => {
+    const map = new Map<string, User[]>();
+    friendCards.forEach(card => {
+      const list = map.get(card.item.id) ?? [];
+      if (!list.find(u => u.id === card.fromUser.id)) list.push(card.fromUser);
+      map.set(card.item.id, list);
+    });
+    map.forEach((list, key) => map.set(key, list.slice(0, 3)));
+    return map;
+  }, [friendCards]);
 
-    return ids
-      .map(id => users.find(user => user.id === id))
-      .filter((user): user is User => Boolean(user))
-      .slice(0, 3);
-  };
+  const recommenders = (itemId: string) => recommendersByItemId.get(itemId) ?? [];
 
   return (
     <DesktopPage width="wide" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
@@ -189,6 +189,7 @@ function Carousel({
               <img
                 src={item.image}
                 alt={item.title}
+                loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
               />
               {renderOverlay?.(item)}
