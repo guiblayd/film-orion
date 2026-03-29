@@ -379,7 +379,7 @@ export function RecommendationDetail() {
 
                 {recommendation.message ? (
                   <div className="mt-5 border-t border-zinc-800/60 pt-5 lg:mt-7 lg:pt-7">
-                    <p className="text-xs uppercase tracking-[0.22em] text-zinc-500">{COPY.messageLabel}</p>
+                    <p className="text-xs text-zinc-500">{COPY.messageLabel}</p>
                     <p className="mt-3 text-sm italic leading-relaxed text-zinc-300 lg:text-[17px] lg:leading-8">
                       "{recommendation.message}"
                     </p>
@@ -398,7 +398,7 @@ export function RecommendationDetail() {
                   <p className="py-8 text-center text-xs text-zinc-600 lg:py-16 lg:text-base">{COPY.discussionDisabled}</p>
                 ) : (
                   <>
-                    <p className="mb-3 text-[11px] font-medium uppercase tracking-wider text-zinc-600 lg:mb-5">
+                    <p className="mb-3 text-xs text-zinc-600 lg:mb-5">
                       {comments.length > 0 ? `${comments.length} ${COPY.commentSingular}${comments.length > 1 ? 's' : ''}` : COPY.comments}
                     </p>
 
