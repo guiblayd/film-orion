@@ -9,41 +9,40 @@ function urlB64ToUint8Array(base64String: string): Uint8Array {
   return Uint8Array.from([...rawData].map(char => char.charCodeAt(0)));
 }
 
-export async function getPushSubscribed(userId: string): Promise<boolean> {
-  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return false;
-  const { count } = await supabase
-    .from('push_subscriptions')
-    .select('*', { count: 'exact', head: true })
-    .eq('user_id', userId);
-  return (count ?? 0) > 0;
+export function getPushPermission(): NotificationPermission | null {
+  if (typeof Notification === 'undefined') return null;
+  return Notification.permission;
 }
 
-export async function subscribeToPush(userId: string): Promise<void> {
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return;
-  if (!VAPID_PUBLIC_KEY) return;
+export async function subscribeToPush(userId: string): Promise<boolean> {
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false;
+  if (!VAPID_PUBLIC_KEY) return false;
 
-  const permission = await Notification.requestPermission();
-  if (permission !== 'granted') return;
+  try {
+    const registration = await navigator.serviceWorker.ready;
 
-  const registration = await navigator.serviceWorker.ready;
+    let subscription = await registration.pushManager.getSubscription();
+    if (!subscription) {
+      subscription = await registration.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+    }
 
-  let subscription = await registration.pushManager.getSubscription();
-  if (!subscription) {
-    subscription = await registration.pushManager.subscribe({
-      userVisibleOnly: true,
-      applicationServerKey: urlB64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
+    const { endpoint, keys } = subscription.toJSON() as {
+      endpoint: string;
+      keys: { p256dh: string; auth: string };
+    };
+
+    await supabase.from('push_subscriptions').upsert(
+      { user_id: userId, endpoint, p256dh: keys.p256dh, auth: keys.auth },
+      { onConflict: 'user_id,endpoint' },
+    );
+
+    return true;
+  } catch {
+    return false;
   }
-
-  const { endpoint, keys } = subscription.toJSON() as {
-    endpoint: string;
-    keys: { p256dh: string; auth: string };
-  };
-
-  await supabase.from('push_subscriptions').upsert(
-    { user_id: userId, endpoint, p256dh: keys.p256dh, auth: keys.auth },
-    { onConflict: 'user_id,endpoint' },
-  );
 }
 
 export async function unsubscribeFromPush(userId: string): Promise<void> {

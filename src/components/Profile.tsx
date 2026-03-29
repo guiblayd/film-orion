@@ -12,7 +12,7 @@ import { formatUsername, sanitizeUsername, validateUsername } from '../lib/usern
 import { fetchRecommendationCards, RecommendationCardData } from '../services/recommendations';
 import { Database } from '../types/database';
 import { useAuth } from '../contexts/AuthContext';
-import { subscribeToPush, unsubscribeFromPush, getPushSubscribed } from '../lib/push';
+import { subscribeToPush, unsubscribeFromPush, getPushPermission } from '../lib/push';
 
 type Tab = 'received' | 'made' | 'watchlist' | 'watched';
 
@@ -34,18 +34,7 @@ export function Profile() {
   const [uploading, setUploading] = useState(false);
   const [authActionLoading, setAuthActionLoading] = useState<'signout' | 'delete' | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [pushPermission, setPushPermission] = useState<NotificationPermission | null>(
-    typeof Notification !== 'undefined' ? Notification.permission : null,
-  );
-  const [pushSubscribed, setPushSubscribed] = useState(false);
-
-  useEffect(() => {
-    if (currentUser.id) void getPushSubscribed(currentUser.id).then(setPushSubscribed);
-  }, [currentUser.id]);
-
-  useEffect(() => {
-    if (showSettings && currentUser.id) void getPushSubscribed(currentUser.id).then(setPushSubscribed);
-  }, [showSettings, currentUser.id]);
+  const [pushPermission, setPushPermission] = useState<NotificationPermission | null>(getPushPermission);
   const [deleteConfirmation, setDeleteConfirmation] = useState('');
   const [receivedCards, setReceivedCards] = useState<RecommendationCardData[]>([]);
   const [madeCards, setMadeCards] = useState<RecommendationCardData[]>([]);
@@ -620,11 +609,11 @@ export function Profile() {
                       <div className="flex items-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm text-zinc-500 lg:rounded-2xl">
                         <BellOff size={15} /> Bloqueadas — ative nas configurações do browser
                       </div>
-                    ) : pushSubscribed ? (
+                    ) : pushPermission === 'granted' ? (
                       <button
                         onClick={async () => {
                           await unsubscribeFromPush(currentUser.id);
-                          setPushSubscribed(false);
+                          setPushPermission('default');
                         }}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-400 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
                       >
@@ -636,8 +625,7 @@ export function Profile() {
                           const permission = await Notification.requestPermission();
                           setPushPermission(permission);
                           if (permission === 'granted') {
-                            await subscribeToPush(currentUser.id);
-                            setPushSubscribed(true);
+                            void subscribeToPush(currentUser.id);
                           }
                         }}
                         className="flex w-full items-center justify-center gap-2 rounded-xl border border-zinc-700 px-4 py-3 text-sm font-semibold text-zinc-200 transition-colors hover:bg-zinc-800 lg:rounded-2xl"
