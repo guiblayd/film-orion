@@ -62,7 +62,7 @@ export function Feed() {
     <DesktopPage width="stream" className="mx-auto min-h-screen max-w-md bg-zinc-950 pb-20 lg:min-h-0 lg:bg-transparent lg:pb-0">
       <header className="sticky top-0 z-10 border-b border-zinc-800/50 bg-zinc-950/80 backdrop-blur-xl lg:static lg:border-b-0 lg:bg-transparent lg:backdrop-blur-none">
         <div className="px-4 py-3 lg:px-0 lg:py-0">
-          <div className="lg:hidden">
+          <div className="lg:hidden flex justify-center">
             <h1 className="text-xl font-semibold tracking-tight text-zinc-100">FilmOrion</h1>
           </div>
           <DesktopPageHeader

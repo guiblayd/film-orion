@@ -72,18 +72,17 @@ function NavigationLink({
     >
       {({ isActive }) => (
         <div className={cn(
-          'min-w-[56px] px-2 py-2 rounded-xl flex flex-col items-center justify-center gap-1 transition-colors',
+          'min-w-[56px] px-2 py-2 rounded-xl flex items-center justify-center transition-colors',
           adminStyle ? 'text-amber-400' : isActive ? 'bg-zinc-900 text-zinc-100' : 'text-inherit'
         )}>
           <div className="relative">
-            <Icon size={20} />
+            <Icon size={22} />
             {badge > 0 && (
               <span className="absolute -top-1.5 -right-2 min-w-[18px] h-[18px] px-1 rounded-full bg-rose-500 text-[10px] leading-[18px] text-white font-bold text-center">
                 {badge > 9 ? '9+' : badge}
               </span>
             )}
           </div>
-          <span className="text-[10px] font-semibold leading-none">{label}</span>
         </div>
       )}
     </NavLink>
