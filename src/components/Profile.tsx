@@ -268,6 +268,7 @@ export function Profile() {
 
   const deletePhrase = formatUsername(currentUser.username);
   const deleteConfirmed = deleteConfirmation.trim() === deletePhrase;
+  const recommendationCount = madeCards.length;
 
   const activeTabContent = (
     <>
@@ -337,7 +338,7 @@ export function Profile() {
         <div className="min-w-0 text-left">
           <h1 className="truncate text-sm font-medium text-zinc-100 lg:text-[30px] lg:tracking-tight">{user.name}</h1>
           <p className="truncate text-[11px] text-zinc-500 lg:mt-1 lg:text-sm">
-            {isOwnProfile ? `${receivedCards.length} indica\u00e7\u00f5es` : formatUsername(user.username)}
+            {isOwnProfile ? `${recommendationCount} indica\u00e7\u00f5es` : formatUsername(user.username)}
           </p>
         </div>
         {isOwnProfile && !isGuest ? (
@@ -358,7 +359,7 @@ export function Profile() {
           />
           <div className="flex flex-1 justify-around text-center">
             <div>
-              <p className="text-base font-semibold text-zinc-100">{receivedCards.length}</p>
+              <p className="text-base font-semibold text-zinc-100">{recommendationCount}</p>
               <p className="text-[11px] text-zinc-500">{'Indica\u00e7\u00f5es'}</p>
             </div>
             <div>
@@ -420,7 +421,7 @@ export function Profile() {
             </div>
 
             <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2 text-sm text-zinc-500 lg:mt-5 lg:text-[15px]">
-              <span><span className="font-semibold text-zinc-100">{receivedCards.length}</span>{' indica\u00e7\u00f5es'}</span>
+              <span><span className="font-semibold text-zinc-100">{recommendationCount}</span>{' indica\u00e7\u00f5es'}</span>
               <span><span className="font-semibold text-zinc-100">{followersCount}</span> seguidores</span>
               <span><span className="font-semibold text-zinc-100">{followingCount}</span> seguindo</span>
             </div>
