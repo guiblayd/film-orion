@@ -24,13 +24,27 @@ export type RecommendationCardData = {
   comments: RecommendationComment[];
 };
 
+type ItemRow = Database['public']['Tables']['items']['Row'];
+type InteractionRow = Database['public']['Tables']['recommendation_interactions']['Row'];
+type CommentRow = Database['public']['Tables']['comments']['Row'];
+type RecommendationRow = Database['public']['Tables']['recommendations']['Row'];
+
+type RawRecommendation = RecommendationRow & {
+  item: ItemRow | null;
+  recommendation_interactions: InteractionRow[];
+  comments: CommentRow[];
+};
+
+// Single round-trip: embeds items, interactions and comments directly
+const REC_SELECT = `*, item:items(*), recommendation_interactions(*), comments(*)`;
+
 export async function fetchRecommendationCards(
   users: User[],
   options: RecommendationQueryOptions = {}
 ): Promise<RecommendationCardData[]> {
   let query = supabase
     .from('recommendations')
-    .select('*')
+    .select(REC_SELECT)
     .order('created_at', { ascending: false });
 
   if (options.fromUserId) query = query.eq('from_user_id', options.fromUserId);
@@ -38,28 +52,28 @@ export async function fetchRecommendationCards(
   if (options.itemId) query = query.eq('item_id', options.itemId);
   if (options.limit) query = query.limit(options.limit);
 
-  const { data: recommendations, error } = await query;
+  const { data, error } = await query;
   if (error) {
     console.error('fetchRecommendationCards:', error.message);
     return [];
   }
 
-  return buildRecommendationCards((recommendations ?? []).map(toRecommendation), users);
+  return buildFromRaw((data ?? []) as unknown as RawRecommendation[], users);
 }
 
 export async function fetchRecommendationCardById(id: string, users: User[]) {
-  const { data: recommendation, error } = await supabase
+  const { data, error } = await supabase
     .from('recommendations')
-    .select('*')
+    .select(REC_SELECT)
     .eq('id', id)
     .maybeSingle();
 
-  if (error || !recommendation) {
+  if (error || !data) {
     if (error) console.error('fetchRecommendationCardById:', error.message);
     return null;
   }
 
-  const [card] = await buildRecommendationCards([toRecommendation(recommendation)], users);
+  const [card] = buildFromRaw([data as unknown as RawRecommendation], users);
   return card ?? null;
 }
 
@@ -94,75 +108,46 @@ export async function fetchItemsByIds(ids: string[]) {
   return (data ?? []).map(toItem);
 }
 
-async function buildRecommendationCards(recommendations: Recommendation[], users: User[]) {
-  if (recommendations.length === 0) return [];
+// Sync: processes already-fetched embedded data — no extra network calls
+function buildFromRaw(raws: RawRecommendation[], users: User[]): RecommendationCardData[] {
+  if (raws.length === 0) return [];
 
-  const recommendationIds = recommendations.map(recommendation => recommendation.id);
-  const itemIds = [...new Set(recommendations.map(recommendation => recommendation.item_id))];
+  const usersById = new Map(users.map(user => [user.id, user]));
 
-  const [{ data: items }, { data: interactions }, { data: comments }] = await Promise.all([
-    supabase.from('items').select('*').in('id', itemIds),
-    supabase.from('recommendation_interactions').select('*').in('recommendation_id', recommendationIds),
-    supabase
-      .from('comments')
-      .select('*')
-      .in('recommendation_id', recommendationIds)
-      .order('created_at', { ascending: true }),
-  ]);
+  return raws.flatMap(raw => {
+    const fromUser = usersById.get(raw.from_user_id);
+    const toUser = usersById.get(raw.to_user_id);
+    if (!fromUser || !toUser || !raw.item) return [];
 
-  const usersById = new Map(users.map(user => [user.id, user] as const));
-  const itemsById = new Map((items ?? []).map(item => {
-    const nextItem = toItem(item);
-    return [nextItem.id, nextItem] as const;
-  }));
-  const interactionsByRecommendationId = groupBy((interactions ?? []).map(toInteraction), interaction => interaction.recommendation_id);
-  const commentsByRecommendationId = groupBy((comments ?? []).map(toComment), comment => comment.recommendation_id);
-
-  return recommendations.flatMap(recommendation => {
-    const fromUser = usersById.get(recommendation.from_user_id);
-    const toUser = usersById.get(recommendation.to_user_id);
-    const item = itemsById.get(recommendation.item_id);
-
-    if (!fromUser || !toUser || !item) return [];
-
-    const recommendationInteractions = interactionsByRecommendationId.get(recommendation.id) ?? [];
-    const recommendationComments = (commentsByRecommendationId.get(recommendation.id) ?? []).map(comment => ({
-      ...comment,
-      user: usersById.get(comment.user_id) ?? null,
-    }));
+    const item = toItem(raw.item);
+    const interactions = (raw.recommendation_interactions ?? []).map(toInteraction);
+    const comments = (raw.comments ?? [])
+      .slice()
+      .sort((a, b) => a.created_at.localeCompare(b.created_at))
+      .map(c => ({ ...toComment(c), user: usersById.get(c.user_id) ?? null }));
 
     const participantIds = [...new Set([
-      ...recommendationInteractions.map(interaction => interaction.user_id),
-      ...recommendationComments.map(comment => comment.user_id),
+      ...interactions.map(i => i.user_id),
+      ...comments.map(c => c.user_id),
     ])];
 
     return [{
-      recommendation,
+      recommendation: toRecommendation(raw),
       item,
       fromUser,
       toUser,
       participants: participantIds
-        .map(participantId => usersById.get(participantId))
-        .filter((participant): participant is User => Boolean(participant))
+        .map(pid => usersById.get(pid))
+        .filter((u): u is User => Boolean(u))
         .slice(0, 5),
       participantCount: participantIds.length,
-      interactions: recommendationInteractions,
-      comments: recommendationComments,
+      interactions,
+      comments,
     }];
   });
 }
 
-function groupBy<T>(items: T[], getKey: (item: T) => string) {
-  return items.reduce((map, item) => {
-    const key = getKey(item);
-    const current = map.get(key);
-    if (current) current.push(item);
-    else map.set(key, [item]);
-    return map;
-  }, new Map<string, T[]>());
-}
-
-function toItem(item: Database['public']['Tables']['items']['Row']): Item {
+function toItem(item: ItemRow): Item {
   return {
     id: item.id,
     title: item.title,
@@ -172,7 +157,7 @@ function toItem(item: Database['public']['Tables']['items']['Row']): Item {
   };
 }
 
-function toRecommendation(recommendation: Database['public']['Tables']['recommendations']['Row']): Recommendation {
+function toRecommendation(recommendation: RecommendationRow): Recommendation {
   return {
     id: recommendation.id,
     from_user_id: recommendation.from_user_id,
@@ -186,7 +171,7 @@ function toRecommendation(recommendation: Database['public']['Tables']['recommen
   };
 }
 
-function toInteraction(interaction: Database['public']['Tables']['recommendation_interactions']['Row']): RecommendationInteraction {
+function toInteraction(interaction: InteractionRow): RecommendationInteraction {
   return {
     id: interaction.id,
     recommendation_id: interaction.recommendation_id,
@@ -195,7 +180,7 @@ function toInteraction(interaction: Database['public']['Tables']['recommendation
   };
 }
 
-function toComment(comment: Database['public']['Tables']['comments']['Row']): Comment {
+function toComment(comment: CommentRow): Comment {
   return {
     id: comment.id,
     recommendation_id: comment.recommendation_id,

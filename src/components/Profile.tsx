@@ -111,63 +111,56 @@ export function Profile() {
 
     let cancelled = false;
 
-    const loadProfileData = async () => {
+    // Fire count queries immediately and update state as soon as each resolves
+    supabase
+      .from('connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('receiver_id', user.id)
+      .eq('status', 'accepted')
+      .then(({ count }) => { if (!cancelled) setFollowersCount(count ?? 0); });
+
+    supabase
+      .from('connections')
+      .select('*', { count: 'exact', head: true })
+      .eq('requester_id', user.id)
+      .eq('status', 'accepted')
+      .then(({ count }) => { if (!cancelled) setFollowingCount(count ?? 0); });
+
+    // Heavier queries in parallel — statuses embeds items to avoid a second round-trip
+    const loadHeavy = async () => {
       const [
         nextReceivedCards,
         nextMadeCards,
-        { count: nextFollowersCount },
-        { count: nextFollowingCount },
         { data: statuses },
       ] = await Promise.all([
         fetchRecommendationCards(users, { toUserId: user.id }),
         fetchRecommendationCards(users, { fromUserId: user.id }),
         supabase
-          .from('connections')
-          .select('*', { count: 'exact', head: true })
-          .eq('receiver_id', user.id)
-          .eq('status', 'accepted'),
-        supabase
-          .from('connections')
-          .select('*', { count: 'exact', head: true })
-          .eq('requester_id', user.id)
-          .eq('status', 'accepted'),
-        supabase
           .from('user_item_statuses')
-          .select('*')
+          .select('*, item:items(*)')
           .eq('user_id', user.id),
       ]);
 
-      const itemIds = [...new Set((statuses ?? []).map(status => status.item_id))];
-      const { data: items } = itemIds.length > 0
-        ? await supabase.from('items').select('*').in('id', itemIds)
-        : { data: [] as Item[] };
-
-      const itemsById = new Map((items ?? []).map(item => {
-        const nextItem = toItem(item);
-        return [nextItem.id, nextItem] as const;
-      }));
-
-      const nextWatchlistItems = (statuses ?? [])
-        .filter(status => status.status === 'saved')
-        .map(status => itemsById.get(status.item_id))
-        .filter((item): item is Item => Boolean(item));
-
-      const nextWatchedItems = (statuses ?? [])
-        .filter(status => status.status === 'watched')
-        .map(status => itemsById.get(status.item_id))
-        .filter((item): item is Item => Boolean(item));
-
       if (cancelled) return;
+
+      type StatusWithItem = { status: string; item_id: string; item: Database['public']['Tables']['items']['Row'] | null };
+      const typedStatuses = (statuses ?? []) as unknown as StatusWithItem[];
+
+      const nextWatchlistItems = typedStatuses
+        .filter(s => s.status === 'saved' && s.item)
+        .map(s => toItem(s.item!));
+
+      const nextWatchedItems = typedStatuses
+        .filter(s => s.status === 'watched' && s.item)
+        .map(s => toItem(s.item!));
 
       setReceivedCards(nextReceivedCards);
       setMadeCards(nextMadeCards);
-      setFollowersCount(nextFollowersCount ?? 0);
-      setFollowingCount(nextFollowingCount ?? 0);
       setWatchlistItems(nextWatchlistItems);
       setWatchedItems(nextWatchedItems);
     };
 
-    void loadProfileData();
+    void loadHeavy();
     return () => {
       cancelled = true;
     };
